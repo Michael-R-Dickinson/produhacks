@@ -21,10 +21,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest", "pytest-asyncio", "httpx"]
 
-[tool.setuptools.packages.find]
-where = [".."]
-include = ["agents*"]
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]
+testpaths = ["agents/tests"]

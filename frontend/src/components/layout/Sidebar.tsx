@@ -10,11 +10,11 @@ export default function Sidebar() {
             <div className="sidebar-brand">
                 <img
                     src="/brain-logo.png"
-                    alt="InvestorSwarm"
+                    alt="Wealth Council"
                     style={{ width: 36, height: 36, objectFit: 'contain' }}
                 />
                 <div>
-                    <h1>InvestorSwarm</h1>
+                    <h1>Wealth Council</h1>
                     <span>{Object.values(state.agentStatuses).filter((s) => s === "working").length} agents active</span>
                 </div>
             </div>

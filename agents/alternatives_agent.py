@@ -161,12 +161,7 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
 
         push_sse_event(SSEEvent.agent_thought(agent_id, "Pulling crypto prices from CoinGecko..."))
 
-        crypto_prices, change_7d = await asyncio.gather(
-            fetch_crypto_prices(CRYPTO_TICKERS),
-            return_exceptions=False,
-        )
-        # asyncio.gather with a single coroutine that returns a tuple
-        prices, changes = crypto_prices
+        prices, change_7d = await fetch_crypto_prices(CRYPTO_TICKERS)
 
         btc_dominance, commodities = await asyncio.gather(
             fetch_btc_dominance(),
@@ -174,7 +169,7 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
         )
 
         btc_price = prices.get("BTC", 0.0)
-        btc_7d = changes.get("BTC", 0.0)
+        btc_7d = change_7d.get("BTC", 0.0)
         btc_signal = trend_signal(btc_7d)
         push_sse_event(SSEEvent.agent_thought(
             agent_id,
@@ -221,7 +216,7 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
             f"Gold-portfolio {cross_correlations.get('GOLD', 0.0):.2f}",
         ))
 
-        trend_signals = {ticker: trend_signal(chg) for ticker, chg in changes.items()}
+        trend_signals = {ticker: trend_signal(chg) for ticker, chg in change_7d.items()}
 
         response = AlternativesResponse(
             crypto_prices=prices,

@@ -20,6 +20,8 @@ from agents.models.requests import (
 
 class ReportResponse(UAgentModel):
     status: str
+
+
 from agents.models.responses import (
     AlternativesResponse,
     ModelResponse,

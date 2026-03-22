@@ -82,6 +82,30 @@ async def test_trigger_returns_200():
 
 
 @pytest.mark.asyncio
+async def test_api_report_generate_returns_200():
+    """POST /api/report/generate matches ARCHITECTURE.md naming."""
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/report/generate")
+    assert response.status_code == 200
+    assert response.json() == {"status": "triggered"}
+
+
+@pytest.mark.asyncio
+async def test_api_report_stream_options_pna():
+    """CORS preflight for /api/report/stream."""
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.options(
+            "/api/report/stream",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Private-Network": "true",
+            },
+        )
+    assert response.headers.get("access-control-allow-private-network") == "true"
+
+
+@pytest.mark.asyncio
 async def test_event_delivered():
     """push_sse_event() enqueues a typed SSEEvent retrievable from the queue."""
     from agents.models.events import SSEEvent

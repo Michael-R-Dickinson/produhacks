@@ -318,7 +318,7 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
         message: {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: `Based on the current swarm intelligence synthesis, here's what I found regarding "${message}":\n\nThe Portfolio Alpha engine indicates your current holdings are weighted 42% toward Technology, with a portfolio beta of 1.12. The Sentiment Engine reports mixed signals — NVDA is strongly bullish (0.91) while JPM shows bearish sentiment (-0.48) due to commercial real estate concerns.\n\nWould you like me to run a deeper analysis on any specific holding?`,
+          content: `Based on the current swarm intelligence synthesis, here's what I found regarding "${message}":\n\nThe Portfolio Analyzer indicates your current holdings are weighted 42% toward Technology, with a portfolio beta of 1.12. The News Scraper reports mixed signals — NVDA is strongly bullish (0.91) while JPM shows bearish sentiment (-0.48) due to commercial real estate concerns.\n\nWould you like me to run a deeper analysis on any specific holding?`,
           agents: ["orchestrator", "portfolio", "news"],
         },
       })

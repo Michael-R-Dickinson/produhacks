@@ -9,8 +9,9 @@ import {
 } from "lucide-react"
 import { useSwarm } from "../../context/SwarmContext"
 import { AGENTS } from "../../schemas/events"
-import type { AgentId } from "../../schemas/events"
+import type { AgentId, AgentMeta } from "../../schemas/events"
 import type { AgentMessage } from "../../context/SwarmContext"
+import AgentDetailModal from "./AgentDetailModal"
 
 const iconMap: Record<string, React.ReactNode> = {
   brain: <Brain size={18} />,
@@ -48,6 +49,7 @@ export default function AgentGraph({
   const { state } = useSwarm()
   const containerRef = useRef<HTMLDivElement>(null)
   const [edgeHover, setEdgeHover] = useState<EdgeHover | null>(null)
+  const [selectedAgent, setSelectedAgent] = useState<AgentMeta | null>(null)
 
   const agentList = AGENTS.filter((a) => a.id !== "orchestrator")
 
@@ -202,8 +204,6 @@ export default function AgentGraph({
             key={agent.id}
             className={`agent-card ${status === "working" ? "agent-card--active" : ""} ${status === "done" ? "agent-card--done" : ""} ${isOrch ? "agent-card--orchestrator" : ""}`}
             style={{
-              //background: "radial-gradient(var(--border-default) 1px, transparent 1px), radial-gradient(circle at 50% 50%, #f0f4ff 0%, var(--bg-card) 70%)",
-
               left: `${pos.x}%`,
               top: `${pos.y}%`,
               transform: "translate(-50%, -50%)",
@@ -212,7 +212,9 @@ export default function AgentGraph({
                 status === "working" || status === "done"
                   ? agent.color
                   : undefined,
+              cursor: "pointer",
             }}
+            onClick={() => setSelectedAgent(agent)}
           >
             <div
               className="agent-card__floater"
@@ -308,6 +310,16 @@ export default function AgentGraph({
           <FileText size={14} />
           Report ready
         </button>
+      )}
+
+      {/* Agent detail modal */}
+      {selectedAgent && (
+        <AgentDetailModal
+          agent={selectedAgent}
+          state={state}
+          agents={AGENTS}
+          onClose={() => setSelectedAgent(null)}
+        />
       )}
 
       {/* Edge hover tooltip - shows message info */}

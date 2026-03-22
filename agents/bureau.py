@@ -14,7 +14,7 @@ def start_bureau(agents: list, fastapi_loop: asyncio.AbstractEventLoop, event_qu
     for agent in agents:
         bureau.add(agent)
 
-    # Inject references so push_event() can cross loops
+    # Inject references so push_sse_event() can cross loops
     import agents.bridge.events as ev
     ev._fastapi_loop = fastapi_loop
     ev._event_queue = event_queue

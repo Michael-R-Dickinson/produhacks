@@ -1,44 +1,14 @@
-from uagents import Model
+"""Re-exports: prefer domain modules under ``agents.models``."""
 
+from agents.models.alternatives import AlternativesResponse
+from agents.models.modeling import ChartOutput, ModelResponse
+from agents.models.news import NewsResponse
+from agents.models.portfolio import PortfolioResponse
 
-class PortfolioResponse(Model):
-    """Portfolio Agent -> Orchestrator"""
-    sector_allocation: dict[str, float]
-    top_holdings: list[dict]
-    herfindahl_index: float
-    portfolio_beta: float
-    correlation_matrix: dict[str, dict[str, float]]
-
-
-class NewsResponse(Model):
-    """News Agent -> Orchestrator"""
-    headlines: list[dict]
-    aggregate_sentiment: dict[str, float]
-    overall_sentiment: float
-
-
-class ChartOutput(Model):
-    """Single chart produced by the modeling agent"""
-    chart_type: str
-    title: str
-    image_base64: str
-    summary: str
-
-
-class ModelResponse(Model):
-    """Modeling Agent -> Orchestrator"""
-    holdings_analyzed: list[str]
-    sharpe_ratio: float
-    volatility: float
-    trend_slope: float
-    charts: list[ChartOutput]
-    metrics: dict[str, float]
-
-
-class AlternativesResponse(Model):
-    """Alternatives Agent -> Orchestrator"""
-    crypto_prices: dict[str, float]
-    cross_correlations: dict[str, float]
-    trend_signals: dict[str, str]
-    btc_dominance: float
-    commodities: dict[str, float]
+__all__ = [
+    "AlternativesResponse",
+    "ChartOutput",
+    "ModelResponse",
+    "NewsResponse",
+    "PortfolioResponse",
+]

@@ -24,6 +24,15 @@ def test_mock_model_returns_model_response():
     assert isinstance(result, ModelResponse)
     assert result.sharpe_ratio > 0
     assert result.volatility > 0
+    assert len(result.charts) == 5
+    assert {c.chart_type for c in result.charts} == {
+        "regression",
+        "correlation_matrix",
+        "sector_performance",
+        "volatility_cone",
+        "price_history",
+    }
+    assert result.metrics.get("r_squared") is not None
 
 
 def test_mock_alternatives_returns_alternatives_response():

@@ -226,10 +226,24 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
             commodities=commodities,
         )
 
+    bullish = [t for t, s in response.trend_signals.items() if s == "bullish"]
+    bearish = [t for t, s in response.trend_signals.items() if s == "bearish"]
+    trend_summary = []
+    if bullish:
+        trend_summary.append(f"{len(bullish)} bullish ({', '.join(bullish)})")
+    if bearish:
+        trend_summary.append(f"{len(bearish)} bearish ({', '.join(bearish)})")
+    desc = (
+        f"BTC dominance {response.btc_dominance:.1f}%; "
+        f"{len(response.crypto_prices)} crypto, {len(response.commodities)} commodities; "
+        + ("; ".join(trend_summary) if trend_summary else "neutral trends")
+    )
+
     push_sse_event(SSEEvent.agent_thought(agent_id, "Analysis complete."))
     push_sse_event(SSEEvent.agent_message(
         agent_id, from_agent=agent_id, to_agent="orchestrator",
-        title="AlternativesResponse", direction=MessageDirection.RESPONSE,
+        title="AlternativesResponse", description=desc,
+        direction=MessageDirection.RESPONSE,
     ))
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 

@@ -159,10 +159,20 @@ async def handle_analyze_portfolio(ctx: Context, sender: str, msg: AnalyzePortfo
             correlation_matrix=correlation_matrix,
         )
 
+    top_sector = max(sector_allocation, key=sector_allocation.get)
+    top_pct = sector_allocation[top_sector]
+    desc = (
+        f"Beta {response.portfolio_beta:.2f}; "
+        f"HHI {response.herfindahl_index:.3f}; "
+        f"top sector {top_sector} ({top_pct:.0%}); "
+        f"{len(response.top_holdings)} top holdings"
+    )
+
     push_sse_event(SSEEvent.agent_thought(agent_id, "Analysis complete."))
     push_sse_event(SSEEvent.agent_message(
         agent_id, from_agent=agent_id, to_agent="orchestrator",
-        title="PortfolioResponse", direction=MessageDirection.RESPONSE,
+        title="PortfolioResponse", description=desc,
+        direction=MessageDirection.RESPONSE,
     ))
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 

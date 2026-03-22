@@ -5,6 +5,7 @@ import {
   useReducer,
   useCallback,
   useRef,
+  useEffect,
   type ReactNode,
 } from "react"
 import { connectSSE } from "../services/sse"
@@ -234,14 +235,57 @@ interface SwarmContextValue {
 
 const SwarmContext = createContext<SwarmContextValue | null>(null)
 
+const EVENT_BUFFER_INTERVAL_MS = 500
+
 export function SwarmProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const sseCleanupRef = useRef<(() => void) | null>(null)
+  const eventQueueRef = useRef<SSEEvent[]>([])
+  const drainTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Start/stop the drain loop
+  const startDrain = useCallback(() => {
+    if (drainTimerRef.current) return
+    drainTimerRef.current = setInterval(() => {
+      const next = eventQueueRef.current.shift()
+      if (next) {
+        dispatch({ type: "SSE_EVENT", event: next })
+      }
+    }, EVENT_BUFFER_INTERVAL_MS)
+  }, [])
+
+  const stopDrain = useCallback(() => {
+    if (drainTimerRef.current) {
+      clearInterval(drainTimerRef.current)
+      drainTimerRef.current = null
+    }
+  }, [])
+
+  // Flush remaining events and stop on unmount
+  useEffect(() => {
+    return () => {
+      stopDrain()
+      for (const evt of eventQueueRef.current) {
+        dispatch({ type: "SSE_EVENT", event: evt })
+      }
+      eventQueueRef.current = []
+    }
+  }, [stopDrain])
+
+  const enqueueEvent = useCallback(
+    (event: SSEEvent) => {
+      eventQueueRef.current.push(event)
+      startDrain()
+    },
+    [startDrain],
+  )
 
   const triggerReport = useCallback(() => {
-    // Clean up any existing SSE connection
+    // Clean up any existing SSE connection and buffer
     sseCleanupRef.current?.()
     sseCleanupRef.current = null
+    stopDrain()
+    eventQueueRef.current = []
 
     dispatch({ type: "TRIGGER_REPORT" })
 
@@ -257,11 +301,9 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
     // Connect SSE after a brief delay to let backend start streaming
     setTimeout(() => {
       dispatch({ type: "SET_CONNECTED", connected: true })
-      sseCleanupRef.current = connectSSE((event) => {
-        dispatch({ type: "SSE_EVENT", event })
-      })
+      sseCleanupRef.current = connectSSE(enqueueEvent)
     }, 100)
-  }, [])
+  }, [enqueueEvent, stopDrain])
 
   const sendChat = useCallback((message: string) => {
     dispatch({
@@ -276,7 +318,7 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
         message: {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: `Based on the current swarm intelligence synthesis, here's what I found regarding "${message}":\n\nThe Portfolio Alpha engine indicates your current holdings are weighted 42% toward Technology, with a portfolio beta of 1.12. The Sentiment Engine reports mixed signals — NVDA is strongly bullish (0.91) while JPM shows bearish sentiment (-0.48) due to commercial real estate concerns.\n\nWould you like me to run a deeper analysis on any specific holding?`,
+          content: `Based on the current swarm intelligence synthesis, here's what I found regarding "${message}":\n\nThe Portfolio Analyzer indicates your current holdings are weighted 42% toward Technology, with a portfolio beta of 1.12. The News Scraper reports mixed signals — NVDA is strongly bullish (0.91) while JPM shows bearish sentiment (-0.48) due to commercial real estate concerns.\n\nWould you like me to run a deeper analysis on any specific holding?`,
           agents: ["orchestrator", "portfolio", "news"],
         },
       })

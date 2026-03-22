@@ -1,10 +1,11 @@
 import { useState } from "react";
 import AgentGraph from "../components/report/AgentGraph";
+import ReportChat from "../components/report/ReportChat";
 import ReportView from "../components/report/ReportView";
 import { useSwarm } from "../context/SwarmContext";
 import { Zap } from "lucide-react";
 
-type PagePhase = "empty" | "generating" | "complete";
+type PagePhase = "empty" | "generating" | "ready" | "complete";
 
 const KNOWLEDGE_LABELS = ["Beginner", "Intermediate", "Advanced", "Professional", "Expert"] as const;
 
@@ -12,8 +13,10 @@ function getPagePhase(state: {
     executiveSummary: string | null;
     agentStatuses: Record<string, string>;
     reportTriggered: boolean;
-}): PagePhase {
-    if (state.executiveSummary !== null) return "complete";
+}, userDismissed: boolean): PagePhase {
+    if (state.executiveSummary !== null) {
+        return userDismissed ? "complete" : "ready";
+    }
     const anyActive = Object.values(state.agentStatuses).some(
         (s) => s === "working" || s === "done"
     );
@@ -24,8 +27,9 @@ function getPagePhase(state: {
 export default function DailyReport() {
     const { state, triggerReport } = useSwarm();
     const [knowledgeLevel, setKnowledgeLevel] = useState(2);
+    const [userDismissed, setUserDismissed] = useState(false);
 
-    const phase = getPagePhase(state);
+    const phase = getPagePhase(state, userDismissed);
     const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
     return (
@@ -91,7 +95,10 @@ export default function DailyReport() {
                     overflow: "hidden",
                     transition: "height 500ms ease-in-out",
                 }}>
-                    <AgentGraph />
+                    <AgentGraph
+                        reportReady={phase === "ready"}
+                        onViewReport={() => setUserDismissed(true)}
+                    />
                 </div>
             )}
 
@@ -109,6 +116,7 @@ export default function DailyReport() {
                         {today}
                     </div>
                     <ReportView />
+                    <ReportChat reportMarkdown={state.executiveSummary ?? ""} />
                 </div>
             )}
         </div>

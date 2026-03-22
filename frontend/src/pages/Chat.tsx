@@ -43,7 +43,7 @@ export default function Chat() {
                             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--accent-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 <Zap size={28} style={{ color: "var(--accent)" }} />
                             </div>
-                            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Ask InvestorSwarm anything</div>
+                            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Ask Wealth Council anything</div>
                             <div style={{ fontSize: 13, color: "var(--text-tertiary)", textAlign: "center", maxWidth: 400 }}>
                                 Your question will be routed to the relevant specialist agents. Try one of the suggestions below.
                             </div>

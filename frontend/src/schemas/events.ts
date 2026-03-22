@@ -13,26 +13,10 @@ export type AgentId = z.infer<typeof AgentId>;
 export const AgentStatus = z.enum(["idle", "working", "done", "error"]);
 export type AgentStatus = z.infer<typeof AgentStatus>;
 
-/* ── SSE Event Types ────────────────────────────── */
+export const MessageDirection = z.enum(["request", "response"]);
+export type MessageDirection = z.infer<typeof MessageDirection>;
 
-/** Agent status change */
-export const StatusEvent = z.object({
-  agent_id: AgentId,
-  type: z.literal("status"),
-  status: AgentStatus,
-});
-export type StatusEvent = z.infer<typeof StatusEvent>;
-
-/** Agent thought / activity log */
-export const ThoughtEvent = z.object({
-  agent_id: AgentId,
-  type: z.literal("thought"),
-  text: z.string(),
-  timestamp: z.string().optional(),
-});
-export type ThoughtEvent = z.infer<typeof ThoughtEvent>;
-
-/* ── Agent Response Payloads ────────────────────── */
+/* ── Shared data schemas ─────────────────────────── */
 
 export const HoldingSchema = z.object({
   ticker: z.string(),
@@ -88,59 +72,115 @@ export const AlternativesData = z.object({
 });
 export type AlternativesData = z.infer<typeof AlternativesData>;
 
-/** Report section delivered via SSE */
-export const ReportSectionEvent = z.object({
-  agent_id: AgentId,
-  type: z.literal("report_section"),
-  section: z.enum(["portfolio", "news", "modeling", "alternatives", "executive_summary"]),
-  data: z.union([PortfolioData, NewsData, ModelingData, AlternativesData, z.object({ summary: z.string() })]),
+/* ── Wire format (matches backend SSEEvent envelope) ── */
+
+export const EventType = z.enum([
+  "agent.status",
+  "agent.thought",
+  "agent.message",
+  "report.chunk",
+  "report.complete",
+  "chat.response",
+]);
+export type EventType = z.infer<typeof EventType>;
+
+export const AgentStatusPayload = z.object({
+  status: AgentStatus,
+  message: z.string().optional().default(""),
 });
-export type ReportSectionEvent = z.infer<typeof ReportSectionEvent>;
 
-/** Chat response token (streamed) */
-export const ChatTokenEvent = z.object({
-  agent_id: AgentId,
-  type: z.literal("chat_response"),
-  token: z.string(),
-  done: z.boolean(),
+export const AgentThoughtPayload = z.object({
+  text: z.string(),
 });
-export type ChatTokenEvent = z.infer<typeof ChatTokenEvent>;
 
-/** Swarm-wide health */
-export const SwarmHealthEvent = z.object({
-  agent_id: z.literal("orchestrator"),
-  type: z.literal("swarm_health"),
-  active_agents: z.number(),
-  signals_per_min: z.number(),
-  processing_power: z.number(),
-});
-export type SwarmHealthEvent = z.infer<typeof SwarmHealthEvent>;
-
-/** Agent-to-agent message */
-export const MessageDirection = z.enum(["request", "response"]);
-export type MessageDirection = z.infer<typeof MessageDirection>;
-
-export const AgentMessageEvent = z.object({
-  agent_id: AgentId,
-  type: z.literal("agent_message"),
+export const AgentMessagePayload = z.object({
   from: AgentId,
   to: AgentId,
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional().default(""),
   direction: MessageDirection,
 });
-export type AgentMessageEvent = z.infer<typeof AgentMessageEvent>;
 
-/** Union of all SSE events */
-export const SSEEvent = z.discriminatedUnion("type", [
-  StatusEvent,
-  ThoughtEvent,
-  ReportSectionEvent,
-  ChatTokenEvent,
-  SwarmHealthEvent,
-  AgentMessageEvent,
-]);
-export type SSEEvent = z.infer<typeof SSEEvent>;
+export const ReportChunkPayload = z.object({
+  content: z.string(),
+  section: z.string(),
+  final: z.boolean().optional().default(false),
+});
+
+export const ReportCompletePayload = z.object({
+  markdown: z.string(),
+  charts: z.array(z.record(z.string(), z.unknown())).optional().default([]),
+});
+
+export const ChatResponsePayload = z.object({
+  text: z.string(),
+  final: z.boolean().optional().default(false),
+});
+
+/** The envelope the backend actually sends over SSE */
+export const SSEWireEvent = z.object({
+  event_id: z.string(),
+  timestamp: z.number(),
+  agent_id: z.string(),
+  event_type: EventType,
+  payload: z.record(z.string(), z.unknown()),
+});
+export type SSEWireEvent = z.infer<typeof SSEWireEvent>;
+
+/* ── Internal flat types (used by reducer & mock SSE) ── */
+
+export type StatusEvent = {
+  agent_id: AgentId;
+  type: "status";
+  status: AgentStatus;
+};
+
+export type ThoughtEvent = {
+  agent_id: AgentId;
+  type: "thought";
+  text: string;
+  timestamp?: string;
+};
+
+export type ReportSectionEvent = {
+  agent_id: AgentId;
+  type: "report_section";
+  section: "portfolio" | "news" | "modeling" | "alternatives" | "executive_summary";
+  data: PortfolioData | NewsData | ModelingData | AlternativesData | { summary: string };
+};
+
+export type ChatTokenEvent = {
+  agent_id: AgentId;
+  type: "chat_response";
+  token: string;
+  done: boolean;
+};
+
+export type SwarmHealthEvent = {
+  agent_id: "orchestrator";
+  type: "swarm_health";
+  active_agents: number;
+  signals_per_min: number;
+  processing_power: number;
+};
+
+export type AgentMessageEvent = {
+  agent_id: AgentId;
+  type: "agent_message";
+  from: AgentId;
+  to: AgentId;
+  title: string;
+  description: string;
+  direction: MessageDirection;
+};
+
+export type SSEEvent =
+  | StatusEvent
+  | ThoughtEvent
+  | ReportSectionEvent
+  | ChatTokenEvent
+  | SwarmHealthEvent
+  | AgentMessageEvent;
 
 /* ── Agent metadata (for UI rendering) ──────────── */
 export interface AgentMeta {

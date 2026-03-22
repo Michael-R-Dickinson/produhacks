@@ -1,90 +1,78 @@
+import AgentGraph from "../components/report/AgentGraph";
+import ReportView from "../components/report/ReportView";
 import { useSwarm } from "../context/SwarmContext";
-import ExecutiveSummary from "../components/report/ExecutiveSummary";
-import PortfolioHealth from "../components/report/PortfolioHealth";
-import MarketSentiment from "../components/report/MarketSentiment";
-import QuantSignals from "../components/report/QuantSignals";
-import IntelligenceFeed from "../components/report/IntelligenceFeed";
-import { Calendar, Download } from "lucide-react";
+import { Zap } from "lucide-react";
+
+type PagePhase = "empty" | "generating" | "complete";
+
+function getPagePhase(state: {
+    executiveSummary: string | null;
+    agentStatuses: Record<string, string>;
+}): PagePhase {
+    if (state.executiveSummary !== null) return "complete";
+    const anyActive = Object.values(state.agentStatuses).some(
+        (s) => s === "working" || s === "done"
+    );
+    return anyActive ? "generating" : "empty";
+}
 
 export default function DailyReport() {
-    const { state } = useSwarm();
+    const { state, triggerReport } = useSwarm();
 
-    const activeCount = Object.values(state.agentStatuses).filter((s) => s === "working").length;
-    const doneCount = Object.values(state.agentStatuses).filter((s) => s === "done").length;
+    const phase = getPagePhase(state);
     const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
     return (
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
-            {/* Page header */}
-            <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                    <div className="page-label">Market Intel · {today}</div>
-                    <h2>The Daily <em style={{ fontStyle: "italic", fontWeight: 700 }}>Intelligence</em> Report.</h2>
-                    <div className="page-header-meta">
-                        <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text-tertiary)" }}>
-                            <Calendar size={12} />
-                            {today}
-                        </span>
-                        {activeCount > 0 && (
-                            <span className="card-badge badge-amber" style={{ fontSize: 10 }}>
-                                {activeCount} agent{activeCount > 1 ? "s" : ""} processing
-                            </span>
-                        )}
-                        {doneCount === 5 && (
-                            <span className="card-badge badge-green" style={{ fontSize: 10 }}>
-                                All agents complete
-                            </span>
-                        )}
+            {phase === "empty" && (
+                <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 400,
+                    gap: 16,
+                }}>
+                    <Zap size={48} style={{ color: "var(--accent)", opacity: 0.5 }} />
+                    <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--text-primary)" }}>
+                        Ready to Analyze
+                    </h2>
+                    <p style={{ fontSize: 14, color: "var(--text-tertiary)", maxWidth: 360, textAlign: "center" }}>
+                        Trigger the agent swarm to analyze your portfolio, scan market news, and generate a comprehensive report.
+                    </p>
+                    <button className="sidebar-cta" onClick={triggerReport} style={{ marginTop: 8 }}>
+                        <Zap size={14} />
+                        Generate Report
+                    </button>
+                </div>
+            )}
+
+            {phase !== "empty" && (
+                <div style={{
+                    height: phase === "complete" ? 0 : 500,
+                    overflow: "hidden",
+                    transition: "height 500ms ease-in-out",
+                }}>
+                    <AgentGraph />
+                </div>
+            )}
+
+            {phase !== "empty" && (
+                <div style={{
+                    opacity: phase === "complete" ? 1 : 0,
+                    transition: "opacity 300ms ease 500ms",
+                    pointerEvents: phase === "complete" ? "auto" : "none",
+                }}>
+                    <div style={{
+                        fontSize: 13,
+                        color: "var(--text-tertiary)",
+                        marginBottom: 24,
+                    }}>
+                        {today}
                     </div>
+                    <ReportView />
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                        style={{
-                            padding: "8px 16px",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            border: "1px solid var(--border-default)",
-                            borderRadius: "var(--radius-sm)",
-                            background: "var(--bg-card)",
-                            color: "var(--text-secondary)",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                        }}
-                    >
-                        <Calendar size={12} /> Archive
-                    </button>
-                    <button
-                        style={{
-                            padding: "8px 16px",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            border: "none",
-                            borderRadius: "var(--radius-sm)",
-                            background: "var(--accent)",
-                            color: "white",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                        }}
-                    >
-                        <Download size={12} /> Download PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* Report sections — each renders from SSE data */}
-            <ExecutiveSummary />
-
-            <div className="grid-2 section-gap">
-                <PortfolioHealth />
-                <MarketSentiment />
-            </div>
-
-            <QuantSignals />
-            <IntelligenceFeed />
+            )}
         </div>
     );
 }

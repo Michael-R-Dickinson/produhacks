@@ -1,5 +1,4 @@
-from agents.models.requests import AnalyzePortfolio, FetchNews, RunModel, AnalyzeAlternatives, ReportRequest
-from agents.models.responses import PortfolioResponse, NewsResponse, ChartOutput, ModelResponse, AlternativesResponse
+from agents.models.alternatives import AlternativesResponse, AnalyzeAlternatives
 from agents.models.events import (
     SSEEvent,
     EventType,
@@ -12,3 +11,7 @@ from agents.models.events import (
     ReportCompletePayload,
     ChatResponsePayload,
 )
+from agents.models.modeling import ChartOutput, ModelResponse, RunModel
+from agents.models.news import FetchNews, NewsResponse
+from agents.models.portfolio import AnalyzePortfolio, PortfolioResponse
+from agents.models.report import ReportRequest

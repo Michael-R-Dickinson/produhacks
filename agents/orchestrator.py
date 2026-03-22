@@ -7,5 +7,5 @@ orchestrator = Agent(
 )
 
 # Phase 1: orchestrator is a stub registered with Bureau for addressability.
-# The FastAPI /trigger endpoint handles dispatch directly via push_event().
+# The FastAPI /trigger endpoint handles dispatch directly via push_sse_event().
 # Phase 2 will implement ctx.send() dispatch from this agent to domain agents.

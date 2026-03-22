@@ -14,3 +14,4 @@ from agents.models.events import (
 from agents.models.modeling import ChartOutput, ModelResponse, RunModel
 from agents.models.news import FetchNews, NewsResponse
 from agents.models.portfolio import AnalyzePortfolio, PortfolioResponse
+from agents.models.report import ReportRequest

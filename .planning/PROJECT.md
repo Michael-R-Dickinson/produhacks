@@ -12,7 +12,8 @@ A single cohesive investment report that synthesizes multiple specialized analys
 
 ### Validated
 
-(None yet -- ship to validate)
+- [x] Multi-agent swarm on fetch.ai agentverse using uAgents library -- Validated in Phase 1: Foundation (5 agents running in Bureau, communicating via bridge)
+- [x] On-demand report generation trigger mechanism -- Validated in Phase 1: Foundation (POST /trigger endpoint working)
 
 ### Active
 
@@ -66,4 +67,9 @@ A single cohesive investment report that synthesizes multiple specialized analys
 | Chat through orchestrator only | Simpler UX, demonstrates agent routing in the graph view | -- Pending |
 
 ---
-*Last updated: 2026-03-21 after initialization*
+## Current State
+
+Phase 1 (Foundation) complete -- three-process architecture running (Bureau on 8006, FastAPI on 8000, SSE bridge), 5 stub agents communicating, mock data mode working, Chrome PNA fix in place. Ready for Phase 2: Agent Pipeline.
+
+---
+*Last updated: 2026-03-22 after Phase 1 completion*

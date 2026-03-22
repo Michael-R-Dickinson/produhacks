@@ -13,3 +13,4 @@ class PortfolioResponse(Model):
     top_holdings: list[dict]
     herfindahl_index: float
     portfolio_beta: float
+    correlation_matrix: dict[str, dict[str, float]]

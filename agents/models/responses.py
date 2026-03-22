@@ -7,6 +7,7 @@ class PortfolioResponse(Model):
     top_holdings: list[dict]
     herfindahl_index: float
     portfolio_beta: float
+    correlation_matrix: dict[str, dict[str, float]]
 
 
 class NewsResponse(Model):
@@ -38,3 +39,6 @@ class AlternativesResponse(Model):
     """Alternatives Agent -> Orchestrator"""
     crypto_prices: dict[str, float]
     cross_correlations: dict[str, float]
+    trend_signals: dict[str, str]
+    btc_dominance: float
+    commodities: dict[str, float]

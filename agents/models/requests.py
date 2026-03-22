@@ -24,3 +24,9 @@ class RunModel(Model):
 class AnalyzeAlternatives(Model):
     """Orchestrator -> Alternatives Agent"""
     mock: bool = False
+
+
+class ReportRequest(Model):
+    """Bridge -> Orchestrator. Triggers full report pipeline."""
+    holdings: list[str]
+    mock: bool = False

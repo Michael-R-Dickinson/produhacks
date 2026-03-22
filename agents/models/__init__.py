@@ -1,4 +1,4 @@
-from agents.models.requests import AnalyzePortfolio, FetchNews, RunModel, AnalyzeAlternatives
+from agents.models.requests import AnalyzePortfolio, FetchNews, RunModel, AnalyzeAlternatives, ReportRequest
 from agents.models.responses import PortfolioResponse, NewsResponse, ChartOutput, ModelResponse, AlternativesResponse
 from agents.models.events import (
     SSEEvent,

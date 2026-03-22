@@ -1,9 +1,13 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Upload, FileText, Zap } from "lucide-react";
+import { useSwarm } from "../context/SwarmContext";
 
 export default function Portfolio() {
     const [holdings, setHoldings] = useState<{ ticker: string; quantity: number; cost: number }[]>([]);
     const [dragging, setDragging] = useState(false);
+    const { triggerReport } = useSwarm();
+    const navigate = useNavigate();
 
     const parseCSV = useCallback((text: string) => {
         const lines = text.trim().split("\n");
@@ -137,8 +141,12 @@ export default function Portfolio() {
                         <button
                             className="sidebar-cta"
                             style={{ margin: 0 }}
+                            onClick={() => {
+                                triggerReport();
+                                navigate("/");
+                            }}
                         >
-                            <AlertCircle size={14} /> Analyze with Swarm
+                            <Zap size={14} /> Analyze with Swarm
                         </button>
                     </div>
                 </div>

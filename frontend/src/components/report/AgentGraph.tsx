@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type JSX } from "react";
 import { Brain, PieChart, Newspaper, TrendingUp, Bitcoin } from "lucide-react";
 import { useSwarm } from "../../context/SwarmContext";
 import { AGENTS } from "../../schemas/events";
@@ -82,7 +82,9 @@ export default function AgentGraph(): JSX.Element {
             ref={containerRef}
             style={{
                 padding: 0,
-                background: "radial-gradient(circle at 50% 50%, #f0f4ff 0%, var(--bg-card) 70%)",
+                background: "radial-gradient(var(--border-default) 1px, transparent 1px), radial-gradient(circle at 50% 50%, #f0f4ff 0%, var(--bg-card) 70%)",
+                backgroundSize: "24px 24px, 100% 100%",
+                backgroundPosition: "0 0, 0 0",
                 position: "relative",
             }}
         >
@@ -166,6 +168,8 @@ export default function AgentGraph(): JSX.Element {
                         key={agent.id}
                         className={`agent-card ${status === "working" ? "agent-card--active" : ""} ${status === "done" ? "agent-card--done" : ""} ${isOrch ? "agent-card--orchestrator" : ""}`}
                         style={{
+                            //background: "radial-gradient(var(--border-default) 1px, transparent 1px), radial-gradient(circle at 50% 50%, #f0f4ff 0%, var(--bg-card) 70%)",
+
                             left: `${pos.x}%`,
                             top: `${pos.y}%`,
                             transform: "translate(-50%, -50%)",

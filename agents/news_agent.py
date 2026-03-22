@@ -1,5 +1,8 @@
 import os
 from datetime import date, timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import httpx
 from uagents import Agent, Context
@@ -16,7 +19,7 @@ MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 news_agent = Agent(
     name="news",
     seed="news-agent-seed-investiswarm",
-    port=NEWS_PORT,
+    port=8014,
 )
 
 # -- FinBERT lazy loader --
@@ -88,10 +91,10 @@ async def fetch_finnhub_headlines(tickers: list[str], api_key: str) -> list[dict
     return combined
 
 
-def filter_headlines_for_tickers(headlines: list[dict], tickers: list[str]) -> list[dict]:
+def filter_headlines_for_tickers(headlines: list[dict], tickers: list[str], k: int = 5) -> list[dict]:
     """
     Keep headlines where any ticker appears in headline text or related field.
-    Tags each kept headline with matched_tickers. Caps at 5 headlines per ticker.
+    Tags each kept headline with matched_tickers. Caps at k headlines per ticker.
     """
     ticker_counts: dict[str, int] = {t: 0 for t in tickers}
     result: list[dict] = []
@@ -109,7 +112,7 @@ def filter_headlines_for_tickers(headlines: list[dict], tickers: list[str]) -> l
             continue
 
         # Apply per-ticker cap — only include headline if at least one ticker is under cap
-        eligible_tickers = [t for t in matched if ticker_counts[t] < 5]
+        eligible_tickers = [t for t in matched if ticker_counts[t] < k]
         if not eligible_tickers:
             continue
 
@@ -180,13 +183,13 @@ async def handle_fetch_news(ctx: Context, sender: str, msg: FetchNews) -> None:
         push_sse_event(SSEEvent.agent_thought(agent_id, f"Fetching news for {msg.tickers}..."))
         response = mock_news_response()
     else:
-        api_key = os.environ["FINNHUB_API_KEY"]
+        api_key = os.environ.get("FINNHUB_API_KEY")
         tickers = msg.tickers
 
         push_sse_event(SSEEvent.agent_thought(agent_id, f"Scanning Finnhub for {len(tickers)} tickers..."))
 
         raw = await fetch_finnhub_headlines(tickers, api_key)
-        filtered = filter_headlines_for_tickers(raw, tickers)
+        filtered = filter_headlines_for_tickers(raw, tickers, getattr(msg, "k", 5))
 
         push_sse_event(SSEEvent.agent_thought(
             agent_id,
@@ -214,6 +217,7 @@ async def handle_fetch_news(ctx: Context, sender: str, msg: FetchNews) -> None:
         headlines_out = [
             {
                 "title": h["headline"],
+                "url": h.get("url", ""),
                 "sentiment": h["sentiment"],
                 "ticker": h["matched_tickers"][0] if h["matched_tickers"] else "",
             }

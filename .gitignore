@@ -9,3 +9,10 @@ dist/
 build/
 .ruff_cache/
 .mypy_cache/
+
+# Dev/test scripts — not for production
+repo_tester.py
+test_client_agent.py
+news_agent.py
+get_addr.py
+messages.py

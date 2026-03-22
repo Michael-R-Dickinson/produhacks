@@ -5,6 +5,7 @@ class FetchNews(Model):
     """Orchestrator -> News Agent"""
     tickers: list[str]
     mock: bool = False
+    k: int = 5
 
 
 class NewsResponse(Model):

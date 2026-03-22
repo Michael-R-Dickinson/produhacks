@@ -10,13 +10,14 @@ from agents.mocks.portfolio import mock_portfolio_response
 from agents.models.events import AgentStatus, MessageDirection, SSEEvent
 from agents.models.requests import AnalyzePortfolio
 from agents.models.responses import PortfolioResponse
+from agents.ports import PORTFOLIO_PORT
 
 MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
 portfolio_agent = Agent(
     name="portfolio",
     seed="portfolio-agent-seed-investiswarm",
-    port=8001,
+    port=PORTFOLIO_PORT,
 )
 
 

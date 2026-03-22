@@ -1,5 +1,11 @@
-from agents.models.requests import AnalyzePortfolio, FetchNews, RunModel, AnalyzeAlternatives
-from agents.models.responses import PortfolioResponse, NewsResponse, ModelResponse, AlternativesResponse
+from agents.models.requests import AnalyzeAlternatives, AnalyzePortfolio, FetchNews, RunModel
+from agents.models.responses import (
+    AlternativesResponse,
+    ChartOutput,
+    ModelResponse,
+    NewsResponse,
+    PortfolioResponse,
+)
 
 
 def test_all_request_models_importable():
@@ -12,6 +18,7 @@ def test_all_request_models_importable():
 def test_all_response_models_importable():
     assert PortfolioResponse is not None
     assert NewsResponse is not None
+    assert ChartOutput is not None
     assert ModelResponse is not None
     assert AlternativesResponse is not None
 
@@ -29,11 +36,13 @@ def test_request_roundtrip_serialization():
     assert reconstructed.tickers == ["AAPL"]
     assert reconstructed.mock is False
 
-    model = RunModel(holdings=["NVDA"], mock=True)
+    model = RunModel(holdings=["NVDA"], mock=True, analyses=["regression"], lookback_days=180)
     data = model.model_dump()
     reconstructed = RunModel(**data)
     assert reconstructed.holdings == ["NVDA"]
     assert reconstructed.mock is True
+    assert reconstructed.analyses == ["regression"]
+    assert reconstructed.lookback_days == 180
 
     alternatives = AnalyzeAlternatives(mock=False)
     data = alternatives.model_dump()
@@ -62,16 +71,26 @@ def test_response_roundtrip_serialization():
     reconstructed = NewsResponse(**data)
     assert reconstructed.overall_sentiment == 0.5
 
+    chart = ChartOutput(
+        chart_type="regression",
+        title="Test",
+        image_base64="AAA",
+        summary="Stub",
+    )
     model_resp = ModelResponse(
+        holdings_analyzed=["NVDA"],
         sharpe_ratio=1.34,
         volatility=0.187,
         trend_slope=0.0023,
-        chart_base64=None,
+        charts=[chart],
+        metrics={"r_squared": 0.5},
     )
     data = model_resp.model_dump()
     reconstructed = ModelResponse(**data)
     assert reconstructed.sharpe_ratio == 1.34
-    assert reconstructed.chart_base64 is None
+    assert len(reconstructed.charts) == 1
+    assert reconstructed.charts[0].chart_type == "regression"
+    assert reconstructed.metrics["r_squared"] == 0.5
 
     alt_resp = AlternativesResponse(
         crypto_prices={"BTC": 67450.0},
@@ -82,16 +101,27 @@ def test_response_roundtrip_serialization():
     assert reconstructed.crypto_prices["BTC"] == 67450.0
 
 
+def test_domain_model_modules_importable():
+    from agents.models.portfolio import AnalyzePortfolio, PortfolioResponse
+    from agents.models.news import FetchNews, NewsResponse
+    from agents.models.modeling import RunModel, ChartOutput, ModelResponse
+    from agents.models.alternatives import AnalyzeAlternatives, AlternativesResponse
+
+    assert AnalyzePortfolio is not None
+    assert PortfolioResponse is not None
+
+
 def test_models_reexported_from_init():
     from agents.models import (
-        AnalyzePortfolio,
-        FetchNews,
-        RunModel,
         AnalyzeAlternatives,
-        PortfolioResponse,
-        NewsResponse,
-        ModelResponse,
+        AnalyzePortfolio,
         AlternativesResponse,
+        ChartOutput,
+        FetchNews,
+        ModelResponse,
+        NewsResponse,
+        PortfolioResponse,
+        RunModel,
     )
     assert AnalyzePortfolio is not None
     assert FetchNews is not None
@@ -100,4 +130,5 @@ def test_models_reexported_from_init():
     assert PortfolioResponse is not None
     assert NewsResponse is not None
     assert ModelResponse is not None
+    assert ChartOutput is not None
     assert AlternativesResponse is not None

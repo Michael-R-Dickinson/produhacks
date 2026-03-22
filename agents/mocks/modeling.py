@@ -1,19 +1,19 @@
-from agents.models.responses import ChartOutput, ModelResponse
+from agents.models.requests import RunModel
+from agents.models.responses import ModelResponse
+from agents.modeling_charts import build_model_response
 
 
-def mock_model_response() -> ModelResponse:
-    return ModelResponse(
-        holdings_analyzed=["AAPL", "MSFT", "NVDA", "UNH", "JPM"],
-        sharpe_ratio=1.34,
-        volatility=0.187,
-        trend_slope=0.0023,
-        charts=[
-            ChartOutput(
-                chart_type="regression",
-                title="Portfolio Linear Regression (1Y)",
-                image_base64="",  # Phase 2 will generate real chart images
-                summary="Portfolio shows positive trend with R-squared 0.74 over 12 months",
-            ),
+def mock_model_response(holdings: list[str] | None = None) -> ModelResponse:
+    h = holdings if holdings is not None else ["AAPL", "MSFT", "NVDA", "UNH", "JPM"]
+    msg = RunModel(
+        holdings=h,
+        mock=True,
+        analyses=[
+            "regression",
+            "correlation_matrix",
+            "sector_performance",
+            "volatility_cone",
+            "price_history",
         ],
-        metrics={"r_squared": 0.74, "max_drawdown": -0.12, "beta": 1.12},
     )
+    return build_model_response(msg, use_mock=True)

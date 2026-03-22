@@ -11,7 +11,7 @@ InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure f
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Foundation** - Scaffold, Pydantic message models, FastAPI SSE bridge, mock data mode, and API client wrappers verified end-to-end
-- [x] **Phase 2: Agent Pipeline** - All five agents (Portfolio, News, Modeling, Alt Assets, Orchestrator) producing a complete verifiable report with no frontend (completed 2026-03-22)
+- [ ] **Phase 2: Agent Pipeline** - All five agents (Portfolio, News, Modeling, Alt Assets, Orchestrator) producing a complete verifiable report with no frontend (gap closure in progress)
 - [ ] **Phase 3: Frontend and Visualization** - React app with report rendering, CSV upload, and live agent graph with streaming thought feeds and animated edges
 - [ ] **Phase 4: Chat and Demo Polish** - Chat interface routed through orchestrator, edge hover tooltips, UX hardening, and demo dry-run
 
@@ -43,7 +43,7 @@ Plans:
   3. The News agent fetches Finnhub headlines, filters them for portfolio relevance, scores sentiment with FinBERT, and returns aggregate per-holding sentiment
   4. The Modeling agent retrieves historical price data, runs requested analyses from its chart registry, generates matplotlib charts as base64 PNGs with ChartOutput metadata (type, title, summary), and returns Sharpe ratio, volatility, and extensible metrics
   5. The Orchestrator fans out to all domain agents concurrently, receives all responses, and produces a unified narrative (not sectioned per-agent) using GPT-4o mini
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 - [x] 02-01-PLAN.md — Model contract updates, Phase 2 dependencies, central mock portfolio, mock chart generation
@@ -51,6 +51,7 @@ Plans:
 - [x] 02-03-PLAN.md — News agent live logic (Finnhub fetch, relevance filtering, FinBERT sentiment scoring)
 - [x] 02-04-PLAN.md — Alt Assets agent live logic (CoinGecko crypto, Finnhub commodities, correlations) + Modeling agent mock enhancement
 - [x] 02-05-PLAN.md — Orchestrator fan-out, contradiction detection, GPT-4o mini synthesis, bridge /report endpoint, E2E verification
+- [ ] 02-06-PLAN.md — Gap closure: fix asyncio.gather unpack bug in alternatives agent, create .env.example
 
 ### Phase 3: Frontend and Visualization
 **Goal**: The React app displays the live agent graph with streaming thought feeds and animated edges during report generation, and renders the completed report with embedded charts
@@ -82,6 +83,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-03-22 |
-| 2. Agent Pipeline | 5/5 | Complete   | 2026-03-22 |
+| 2. Agent Pipeline | 5/6 | Gap closure | - |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

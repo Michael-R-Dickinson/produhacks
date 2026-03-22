@@ -27,12 +27,26 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
   switch (wire.event_type) {
     case "agent.status": {
       const p = AgentStatusPayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid agent.status payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
       return { agent_id: agentId.data, type: "status", status: p.data.status }
     }
     case "agent.thought": {
       const p = AgentThoughtPayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid agent.thought payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
       return {
         agent_id: agentId.data,
         type: "thought",
@@ -42,7 +56,14 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
     }
     case "agent.message": {
       const p = AgentMessagePayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid agent.message payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
       return {
         agent_id: agentId.data,
         type: "agent_message",
@@ -55,18 +76,38 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
     }
     case "report.chunk": {
       const p = ReportChunkPayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid report.chunk payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
       // report.chunk maps to report_section for the reducer
       return {
         agent_id: agentId.data,
         type: "report_section",
-        section: p.data.section as "portfolio" | "news" | "modeling" | "alternatives" | "executive_summary",
+        section: p.data.section as
+          | "portfolio"
+          | "news"
+          | "modeling"
+          | "alternatives"
+          | "executive_summary",
         data: JSON.parse(p.data.content),
       }
     }
     case "report.complete": {
       const p = ReportCompletePayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid report.complete payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
+      console.log("[SSE] Report complete -- final markdown:", p.data)
       return {
         agent_id: agentId.data,
         type: "report_section",
@@ -76,7 +117,14 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
     }
     case "chat.response": {
       const p = ChatResponsePayload.safeParse(wire.payload)
-      if (!p.success) return null
+      if (!p.success) {
+        console.error(
+          "[SSE] Invalid chat.response payload:",
+          p.error.format(),
+          wire.payload,
+        )
+        return null
+      }
       return {
         agent_id: agentId.data,
         type: "chat_response",
@@ -108,17 +156,27 @@ export function connectSSE(onEvent: (event: SSEEvent) => void): () => void {
       const parsed = JSON.parse(e.data)
       const wireResult = SSEWireEvent.safeParse(parsed)
       if (!wireResult.success) {
-        console.warn("[SSE] Invalid wire event:", wireResult.error.format(), parsed)
+        console.warn(
+          "[SSE] Invalid wire event:",
+          wireResult.error.format(),
+          parsed,
+        )
         return
       }
       const internal = toInternalEvent(wireResult.data)
       if (!internal) {
-        console.warn("[SSE] Could not transform event:", wireResult.data.event_type, wireResult.data.payload)
+        console.warn(
+          "[SSE] Could not transform event:",
+          wireResult.data.event_type,
+          wireResult.data.payload,
+        )
         return
       }
       console.log("[SSE] Received event:", {
         id: internal.agent_id,
         type: internal.type,
+        raw: parsed,
+        parsed: internal,
       })
       onEvent(internal)
     } catch (err) {

@@ -252,6 +252,7 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     )
 
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Report complete. Delivering to client."))
+    logger.info("Sending report.complete — markdown length: %d, charts: %d", len(report_markdown), len(modeling_data.charts))
 
     # Push completed report via SSE
     push_sse_event(SSEEvent.report_complete(

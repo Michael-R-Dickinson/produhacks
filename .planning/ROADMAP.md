@@ -41,7 +41,7 @@ Plans:
   1. A curl POST to the bridge /report endpoint returns a complete markdown document containing portfolio metrics, news sentiment, at least one embedded base64 chart, crypto/commodity data, and a synthesized executive summary
   2. The Portfolio agent computes and returns sector allocation, Herfindahl diversification index, portfolio beta, and correlation matrix
   3. The News agent fetches Finnhub headlines, filters them for portfolio relevance, scores sentiment with FinBERT, and returns aggregate per-holding sentiment
-  4. The Modeling agent retrieves historical price data, runs regression, generates a matplotlib chart as base64 PNG, and returns Sharpe ratio and volatility
+  4. The Modeling agent retrieves historical price data, runs requested analyses from its chart registry, generates matplotlib charts as base64 PNGs with ChartOutput metadata (type, title, summary), and returns Sharpe ratio, volatility, and extensible metrics
   5. The Orchestrator fans out to all domain agents concurrently, receives all responses, and produces a unified narrative (not sectioned per-agent) using GPT-4o mini
 **Plans**: TBD
 
@@ -74,7 +74,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/3 | In progress | - |
+| 1. Foundation | 2/3 | In Progress|  |
 | 2. Agent Pipeline | 0/TBD | Not started | - |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

@@ -9,8 +9,8 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: uAgents Bureau running all 5 agents in one process
-- [ ] **INFRA-02**: FastAPI bridge with SSE endpoints for web-to-agent communication
+- [x] **INFRA-01**: uAgents Bureau running all 5 agents in one process
+- [x] **INFRA-02**: FastAPI bridge with SSE endpoints for web-to-agent communication
 - [x] **INFRA-03**: Pydantic message models for all inter-agent communication
 - [x] **INFRA-04**: Mock data mode for all agents (toggle for demo vs development)
 
@@ -33,10 +33,10 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 ### Modeling Agent (No LLM -- Pure Computation)
 
 - [ ] **MODL-01**: Retrieves historical price data via yfinance
-- [ ] **MODL-02**: Runs regression/trend analysis on price history
-- [ ] **MODL-03**: Generates charts (matplotlib/plotly) exportable as images
-- [ ] **MODL-04**: Computes risk metrics (Sharpe ratio, volatility)
-- [ ] **MODL-05**: Returns structured metrics + chart image data to orchestrator
+- [ ] **MODL-02**: Runs specifiable analyses via chart registry (regression, correlation_matrix, sector_performance, volatility_cone, price_history)
+- [ ] **MODL-03**: Generates charts (matplotlib/plotly) per requested analysis type, returned as ChartOutput with type, title, image_base64, and summary
+- [ ] **MODL-04**: Computes risk metrics (Sharpe ratio, volatility) plus extensible metrics dict
+- [ ] **MODL-05**: Returns structured metrics + multiple chart outputs to orchestrator
 
 ### Alternative Assets Agent (No LLM -- Pure Computation)
 
@@ -121,8 +121,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Pending |
 | PORT-01 | Phase 2 | Pending |

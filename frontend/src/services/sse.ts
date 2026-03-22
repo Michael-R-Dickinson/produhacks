@@ -3,7 +3,6 @@ import {
   AgentStatusPayload,
   AgentThoughtPayload,
   AgentMessagePayload,
-  ReportChunkPayload,
   ReportCompletePayload,
   ChatResponsePayload,
   AgentId,
@@ -75,27 +74,8 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
       }
     }
     case "report.chunk": {
-      const p = ReportChunkPayload.safeParse(wire.payload)
-      if (!p.success) {
-        console.error(
-          "[SSE] Invalid report.chunk payload:",
-          p.error.format(),
-          wire.payload,
-        )
-        return null
-      }
-      // report.chunk maps to report_section for the reducer
-      return {
-        agent_id: agentId.data,
-        type: "report_section",
-        section: p.data.section as
-          | "portfolio"
-          | "news"
-          | "modeling"
-          | "alternatives"
-          | "executive_summary",
-        data: JSON.parse(p.data.content),
-      }
+      console.debug("[SSE] Ignoring report.chunk -- using report.complete instead")
+      return null
     }
     case "report.complete": {
       const p = ReportCompletePayload.safeParse(wire.payload)
@@ -107,12 +87,12 @@ function toInternalEvent(wire: SSEWireEvent): SSEEvent | null {
         )
         return null
       }
-      console.log("[SSE] Report complete -- final markdown:", p.data)
+      console.log("[SSE] Report complete -- charts:", p.data.charts.length)
       return {
         agent_id: agentId.data,
-        type: "report_section",
-        section: "executive_summary",
-        data: { summary: p.data.markdown },
+        type: "report_complete",
+        markdown: p.data.markdown,
+        charts: p.data.charts,
       }
     }
     case "chat.response": {

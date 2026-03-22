@@ -1,5 +1,5 @@
 from agents.models.requests import AnalyzePortfolio, FetchNews, RunModel, AnalyzeAlternatives
-from agents.models.responses import PortfolioResponse, NewsResponse, ModelResponse, AlternativesResponse
+from agents.models.responses import PortfolioResponse, NewsResponse, ChartOutput, ModelResponse, AlternativesResponse
 
 
 def test_all_request_models_importable():
@@ -63,15 +63,18 @@ def test_response_roundtrip_serialization():
     assert reconstructed.overall_sentiment == 0.5
 
     model_resp = ModelResponse(
+        holdings_analyzed=["AAPL", "MSFT"],
         sharpe_ratio=1.34,
         volatility=0.187,
         trend_slope=0.0023,
-        chart_base64=None,
+        charts=[ChartOutput(chart_type="regression", title="Test", image_base64="", summary="Test summary")],
+        metrics={"r_squared": 0.74},
     )
     data = model_resp.model_dump()
     reconstructed = ModelResponse(**data)
     assert reconstructed.sharpe_ratio == 1.34
-    assert reconstructed.chart_base64 is None
+    assert len(reconstructed.charts) == 1
+    assert reconstructed.charts[0].chart_type == "regression"
 
     alt_resp = AlternativesResponse(
         crypto_prices={"BTC": 67450.0},

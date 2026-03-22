@@ -1,3 +1,4 @@
+import { useState, useRef, useCallback } from "react";
 import { useSwarm } from "../context/SwarmContext";
 import { AGENTS } from "../schemas/events";
 import type { AgentId } from "../schemas/events";
@@ -11,19 +12,50 @@ const iconMap: Record<string, React.ReactNode> = {
     bitcoin: <Bitcoin size={20} />,
 };
 
-/* ── Agent Positions on the graph ──────────────── */
-const positions: Record<AgentId, { x: number; y: number }> = {
-    orchestrator: { x: 50, y: 45 },
-    portfolio: { x: 20, y: 15 },
-    news: { x: 80, y: 15 },
-    modeling: { x: 80, y: 75 },
-    alternatives: { x: 20, y: 75 },
+/* ── Default positions (%) ── */
+const defaultPositions: Record<AgentId, { x: number; y: number }> = {
+    orchestrator: { x: 50, y: 50 },
+    portfolio: { x: 20, y: 22 },
+    news: { x: 78, y: 20 },
+    modeling: { x: 80, y: 78 },
+    alternatives: { x: 22, y: 80 },
 };
 
 export default function SwarmActivity() {
     const { state } = useSwarm();
     const agentList = AGENTS.filter((a) => a.id !== "orchestrator");
 
+    const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>(defaultPositions);
+    const [dragging, setDragging] = useState<string | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const svgRef = useRef<SVGSVGElement>(null);
+
+    /* ── Drag handlers ── */
+    const handlePointerDown = useCallback((id: string, e: React.PointerEvent) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setDragging(id);
+    }, []);
+
+    const handlePointerMove = useCallback((e: React.PointerEvent) => {
+        if (!dragging || !containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setPositions(prev => ({
+            ...prev,
+            [dragging]: {
+                x: Math.max(8, Math.min(92, x)),
+                y: Math.max(8, Math.min(92, y)),
+            },
+        }));
+    }, [dragging]);
+
+    const handlePointerUp = useCallback((e: React.PointerEvent) => {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+        setDragging(null);
+    }, []);
+
+    /* ── Render ── */
     return (
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
             <div className="page-header">
@@ -34,10 +66,22 @@ export default function SwarmActivity() {
                 </div>
             </div>
 
-            {/* Agent Graph */}
-            <div className="agent-graph-container section-gap" style={{ padding: 32 }}>
-                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style={{ position: "absolute", top: 0, left: 0 }}>
-                    {/* Connection lines from orchestrator to each agent */}
+            {/* ─── Agent Graph ─── */}
+            <div
+                className="agent-graph-container section-gap"
+                ref={containerRef}
+                style={{
+                    padding: 0,
+                    background: "radial-gradient(circle at 50% 50%, #f0f4ff 0%, var(--bg-card) 70%)",
+                }}
+            >
+                {/* SVG connection lines — uses same % coordinate space as the HTML nodes */}
+                <svg
+                    ref={svgRef}
+                    width="100%"
+                    height="100%"
+                    style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+                >
                     {agentList.map((agent) => {
                         const from = positions.orchestrator;
                         const to = positions[agent.id];
@@ -49,28 +93,42 @@ export default function SwarmActivity() {
                                 <line
                                     x1={`${from.x}%`} y1={`${from.y}%`}
                                     x2={`${to.x}%`} y2={`${to.y}%`}
-                                    stroke={isActive ? agent.color : isDone ? "#10b981" : "#e5e7eb"}
-                                    strokeWidth={isActive ? 2 : 1}
-                                    strokeDasharray={isActive ? "6 4" : isDone ? "none" : "4 6"}
+                                    stroke={isActive ? agent.color : isDone ? agent.color : "#d1d5db"}
+                                    strokeWidth={isActive ? 2 : 1.5}
+                                    strokeOpacity={isActive ? 0.9 : isDone ? 0.5 : 0.35}
+                                    strokeDasharray={isActive ? "8 4" : "6 6"}
+                                    strokeLinecap="round"
                                     style={isActive ? { animation: "dashFlow 0.8s linear infinite" } : undefined}
                                 />
-                                {/* Animated dot for active connections */}
+                                {/* Animated travelling dot */}
                                 {isActive && (
-                                    <circle r="3" fill={agent.color}>
+                                    <circle r="4" fill={agent.color} opacity="0.8">
                                         <animateMotion
-                                            dur="1.5s"
+                                            dur="2s"
                                             repeatCount="indefinite"
-                                            path={`M${from.x},${from.y} L${to.x},${to.y}`}
-                                        />
+                                            path={`M0,0`}
+                                            keyPoints="0;1"
+                                            keyTimes="0;1"
+                                        >
+                                            <mpath xlinkHref={`#path-${agent.id}`} />
+                                        </animateMotion>
                                     </circle>
+                                )}
+                                {isActive && (
+                                    <path
+                                        id={`path-${agent.id}`}
+                                        d={`M${from.x},${from.y} L${to.x},${to.y}`}
+                                        fill="none"
+                                        stroke="none"
+                                    />
                                 )}
                             </g>
                         );
                     })}
                 </svg>
 
-                {/* Agent nodes */}
-                {AGENTS.map((agent) => {
+                {/* ─── HTML Agent Nodes ─── */}
+                {AGENTS.map((agent, idx) => {
                     const pos = positions[agent.id];
                     const status = state.agentStatuses[agent.id];
                     const isOrch = agent.id === "orchestrator";
@@ -78,26 +136,62 @@ export default function SwarmActivity() {
                     return (
                         <div
                             key={agent.id}
-                            className={`agent-node ${status === "working" ? "active" : ""} ${isOrch ? "orchestrator" : ""}`}
+                            className={`agent-node agent-node-${agent.id} ${status === "working" ? "active" : ""} ${isOrch ? "orchestrator" : ""}`}
                             style={{
                                 left: `${pos.x}%`,
                                 top: `${pos.y}%`,
                                 transform: "translate(-50%, -50%)",
+                                zIndex: dragging === agent.id ? 20 : isOrch ? 5 : 2,
                             }}
+                            onPointerDown={(e) => handlePointerDown(agent.id, e)}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerUp}
                         >
-                            <div className="agent-node-circle" style={
-                                status === "working" ? { borderColor: agent.color, boxShadow: `0 0 16px ${agent.color}30` } :
-                                    status === "done" ? { borderColor: "#10b981" } : {}
-                            }>
-                                {iconMap[agent.icon]}
+                            <div
+                                className="node-floater"
+                                style={{ animationDelay: `${idx * -0.8}s` }}
+                            >
+                                {isOrch ? (
+                                    /* ─── Orchestrator: pure brain icon, no circle ─── */
+                                    <>
+                                        <Brain size={52} strokeWidth={1.5} style={{ color: "var(--accent)", filter: "drop-shadow(0 0 18px rgba(37,99,235,0.35))" }} />
+                                        <span className="agent-node-label" style={{ color: "var(--accent)", fontWeight: 700 }}>
+                                            Orchestrator
+                                        </span>
+                                        {status === "done" && (
+                                            <span className="card-badge badge-green" style={{ fontSize: 9 }}>Complete</span>
+                                        )}
+                                    </>
+                                ) : (
+                                    /* ─── Agent: dashed circle with icon ─── */
+                                    <>
+                                        <div className="agent-node-circle" style={
+                                            status === "working"
+                                                ? { borderColor: agent.color, boxShadow: `0 0 20px ${agent.color}40`, color: agent.color }
+                                                : status === "done"
+                                                    ? { borderColor: agent.color, color: agent.color }
+                                                    : {}
+                                        }>
+                                            {iconMap[agent.icon]}
+                                        </div>
+                                        <style>{`
+                                            .agent-node-${agent.id}:hover .agent-node-circle {
+                                                border-color: ${agent.color} !important;
+                                                color: ${agent.color} !important;
+                                                box-shadow: 0 0 20px ${agent.color}30;
+                                            }
+                                        `}</style>
+                                        <span className="agent-node-label">{agent.name}</span>
+                                        {status === "working" && (
+                                            <span className="card-badge badge-amber" style={{ fontSize: 9 }}>Processing</span>
+                                        )}
+                                        {status === "done" && (
+                                            <span className="card-badge badge-green" style={{ fontSize: 9 }}>Complete</span>
+                                        )}
+                                    </>
+                                )}
                             </div>
-                            <span className="agent-node-label">{agent.name}</span>
-                            {status === "working" && (
-                                <span className="card-badge badge-amber" style={{ fontSize: 9 }}>Processing</span>
-                            )}
-                            {status === "done" && (
-                                <span className="card-badge badge-green" style={{ fontSize: 9 }}>Complete</span>
-                            )}
                         </div>
                     );
                 })}

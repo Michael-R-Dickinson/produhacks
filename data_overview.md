@@ -1,40 +1,84 @@
-⏺ Looking at the current contract, RunModel is pretty bare:
+# Modeling Agent -- Data Contract
 
-  class RunModel(Model):
-      holdings: list[str]  # e.g. ["AAPL", "MSFT", "NVDA"]
-      mock: bool = False
+## Request: `RunModel`
 
-  That's it. It just gets a list of ticker symbols and a mock flag. The agent then decides internally what to do -- fetch historical prices via yfinance, run regression, compute
-  Sharpe/volatility, generate a chart.
+The orchestrator (which has the LLM) decides which analyses to request. The modeling agent executes them -- no LLM involved.
 
-  There's no way to say "run a Monte Carlo" vs "run a backtest" vs "just give me the regression." It's a single hardcoded pipeline: tickers in, ModelResponse out.
+```python
+class RunModel(Model):
+    holdings: list[str]            # Ticker symbols, e.g. ["AAPL", "MSFT", "NVDA"]
+    analyses: list[str] = ["regression"]  # Which chart/analysis types to run
+    lookback_days: int = 365       # Historical window for price data
+    mock: bool = False             # Return mock fixtures instead of live data
+```
 
-  Is that the right call? For a 24h hackathon, probably yes -- one preset analysis path keeps it simple. But if you're thinking about it, here's what the alternative looks like:
+### Available Analysis Types (Chart Registry)
 
-  # Option A: Current (implicit single pipeline)
-  class RunModel(Model):
-      holdings: list[str]
-      mock: bool = False
+| Key | What It Does | Data Source |
+|-----|-------------|-------------|
+| `regression` | Linear regression + trend line on portfolio value | yfinance historical prices |
+| `correlation_matrix` | Heatmap of inter-holding correlations | yfinance historical prices |
+| `sector_performance` | Bar chart comparing sector returns | yfinance + sector mapping |
+| `volatility_cone` | Forward-looking volatility bands | yfinance historical prices |
+| `price_history` | Overlay line chart of holding price histories | yfinance historical prices |
 
-  # Option B: Explicit model selection
-  class RunModel(Model):
-      holdings: list[str]
-      analysis: str = "regression"  # "regression" | "backtest" | "correlation"
-      lookback_days: int = 365
-      mock: bool = False
+New chart types are added by writing one function and registering it -- teammates can add these independently.
 
-  Option B would let the orchestrator (or chat queries) ask for specific analyses, and it maps better to ORCH-01 ("dispatches to appropriate domain agents based on report request or
-  chat query"). But it also means the modeling agent needs to branch internally, and the response shape might vary per analysis type.
+## Response: `ModelResponse`
 
-  The response is also flat right now:
+```python
+class ChartOutput(Model):
+    chart_type: str       # Matches the analysis key that produced it (e.g. "regression")
+    title: str            # Human-readable title (e.g. "Portfolio Linear Regression (1Y)")
+    image_base64: str     # PNG encoded as base64 string
+    summary: str          # One-line description for the orchestrator to weave into the narrative
 
-  class ModelResponse(Model):
-      sharpe_ratio: float
-      volatility: float
-      trend_slope: float
-      chart_base64: str | None = None
+class ModelResponse(Model):
+    holdings_analyzed: list[str]     # Echo back which tickers were analyzed
+    sharpe_ratio: float              # Portfolio Sharpe ratio
+    volatility: float                # Annualized portfolio volatility
+    trend_slope: float               # Regression slope coefficient
+    charts: list[ChartOutput]        # One per requested analysis type
+    metrics: dict[str, float]        # Extensible key-value for additional metrics
+```
 
-  No room for multiple charts, no labels on what the chart shows, no per-holding breakdown. If someone asks "how is AAPL trending vs NVDA?" in chat, this response can't express that.
+### `metrics` Dict -- Known Keys
 
-  The question for your team: Is the modeling agent a black box that always runs the same analysis, or should it accept parameters that let the orchestrator/chat route specific
-  questions to it? That decision changes the contract before Phase 1 executes.
+| Key | Description |
+|-----|-------------|
+| `r_squared` | Regression fit quality |
+| `max_drawdown` | Largest peak-to-trough decline |
+| `beta` | Portfolio beta vs benchmark |
+
+This dict is intentionally open-ended -- new metrics can be added without changing the model schema.
+
+## Data Flow
+
+```
+Orchestrator                    Modeling Agent
+    |                               |
+    |-- RunModel ------------------->|
+    |   holdings: ["AAPL", "MSFT"]  |
+    |   analyses: ["regression",    |
+    |     "correlation_matrix"]     |
+    |   lookback_days: 365          |
+    |                               |-- yfinance fetch
+    |                               |-- run regression
+    |                               |-- generate charts
+    |                               |-- compute metrics
+    |<-- ModelResponse -------------|
+    |   sharpe_ratio: 1.34          |
+    |   volatility: 0.187           |
+    |   charts: [                   |
+    |     ChartOutput(regression),  |
+    |     ChartOutput(corr_matrix)  |
+    |   ]                           |
+    |   metrics: {r_squared: 0.74}  |
+```
+
+## Key Design Decisions
+
+- **No LLM in the modeling agent.** The orchestrator's LLM picks which analyses to request. The modeling agent is pure computation.
+- **`ChartOutput.summary` exists so the orchestrator can describe charts in the narrative** without needing to "see" the image.
+- **`metrics` is a dict, not named fields,** so new computed values don't require schema changes.
+- **`analyses` is a list** -- the orchestrator can request multiple chart types in a single call rather than making separate requests.

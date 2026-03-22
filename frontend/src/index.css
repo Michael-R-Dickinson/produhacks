@@ -1038,6 +1038,29 @@ button {
     margin-top: 2px;
 }
 
+.agent-modal__api-cards {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.agent-modal__api-card {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+}
+
+.agent-modal__api-card-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
 .agent-modal__api-logo {
     display: flex;
     align-items: center;

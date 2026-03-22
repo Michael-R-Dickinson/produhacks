@@ -215,6 +215,21 @@ export default function AgentDetailModal({ agent, state, agents, onClose }: Prop
                 </div>
 
                 <div className="agent-modal__body">
+                    {/* External API cards */}
+                    {externalApis.length > 0 && (
+                        <div className="agent-modal__api-cards">
+                            {externalApis.map((api, i) => {
+                                const Logo = API_LOGOS[api.name];
+                                return (
+                                    <div key={i} className="agent-modal__api-card">
+                                        {Logo && <Logo />}
+                                        <span className="agent-modal__api-card-name">{api.name}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     {/* Thoughts section */}
                     <section className="agent-modal__section">
                         <h3 className="agent-modal__section-title">Thoughts</h3>

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Brain, PieChart, Newspaper, TrendingUp, Bitcoin } from "lucide-react";
+import { Brain, PieChart, Newspaper, TrendingUp, Bitcoin, FileText } from "lucide-react";
 import { useSwarm } from "../../context/SwarmContext";
 import { AGENTS } from "../../schemas/events";
 import type { AgentId } from "../../schemas/events";
@@ -29,7 +29,12 @@ interface EdgeHover {
     y: number;
 }
 
-export default function AgentGraph(): JSX.Element {
+interface AgentGraphProps {
+    reportReady?: boolean;
+    onViewReport?: () => void;
+}
+
+export default function AgentGraph({ reportReady, onViewReport }: AgentGraphProps): JSX.Element {
     const { state } = useSwarm();
     const containerRef = useRef<HTMLDivElement>(null);
     const [edgeHover, setEdgeHover] = useState<EdgeHover | null>(null);
@@ -215,6 +220,43 @@ export default function AgentGraph(): JSX.Element {
                     </div>
                 );
             })}
+
+            {/* Report ready button - below orchestrator */}
+            {reportReady && (
+                <button
+                    onClick={onViewReport}
+                    style={{
+                        position: "absolute",
+                        left: `${cardPositions.orchestrator.x}%`,
+                        top: `${cardPositions.orchestrator.y + 14}%`,
+                        transform: "translateX(-50%)",
+                        zIndex: 10,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 14px",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "var(--text-secondary)",
+                        background: "var(--bg-secondary)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        transition: "background 150ms ease, color 150ms ease",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--bg-tertiary)";
+                        e.currentTarget.style.color = "var(--text-primary)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "var(--bg-secondary)";
+                        e.currentTarget.style.color = "var(--text-secondary)";
+                    }}
+                >
+                    <FileText size={14} />
+                    Report ready
+                </button>
+            )}
 
             {/* Edge hover tooltip - shows message info */}
             {edgeHover && (() => {

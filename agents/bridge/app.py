@@ -29,6 +29,9 @@ async def on_startup() -> None:
 @app.get("/events")
 async def sse_events(request: Request) -> EventSourceResponse:
     async def generate():
+        # Send a comment ping immediately so ASGI headers are flushed to the client.
+        # Without this, EventSourceResponse delays headers until the first real event.
+        yield {"comment": "connected"}
         while True:
             if await request.is_disconnected():
                 break

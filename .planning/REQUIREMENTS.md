@@ -47,11 +47,11 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### Orchestrator (LLM-Powered Synthesis)
 
-- [ ] **ORCH-01**: Dispatches to appropriate domain agents based on report request or chat query
-- [ ] **ORCH-02**: Receives structured data from all domain agents
-- [ ] **ORCH-03**: Uses LLM to synthesize agent outputs into unified narrative report
-- [ ] **ORCH-04**: Identifies cross-agent contradictions and patterns (e.g., bullish sentiment but weakening momentum)
-- [ ] **ORCH-05**: Generates executive summary with key actionable insights
+- [x] **ORCH-01**: Dispatches to appropriate domain agents based on report request or chat query
+- [x] **ORCH-02**: Receives structured data from all domain agents
+- [x] **ORCH-03**: Uses LLM to synthesize agent outputs into unified narrative report
+- [x] **ORCH-04**: Identifies cross-agent contradictions and patterns (e.g., bullish sentiment but weakening momentum)
+- [x] **ORCH-05**: Generates executive summary with key actionable insights
 
 ### Report Display
 
@@ -144,11 +144,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ALT-02 | Phase 2 | Complete |
 | ALT-03 | Phase 2 | Complete |
 | ALT-04 | Phase 2 | Complete |
-| ORCH-01 | Phase 2 | Pending |
-| ORCH-02 | Phase 2 | Pending |
-| ORCH-03 | Phase 2 | Pending |
-| ORCH-04 | Phase 2 | Pending |
-| ORCH-05 | Phase 2 | Pending |
+| ORCH-01 | Phase 2 | Complete |
+| ORCH-02 | Phase 2 | Complete |
+| ORCH-03 | Phase 2 | Complete |
+| ORCH-04 | Phase 2 | Complete |
+| ORCH-05 | Phase 2 | Complete |
 | REPT-01 | Phase 3 | Pending |
 | REPT-02 | Phase 3 | Pending |
 | REPT-03 | Phase 3 | Pending |

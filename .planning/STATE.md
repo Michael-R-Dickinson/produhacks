@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-04-PLAN.md — CoinGecko crypto + Finnhub commodities + cross-asset correlations
-last_updated: "2026-03-22T07:29:27.829Z"
+stopped_at: Completed 02-05-PLAN.md — orchestrator fan-out, contradiction detection, LLM synthesis, bridge /report endpoint
+last_updated: "2026-03-22T07:35:36.096Z"
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -48,6 +48,7 @@ Plan: 5 of 5
 *Updated after each plan completion*
 | Phase 02 P03 | 8 | 1 tasks | 2 files |
 | Phase 02-agent-pipeline P04 | 3 | 2 tasks | 3 files |
+| Phase 02-agent-pipeline P05 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
 - [Phase 02-agent-pipeline]: trend_signal uses exclusive thresholds: > 3.0 is bullish, < -3.0 is bearish, exactly 3.0 or -3.0 is neutral
 - [Phase 02-agent-pipeline]: compute_cross_correlations accepts pre-fetched price history dict rather than calling yfinance internally, enabling pure unit testing
+- [Phase 02-agent-pipeline]: AsyncOpenAI lazy-initialized via get_openai() getter so orchestrator.py can be imported without OPENAI_API_KEY set
+- [Phase 02-agent-pipeline]: on_rest_post response type must be a uAgents Model subclass (not dict) - ReportResponse added for compatibility
+- [Phase 02-agent-pipeline]: ctx.send_and_receive returns (message, sender) tuple in uAgents 0.24.0 - extract_msg helper unwraps it before safe_result
 
 ### Pending Todos
 
@@ -93,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:29:27.827Z
-Stopped at: Completed 02-04-PLAN.md — CoinGecko crypto + Finnhub commodities + cross-asset correlations
+Last session: 2026-03-22T07:35:36.094Z
+Stopped at: Completed 02-05-PLAN.md — orchestrator fan-out, contradiction detection, LLM synthesis, bridge /report endpoint
 Resume file: None

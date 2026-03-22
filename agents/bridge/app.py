@@ -82,7 +82,7 @@ async def trigger_report() -> dict:
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            f"http://localhost:{BUREAU_PORT}/submit/report",
+            f"http://localhost:{BUREAU_PORT}/report",
             json={"holdings": EQUITY_TICKERS, "mock": False},
             timeout=60.0,  # orchestrator needs time for fan-out + LLM
         )

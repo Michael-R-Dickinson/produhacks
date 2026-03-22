@@ -59,7 +59,9 @@ def get_gemini() -> genai.Client:
     """Lazy-initialize the Gemini client so module import doesn't fail without the key."""
     global _gemini
     if _gemini is None:
-        _gemini = genai.Client()  # reads GEMINI_API_KEY from env
+        import os
+
+        _gemini = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     return _gemini
 
 
@@ -184,11 +186,11 @@ async def synthesize_report(
     prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_embeds)
 
     response = await get_gemini().aio.models.generate_content(
-        model="gemini-flash-3.1-lite",
-        system_instruction="You are a professional financial analyst writing a morning brief for a portfolio manager.",
+        model="gemini-2.5-flash",
         contents=prompt,
         config=genai.types.GenerateContentConfig(
-            max_output_tokens=2000,
+            system_instruction="You are a professional financial analyst writing a morning brief for a portfolio manager.",
+            max_output_tokens=8000,
             temperature=0.4,
         ),
     )
@@ -203,10 +205,10 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
 
     # Fan-out to all domain agents concurrently
     results = await asyncio.gather(
-        ctx.send_and_receive(PORTFOLIO_ADDR, AnalyzePortfolio(holdings=req.holdings, mock=req.mock), timeout=30),
-        ctx.send_and_receive(NEWS_ADDR, FetchNews(tickers=req.holdings, mock=req.mock), timeout=30),
-        ctx.send_and_receive(MODELING_ADDR, RunModel(holdings=req.holdings, mock=req.mock), timeout=30),
-        ctx.send_and_receive(ALT_ADDR, AnalyzeAlternatives(mock=req.mock), timeout=30),
+        ctx.send_and_receive(PORTFOLIO_ADDR, AnalyzePortfolio(holdings=req.holdings, mock=req.mock), response_type=PortfolioResponse, timeout=30),
+        ctx.send_and_receive(NEWS_ADDR, FetchNews(tickers=req.holdings, mock=req.mock), response_type=NewsResponse, timeout=30),
+        ctx.send_and_receive(MODELING_ADDR, RunModel(holdings=req.holdings, mock=req.mock), response_type=ModelResponse, timeout=30),
+        ctx.send_and_receive(ALT_ADDR, AnalyzeAlternatives(mock=req.mock), response_type=AlternativesResponse, timeout=30),
         return_exceptions=True,
     )
 

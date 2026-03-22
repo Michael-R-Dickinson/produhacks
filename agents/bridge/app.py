@@ -45,15 +45,16 @@ async def sse_events(request: Request) -> EventSourceResponse:
 async def trigger_report() -> dict:
     """Trigger a report generation. Phase 1: stub that pushes SSE events directly.
 
-    The /trigger endpoint handles event dispatch directly via push_event() rather
+    The /trigger endpoint handles event dispatch directly via push_sse_event() rather
     than routing through the orchestrator agent's REST handler. This is simpler for
     Phase 1 and avoids uncertainty around on_rest_post decorator behaviour.
     Phase 2 will wire this through actual agent dispatch with ctx.send().
     """
-    from agents.bridge.events import push_event
+    from agents.bridge.events import push_sse_event
+    from agents.models.events import AgentStatus, SSEEvent
 
-    push_event("orchestrator", "status", {"status": "working"})
-    push_event("orchestrator", "thought", {"text": "Dispatching analysis requests to domain agents..."})
-    push_event("orchestrator", "thought", {"text": "Stub: full agent dispatch implemented in Phase 2"})
-    push_event("orchestrator", "status", {"status": "done"})
+    push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.WORKING))
+    push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching analysis requests to domain agents..."))
+    push_sse_event(SSEEvent.agent_thought("orchestrator", "Stub: full agent dispatch implemented in Phase 2"))
+    push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.DONE))
     return {"status": "triggered"}

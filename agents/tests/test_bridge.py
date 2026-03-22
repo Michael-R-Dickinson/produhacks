@@ -83,14 +83,16 @@ async def test_trigger_returns_200():
 
 @pytest.mark.asyncio
 async def test_event_delivered():
-    """push_event() enqueues an event retrievable from the queue."""
+    """push_sse_event() enqueues a typed SSEEvent retrievable from the queue."""
+    from agents.models.events import SSEEvent
+
     loop = asyncio.get_running_loop()
     ev._fastapi_loop = loop
     ev._event_queue = event_queue
 
-    ev.push_event("test", "thought", {"text": "hello"})
+    ev.push_sse_event(SSEEvent.agent_thought("test", "hello"))
 
     event = await asyncio.wait_for(event_queue.get(), timeout=2.0)
     assert event["agent_id"] == "test"
-    assert event["type"] == "thought"
-    assert event["text"] == "hello"
+    assert event["event_type"] == "agent.thought"
+    assert event["payload"]["text"] == "hello"

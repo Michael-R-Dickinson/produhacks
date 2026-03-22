@@ -2,8 +2,9 @@ import os
 
 from uagents import Agent, Context
 
-from agents.bridge.events import push_event
+from agents.bridge.events import push_sse_event
 from agents.mocks.modeling import mock_model_response
+from agents.models.events import AgentStatus, MessageDirection, SSEEvent
 from agents.models.requests import RunModel
 from agents.models.responses import ModelResponse
 
@@ -18,11 +19,15 @@ modeling_agent = Agent(
 
 @modeling_agent.on_message(model=RunModel, replies={ModelResponse})
 async def handle_run_model(ctx: Context, sender: str, msg: RunModel) -> None:
-    agent_id = str(ctx.agent.address)
+    agent_id = "modeling"
 
-    push_event(agent_id, "status", {"status": "working"})
-    push_event(agent_id, "thought", {"text": "Running regression and computing risk metrics..."})
-    push_event(agent_id, "message_received", {"from": "orchestrator", "title": "RunModel request"})
+    push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.WORKING))
+    push_sse_event(SSEEvent.agent_message(
+        agent_id, from_agent="orchestrator", to_agent=agent_id,
+        title="RunModel", description=f"Run {msg.analyses} on {len(msg.holdings)} holdings",
+        direction=MessageDirection.REQUEST,
+    ))
+    push_sse_event(SSEEvent.agent_thought(agent_id, f"Running {', '.join(msg.analyses)} and computing risk metrics..."))
 
     if MOCK_DATA or msg.mock:
         response = mock_model_response()
@@ -30,8 +35,11 @@ async def handle_run_model(ctx: Context, sender: str, msg: RunModel) -> None:
         # Live implementation in Phase 2
         response = mock_model_response()
 
-    push_event(agent_id, "thought", {"text": "Analysis complete."})
-    push_event(agent_id, "message_sent", {"to": "orchestrator", "title": "ModelResponse"})
-    push_event(agent_id, "status", {"status": "done"})
+    push_sse_event(SSEEvent.agent_thought(agent_id, "Analysis complete."))
+    push_sse_event(SSEEvent.agent_message(
+        agent_id, from_agent=agent_id, to_agent="orchestrator",
+        title="ModelResponse", direction=MessageDirection.RESPONSE,
+    ))
+    push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 
     await ctx.send(sender, response)

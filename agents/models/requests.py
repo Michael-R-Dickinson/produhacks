@@ -16,6 +16,8 @@ class FetchNews(Model):
 class RunModel(Model):
     """Orchestrator -> Modeling Agent"""
     holdings: list[str]
+    analyses: list[str] = ["regression"]
+    lookback_days: int = 365
     mock: bool = False
 
 

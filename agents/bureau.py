@@ -10,7 +10,9 @@ def start_bureau(agents: list, fastapi_loop: asyncio.AbstractEventLoop, event_qu
     asyncio.set_event_loop(bureau_loop)
 
     # Bureau needs its own port for inter-agent ASGI server (separate from uvicorn's 8000).
-    bureau = Bureau(loop=bureau_loop, port=8006)
+    from agents.ports import BUREAU_PORT
+
+    bureau = Bureau(loop=bureau_loop, port=BUREAU_PORT)
     for agent in agents:
         bureau.add(agent)
 

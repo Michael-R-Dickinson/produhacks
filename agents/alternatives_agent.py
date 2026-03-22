@@ -9,6 +9,7 @@ from agents.mocks.alternatives import mock_alternatives_response
 from agents.models.events import AgentStatus, MessageDirection, SSEEvent
 from agents.models.requests import AnalyzeAlternatives
 from agents.models.responses import AlternativesResponse
+from agents.ports import ALTERNATIVES_PORT
 
 MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
@@ -23,7 +24,7 @@ COINGECKO_IDS = {
 alternatives_agent = Agent(
     name="alternatives",
     seed="alternatives-agent-seed-investiswarm",
-    port=8004,
+    port=ALTERNATIVES_PORT,
 )
 
 

@@ -14,17 +14,16 @@ A single cohesive investment report that synthesizes multiple specialized analys
 
 - [x] Multi-agent swarm on fetch.ai agentverse using uAgents library -- Validated in Phase 1: Foundation (5 agents running in Bureau, communicating via bridge)
 - [x] On-demand report generation trigger mechanism -- Validated in Phase 1: Foundation (POST /trigger endpoint working)
+- [x] Orchestrator agent that synthesizes information from domain agents into a unified narrative report -- Validated in Phase 2: Agent Pipeline (Gemini 2.5 Flash synthesis, fan-out to all 4 agents)
+- [x] Portfolio agent that analyzes holdings (diversification, sector exposure, beta, correlation matrix) -- Validated in Phase 2: Agent Pipeline
+- [x] News agent that fetches and analyzes financial news via APIs (Finnhub headlines, FinBERT sentiment scoring) -- Validated in Phase 2: Agent Pipeline
+- [x] Crypto/commodities agent covering blockchain assets and physical commodities -- Validated in Phase 2: Agent Pipeline (CoinGecko crypto, Finnhub gold/oil)
+- [x] On-demand report generation (user triggers, not scheduled) -- Validated in Phase 2: Agent Pipeline (POST /report triggers full pipeline)
+- [x] Report displayed as formatted markdown with embedded charts from modeling agent -- Validated in Phase 2: Agent Pipeline (base64 PNG charts in ModelResponse)
 
 ### Active
 
-- [ ] Multi-agent swarm on fetch.ai agentverse using uAgents library
-- [ ] Orchestrator agent that synthesizes information from domain agents into a unified narrative report
-- [ ] Portfolio agent that analyzes holdings from uploaded CSV (diversification, sector exposure, impact of adding a stock)
-- [ ] News agent that fetches and analyzes financial news via APIs (sentiment analysis, relevance scoring)
 - [ ] Modeling agent with code execution environment for regression, backtesting, and chart generation
-- [ ] Crypto/commodities agent covering blockchain assets, physical commodities, and real estate
-- [ ] On-demand report generation (user triggers, not scheduled)
-- [ ] Report displayed as formatted markdown with embedded charts from modeling agent
 - [ ] Chat interface routed through orchestrator, which dispatches to appropriate agents
 - [ ] Live agent graph visualization: each node is an agent card showing real-time "thoughts" stream
 - [ ] Animated message connections between agent nodes showing inter-agent communication
@@ -69,7 +68,7 @@ A single cohesive investment report that synthesizes multiple specialized analys
 ---
 ## Current State
 
-Phase 1 (Foundation) complete -- three-process architecture running (Bureau on 8006, FastAPI on 8000, SSE bridge), 5 stub agents communicating, mock data mode working, Chrome PNA fix in place. Ready for Phase 2: Agent Pipeline.
+Phase 2 (Agent Pipeline) complete -- all 4 domain agents live (Portfolio, News, Alt Assets with real APIs; Modeling mock with real charts). Orchestrator fans out concurrently, detects contradictions, synthesizes unified narrative via Gemini 2.5 Flash. Full pipeline verifiable via curl POST to /report. 145 tests passing. Ready for Phase 3: Frontend and Visualization.
 
 ---
-*Last updated: 2026-03-22 after Phase 1 completion*
+*Last updated: 2026-03-22 after Phase 2 completion*

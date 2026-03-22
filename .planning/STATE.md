@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-03-PLAN.md — Phase 01 foundation complete
-last_updated: "2026-03-22T07:01:34.450Z"
+stopped_at: Completed 02-01-PLAN.md — model contracts, mock portfolio, base64 chart
+last_updated: "2026-03-22T07:19:19.869Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
+  total_plans: 8
   completed_plans: 3
 ---
 
@@ -19,18 +19,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** A single cohesive investment report that synthesizes multiple specialized analysis domains into one actionable narrative
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — agent-pipeline
 
 ## Current Position
 
-Phase: 01 (foundation) — COMPLETE
-Plan: 3 of 3 (all complete)
+Phase: 02 (agent-pipeline) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: ~7 min
 - Total execution time: ~0.35 hours
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [01-02]: FastAPI startup event used to capture uvicorn event loop (loop="none" not supported in uvicorn 0.30.x)
 - [01-03]: httpx ASGITransport used for async FastAPI testing — required for SSE stream tests (TestClient cannot handle async generators)
 - [01-03]: SSE streaming test uses client.stream() context manager, checks headers only without consuming infinite body
+- [02-01]: agents/data/portfolio.py is the single source of truth for mock holdings — all mock providers import from it
+- [02-01]: MOCK_CHART_BASE64 embedded as a module constant in modeling.py rather than loaded from disk at runtime
+- [02-01]: correlation_matrix uses all 10 equity tickers with realistic within/cross-sector correlation values
 
 ### Pending Todos
 
@@ -80,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T06:57:00Z
-Stopped at: Completed 01-03-PLAN.md — Phase 01 foundation complete
-Resume file: .planning/phases/02-agent-pipeline/02-CONTEXT.md
+Last session: 2026-03-22T07:32:00Z
+Stopped at: Completed 02-01-PLAN.md — model contracts, mock portfolio, base64 chart
+Resume file: .planning/phases/02-agent-pipeline/02-02-PLAN.md

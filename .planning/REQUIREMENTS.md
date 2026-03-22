@@ -16,7 +16,7 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### Portfolio Agent (No LLM -- Pure Computation)
 
-- [ ] **PORT-01**: Portfolio agent loads mock portfolio data (realistic holdings across sectors)
+- [x] **PORT-01**: Portfolio agent loads mock portfolio data (realistic holdings across sectors)
 - [ ] **PORT-02**: Computes sector/asset allocation breakdown
 - [ ] **PORT-03**: Calculates diversification metrics (Herfindahl index, portfolio beta)
 - [ ] **PORT-04**: Runs correlation matrix across holdings using numpy/pandas
@@ -34,7 +34,7 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 - [ ] **MODL-01**: Retrieves historical price data via yfinance
 - [ ] **MODL-02**: Runs specifiable analyses via chart registry (regression, correlation_matrix, sector_performance, volatility_cone, price_history)
-- [ ] **MODL-03**: Generates charts (matplotlib/plotly) per requested analysis type, returned as ChartOutput with type, title, image_base64, and summary
+- [x] **MODL-03**: Generates charts (matplotlib/plotly) per requested analysis type, returned as ChartOutput with type, title, image_base64, and summary
 - [ ] **MODL-04**: Computes risk metrics (Sharpe ratio, volatility) plus extensible metrics dict
 - [ ] **MODL-05**: Returns structured metrics + multiple chart outputs to orchestrator
 
@@ -125,7 +125,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Pending |
-| PORT-01 | Phase 2 | Pending |
+| PORT-01 | Phase 2 | Complete |
 | PORT-02 | Phase 2 | Pending |
 | PORT-03 | Phase 2 | Pending |
 | PORT-04 | Phase 2 | Pending |
@@ -137,7 +137,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NEWS-05 | Phase 2 | Pending |
 | MODL-01 | Phase 2 | Pending |
 | MODL-02 | Phase 2 | Pending |
-| MODL-03 | Phase 2 | Pending |
+| MODL-03 | Phase 2 | Complete |
 | MODL-04 | Phase 2 | Pending |
 | MODL-05 | Phase 2 | Pending |
 | ALT-01 | Phase 2 | Pending |

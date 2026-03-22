@@ -230,9 +230,21 @@ async def handle_fetch_news(ctx: Context, sender: str, msg: FetchNews) -> None:
             overall_sentiment=overall,
         )
 
+    sentiment_label = "bullish" if response.overall_sentiment >= 0 else "bearish"
+    top_movers = sorted(
+        response.aggregate_sentiment.items(), key=lambda x: abs(x[1]), reverse=True
+    )[:3]
+    movers_str = ", ".join(f"{t} {v:+.2f}" for t, v in top_movers)
+    desc = (
+        f"{len(response.headlines)} headlines; "
+        f"overall {response.overall_sentiment:+.2f} ({sentiment_label}); "
+        f"top movers: {movers_str}"
+    )
+
     push_sse_event(SSEEvent.agent_message(
         agent_id, from_agent=agent_id, to_agent="orchestrator",
-        title="NewsResponse", direction=MessageDirection.RESPONSE,
+        title="NewsResponse", description=desc,
+        direction=MessageDirection.RESPONSE,
     ))
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 

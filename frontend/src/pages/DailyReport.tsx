@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AgentGraph from "../components/report/AgentGraph";
+import ReportChat from "../components/report/ReportChat";
 import ReportView from "../components/report/ReportView";
 import { useSwarm } from "../context/SwarmContext";
 import { Zap } from "lucide-react";
@@ -80,6 +81,7 @@ export default function DailyReport() {
                         {today}
                     </div>
                     <ReportView />
+                    <ReportChat reportMarkdown={state.executiveSummary ?? ""} />
                 </div>
             )}
         </div>

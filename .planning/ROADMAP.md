@@ -46,11 +46,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Model contract updates, Phase 2 dependencies, central mock portfolio, mock chart generation
-- [ ] 02-02-PLAN.md — Portfolio agent live computation (sector allocation, Herfindahl, beta, correlation matrix)
-- [ ] 02-03-PLAN.md — News agent live logic (Finnhub fetch, relevance filtering, FinBERT sentiment scoring)
-- [ ] 02-04-PLAN.md — Alt Assets agent live logic (CoinGecko crypto, Finnhub commodities, correlations) + Modeling agent mock enhancement
-- [ ] 02-05-PLAN.md — Orchestrator fan-out, contradiction detection, GPT-4o mini synthesis, bridge /report endpoint, E2E verification
+- [x] 02-01-PLAN.md — Model contract updates, Phase 2 dependencies, central mock portfolio, mock chart generation
+- [x] 02-02-PLAN.md — Portfolio agent live computation (sector allocation, Herfindahl, beta, correlation matrix)
+- [x] 02-03-PLAN.md — News agent live logic (Finnhub fetch, relevance filtering, FinBERT sentiment scoring)
+- [x] 02-04-PLAN.md — Alt Assets agent live logic (CoinGecko crypto, Finnhub commodities, correlations) + Modeling agent mock enhancement
+- [x] 02-05-PLAN.md — Orchestrator fan-out, contradiction detection, GPT-4o mini synthesis, bridge /report endpoint, E2E verification
 
 ### Phase 3: Frontend and Visualization
 **Goal**: The React app displays the live agent graph with streaming thought feeds and animated edges during report generation, and renders the completed report with embedded charts

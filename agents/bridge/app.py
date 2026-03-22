@@ -42,14 +42,8 @@ async def sse_events(request: Request) -> EventSourceResponse:
 
 
 @app.post("/trigger")
-async def trigger_report() -> dict:
-    """Trigger a report generation. Phase 1: stub that pushes SSE events directly.
-
-    The /trigger endpoint handles event dispatch directly via push_sse_event() rather
-    than routing through the orchestrator agent's REST handler. This is simpler for
-    Phase 1 and avoids uncertainty around on_rest_post decorator behaviour.
-    Phase 2 will wire this through actual agent dispatch with ctx.send().
-    """
+async def trigger_report_legacy() -> dict:
+    """Deprecated: use /report instead. Phase 1 stub that pushes SSE events directly."""
     from agents.bridge.events import push_sse_event
     from agents.models.events import AgentStatus, SSEEvent
 
@@ -58,3 +52,18 @@ async def trigger_report() -> dict:
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Stub: full agent dispatch implemented in Phase 2"))
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.DONE))
     return {"status": "triggered"}
+
+
+@app.post("/report")
+async def trigger_report() -> dict:
+    """Trigger full report pipeline via orchestrator's REST endpoint."""
+    from agents.data.portfolio import EQUITY_TICKERS
+    import httpx
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "http://localhost:8005/submit/report",
+            json={"holdings": EQUITY_TICKERS, "mock": False},
+            timeout=60.0,  # orchestrator needs time for fan-out + LLM
+        )
+    return {"status": "triggered", "orchestrator_status": resp.status_code}

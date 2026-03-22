@@ -70,6 +70,9 @@ Recent decisions affecting current work:
 - [02-01]: agents/data/portfolio.py is the single source of truth for mock holdings — all mock providers import from it
 - [02-01]: MOCK_CHART_BASE64 embedded as a module constant in modeling.py rather than loaded from disk at runtime
 - [02-01]: correlation_matrix uses all 10 equity tickers with realistic within/cross-sector correlation values
+- [02-02]: Crypto holdings mapped to "Crypto" sector in compute_sector_allocation so sector weights always sum to 1.0
+- [02-02]: yfinance multi-level column handling added defensively — Close sub-level extracted when multiple tickers requested
+- [02-02]: No caching layer for yfinance calls in portfolio agent — fresh network calls per report (scope boundary)
 - [Phase 02-03]: FinBERT loaded lazily via get_finbert() so test imports never trigger 500MB model download
 - [Phase 02-03]: filter_headlines_for_tickers caps at 5 per ticker to prevent any single holding dominating the aggregate sentiment signal
 - [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:28:31.340Z
-Stopped at: Completed 02-03-PLAN.md — Finnhub fetch, FinBERT scoring, sentiment aggregation
+Last session: 2026-03-22T07:27:47Z
+Stopped at: Completed 02-02-PLAN.md — portfolio computation functions (sector allocation, HHI, beta, correlation matrix)
 Resume file: None

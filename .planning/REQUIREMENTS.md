@@ -17,10 +17,10 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 ### Portfolio Agent (No LLM -- Pure Computation)
 
 - [x] **PORT-01**: Portfolio agent loads mock portfolio data (realistic holdings across sectors)
-- [ ] **PORT-02**: Computes sector/asset allocation breakdown
-- [ ] **PORT-03**: Calculates diversification metrics (Herfindahl index, portfolio beta)
-- [ ] **PORT-04**: Runs correlation matrix across holdings using numpy/pandas
-- [ ] **PORT-05**: Returns structured numerical output to orchestrator
+- [x] **PORT-02**: Computes sector/asset allocation breakdown
+- [x] **PORT-03**: Calculates diversification metrics (Herfindahl index, portfolio beta)
+- [x] **PORT-04**: Runs correlation matrix across holdings using numpy/pandas
+- [x] **PORT-05**: Returns structured numerical output to orchestrator
 
 ### News Agent (Partial LLM -- FinBERT for Sentiment)
 
@@ -126,10 +126,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Pending |
 | PORT-01 | Phase 2 | Complete |
-| PORT-02 | Phase 2 | Pending |
-| PORT-03 | Phase 2 | Pending |
-| PORT-04 | Phase 2 | Pending |
-| PORT-05 | Phase 2 | Pending |
+| PORT-02 | Phase 2 | Complete |
+| PORT-03 | Phase 2 | Complete |
+| PORT-04 | Phase 2 | Complete |
+| PORT-05 | Phase 2 | Complete |
 | NEWS-01 | Phase 2 | Complete |
 | NEWS-02 | Phase 2 | Complete |
 | NEWS-03 | Phase 2 | Complete |

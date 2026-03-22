@@ -11,8 +11,8 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 - [ ] **INFRA-01**: uAgents Bureau running all 5 agents in one process
 - [ ] **INFRA-02**: FastAPI bridge with SSE endpoints for web-to-agent communication
-- [ ] **INFRA-03**: Pydantic message models for all inter-agent communication
-- [ ] **INFRA-04**: Mock data mode for all agents (toggle for demo vs development)
+- [x] **INFRA-03**: Pydantic message models for all inter-agent communication
+- [x] **INFRA-04**: Mock data mode for all agents (toggle for demo vs development)
 
 ### Portfolio Agent (No LLM -- Pure Computation)
 

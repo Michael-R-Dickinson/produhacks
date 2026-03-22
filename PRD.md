@@ -222,4 +222,21 @@ The V0 frontend should look polished and production-ready, not like a prototype.
 - Agent nodes show a monospace output area below the description for streaming "thought" text during generation
 - Modal on agent card click: 560px wide, slide-up entrance, showing agent details and external API logos if applicable
 
+## Chart Generation Notes (V0)
+
+- Set `matplotlib.use("Agg")` before any other matplotlib imports -- required for headless environments
+- Figure size: `figsize=(10, 6)`, `dpi=120`, `bbox_inches="tight"` for consistent web-friendly output
+- After encoding, always call `plt.close(fig)` to free memory
+- Encoding pattern:
+```python
+buf = io.BytesIO()
+fig.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+image_base64 = base64.standard_b64encode(buf.getvalue()).decode("ascii")
+plt.close(fig)
+```
+- `react-markdown` blocks `data:` URIs by default. Override `urlTransform` to pass them through:
+```tsx
+<ReactMarkdown urlTransform={(url) => url}>
+```
+
 ultrathink

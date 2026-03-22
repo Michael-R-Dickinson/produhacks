@@ -60,7 +60,7 @@ Recent decisions affecting current work:
 - [Pre-phase]: FastAPI bridge is Phase 1 infrastructure — browser cannot speak uAgents protocol directly
 - [Pre-phase]: Mock data mode must be in place before any live API calls to preserve rate limits during development
 - [Pre-phase]: Pipeline must produce a curl-verifiable report before any React Flow visualization work begins
-- [Pre-phase]: GPT-4o mini chosen as orchestrator LLM for cost efficiency at hackathon call volumes
+- [Pre-phase]: Gemini chosen as orchestrator LLM for advanced synthesis capabilities at hackathon call volumes
 - [Pre-phase]: Finnhub is primary financial API (60 req/min); Alpha Vantage deferred (25 req/day)
 - [01-01]: fastapi constraint relaxed to >=0.115.0 to resolve sse-starlette==3.3.3 starlette conflict; resolved to fastapi 0.135.1 + starlette 0.52.1
 - [01-01]: setuptools packages.find configured with where=['..'] to correctly discover agents package from repo root
@@ -80,7 +80,7 @@ Recent decisions affecting current work:
 - [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
 - [Phase 02-agent-pipeline]: trend_signal uses exclusive thresholds: > 3.0 is bullish, < -3.0 is bearish, exactly 3.0 or -3.0 is neutral
 - [Phase 02-agent-pipeline]: compute_cross_correlations accepts pre-fetched price history dict rather than calling yfinance internally, enabling pure unit testing
-- [Phase 02-agent-pipeline]: AsyncOpenAI lazy-initialized via get_openai() getter so orchestrator.py can be imported without OPENAI_API_KEY set
+- [Phase 02-agent-pipeline]: genai.Client lazy-initialized via get_gemini() getter so orchestrator.py can be imported without GEMINI_API_KEY set
 - [Phase 02-agent-pipeline]: on_rest_post response type must be a uAgents Model subclass (not dict) - ReportResponse added for compatibility
 - [Phase 02-agent-pipeline]: ctx.send_and_receive returns (message, sender) tuple in uAgents 0.24.0 - extract_msg helper unwraps it before safe_result
 

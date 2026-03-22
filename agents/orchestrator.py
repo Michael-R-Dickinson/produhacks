@@ -106,6 +106,79 @@ def detect_contradictions(
     return contradictions
 
 
+AVAILABLE_CHARTS: dict[str, str] = {
+    "regression": "Linear regression of portfolio value over time with OLS trend line. Shows momentum direction and R-squared fit.",
+    "correlation_matrix": "Heatmap of pairwise correlations between holdings. Reveals concentration risk and diversification gaps.",
+    "sector_performance": "Bar chart comparing returns across holdings/sectors. Highlights winners, losers, and relative performance.",
+    "volatility_cone": "Historical realized-volatility percentiles by tenor. Shows whether current vol is elevated vs. history.",
+    "price_history": "Normalized price paths for individual holdings overlaid. Shows relative performance and divergence.",
+}
+
+
+async def plan_chart_selection(
+    portfolio: PortfolioResponse,
+    news: NewsResponse,
+    alt: AlternativesResponse,
+) -> list[str]:
+    """Ask Gemini which charts are most relevant given the data from the non-modeling agents."""
+    chart_descriptions = "\n".join(
+        f"- `{key}`: {desc}" for key, desc in AVAILABLE_CHARTS.items()
+    )
+
+    data_summary = json.dumps(
+        {
+            "portfolio": portfolio.model_dump(),
+            "news": news.model_dump(),
+            "alternatives": alt.model_dump(),
+        },
+        indent=2,
+    )
+
+    prompt = f"""You are helping an orchestrator agent decide which financial charts to generate for a portfolio report.
+
+Given the data below from three domain agents (portfolio analysis, news sentiment, and alternative assets), select which charts would be most valuable for the final report.
+
+## Available Chart Types
+{chart_descriptions}
+
+## Agent Data
+{data_summary}
+
+## Instructions
+- Select 3-5 chart types that are most relevant to the data and would tell the most compelling visual story.
+- If correlations between holdings are notable (many holdings, or concentrated sectors), include `correlation_matrix`.
+- If there are clear winners/losers in the portfolio, include `sector_performance`.
+- If news sentiment is mixed or contradictory, include `price_history` to show recent divergence.
+- Always include `regression` as a baseline trend view.
+- If volatility or risk is a theme in the news or portfolio data, include `volatility_cone`.
+
+Respond with ONLY a JSON array of chart type strings, nothing else. Example: ["regression", "correlation_matrix", "sector_performance"]"""
+
+    response = await get_gemini().aio.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config=genai.types.GenerateContentConfig(
+            max_output_tokens=200,
+            temperature=0.1,
+        ),
+    )
+
+    raw = response.text.strip()
+    # Strip markdown code fences if present
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
+        raw = raw.rsplit("```", 1)[0]
+        raw = raw.strip()
+
+    try:
+        selected = json.loads(raw)
+        # Validate against known chart types
+        return [s for s in selected if s in AVAILABLE_CHARTS]
+    except (json.JSONDecodeError, TypeError):
+        logger.warning("Chart planning LLM returned unparseable response: %s — using all charts", raw)
+        return list(AVAILABLE_CHARTS.keys())
+
+
 def build_synthesis_prompt(
     portfolio: PortfolioResponse,
     news: NewsResponse,
@@ -126,7 +199,19 @@ def build_synthesis_prompt(
 4. Notable Contradictions (if any detected)
 
 Do not section by data source. Weave all data into a unified narrative. Use a professional analyst tone.
-Keep the report to 600-800 words for 2-3 screens of content."""
+Keep the report to 600-800 words for 2-3 screens of content.
+
+## Formatting Requirements
+Make the report visually rich and scannable. Use markdown formatting generously:
+- Use **bold** for key metrics, ticker symbols, and critical data points (e.g., **AAPL +3.2%**, **Sharpe ratio: 1.4**)
+- Use *italics* for analyst commentary, caveats, and qualitative assessments (e.g., *sentiment has shifted bearish since Q3*)
+- Use `inline code` for exact figures, prices, and percentages when they appear mid-sentence (e.g., the portfolio returned `12.4%`)
+- Use > blockquotes for key takeaways or notable contradictions that deserve emphasis
+- Use horizontal rules (---) between major thematic sections for clear visual separation
+- Use bullet lists and numbered lists liberally to break up dense information
+- Where data naturally forms comparisons, use markdown tables (e.g., sector weights, top/bottom performers, before/after metrics)
+- Use ### subheadings within sections to create hierarchy and aid scanning
+- Highlight risks or warnings with **bold** and frame them clearly (e.g., **Risk:** *correlation between top holdings exceeds 0.8*)"""
 
     modeling_data = modeling.model_dump()
     modeling_data.pop("charts", None)  # charts sent separately as references
@@ -158,8 +243,10 @@ Keep the report to 600-800 words for 2-3 screens of content."""
         prompt_parts += [
             "",
             "## Available Charts",
-            "Place these chart references at appropriate locations in the report.",
+            "You MUST embed every available chart in the report — do not skip any.",
+            "Place each chart reference at the most contextually relevant location in the report.",
             "Use the exact syntax [chart:<id>] on its own line to embed each chart.",
+            "Charts should appear immediately after the paragraph that discusses their data, never clustered at the end.",
             *chart_lines,
         ]
 
@@ -206,19 +293,16 @@ async def synthesize_report(
 @orchestrator.on_rest_post("/report", ReportRequest, ReportResponse)
 async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.WORKING))
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching to 4 domain agents concurrently..."))
+    push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching to portfolio, news, and alternatives agents..."))
 
-    # Fan-out to all domain agents concurrently
-    results = await asyncio.gather(
+    # --- Phase 1: Fan-out to non-modeling agents concurrently ---
+    phase1_results = await asyncio.gather(
         ctx.send_and_receive(PORTFOLIO_ADDR, AnalyzePortfolio(holdings=req.holdings, mock=req.mock), response_type=PortfolioResponse, timeout=30),
         ctx.send_and_receive(NEWS_ADDR, FetchNews(tickers=req.holdings, mock=req.mock), response_type=NewsResponse, timeout=30),
-        ctx.send_and_receive(MODELING_ADDR, RunModel(holdings=req.holdings, mock=req.mock), response_type=ModelResponse, timeout=30),
         ctx.send_and_receive(ALT_ADDR, AnalyzeAlternatives(mock=req.mock), response_type=AlternativesResponse, timeout=30),
         return_exceptions=True,
     )
 
-    # ctx.send_and_receive returns (message, sender) tuple in uAgents 0.24.0
-    # Extract message from tuple if not an exception
     def extract_msg(result):
         if isinstance(result, Exception):
             return result
@@ -226,14 +310,35 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
             return result[0]
         return result
 
-    portfolio_data = safe_result(extract_msg(results[0]), mock_portfolio_response())
-    news_data = safe_result(extract_msg(results[1]), mock_news_response())
-    modeling_data = safe_result(extract_msg(results[2]), mock_model_response())
-    alt_data = safe_result(extract_msg(results[3]), mock_alternatives_response())
+    portfolio_data = safe_result(extract_msg(phase1_results[0]), mock_portfolio_response())
+    news_data = safe_result(extract_msg(phase1_results[1]), mock_news_response())
+    alt_data = safe_result(extract_msg(phase1_results[2]), mock_alternatives_response())
 
     push_sse_event(SSEEvent.agent_thought(
         "orchestrator",
-        f"All agents responded. Analyzing {len(news_data.headlines)} headlines, {len(portfolio_data.sector_allocation)} sectors...",
+        f"3 agents responded. Analyzing {len(news_data.headlines)} headlines, {len(portfolio_data.sector_allocation)} sectors...",
+    ))
+
+    # --- Phase 2: Ask Gemini which charts to generate ---
+    push_sse_event(SSEEvent.agent_thought("orchestrator", "Consulting Gemini to plan chart selection based on agent data..."))
+    selected_charts = await plan_chart_selection(portfolio_data, news_data, alt_data)
+    push_sse_event(SSEEvent.agent_thought(
+        "orchestrator",
+        f"Chart plan decided: {', '.join(selected_charts)}. Dispatching to modeling agent...",
+    ))
+
+    # --- Phase 3: Send targeted request to modeling agent ---
+    modeling_result = await ctx.send_and_receive(
+        MODELING_ADDR,
+        RunModel(holdings=req.holdings, analyses=selected_charts, mock=req.mock),
+        response_type=ModelResponse,
+        timeout=30,
+    )
+    modeling_data = safe_result(extract_msg(modeling_result), mock_model_response())
+
+    push_sse_event(SSEEvent.agent_thought(
+        "orchestrator",
+        f"Modeling agent returned {len(modeling_data.charts)} charts. Preparing final synthesis...",
     ))
 
     # Contradiction detection
@@ -244,7 +349,7 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
             f"Flagging {len(contradictions)} cross-agent contradictions",
         ))
 
-    # LLM synthesis
+    # --- Phase 4: LLM synthesis with all data + targeted charts ---
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Synthesizing unified narrative with Gemini..."))
     report_markdown = await synthesize_report(
         portfolio_data, news_data, modeling_data, alt_data,
@@ -252,6 +357,7 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     )
 
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Report complete. Delivering to client."))
+    logger.info("Sending report.complete — markdown length: %d, charts: %d", len(report_markdown), len(modeling_data.charts))
 
     # Push completed report via SSE
     push_sse_event(SSEEvent.report_complete(

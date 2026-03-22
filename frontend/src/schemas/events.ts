@@ -109,7 +109,7 @@ export const ReportChunkPayload = z.object({
 
 export const ReportCompletePayload = z.object({
   markdown: z.string(),
-  charts: z.array(z.record(z.string(), z.unknown())).optional().default([]),
+  charts: z.array(ChartOutput).optional().default([]),
 });
 
 export const ChatResponsePayload = z.object({
@@ -174,13 +174,21 @@ export type AgentMessageEvent = {
   direction: MessageDirection;
 };
 
+export type ReportCompleteEvent = {
+  agent_id: AgentId;
+  type: "report_complete";
+  markdown: string;
+  charts: ChartOutput[];
+};
+
 export type SSEEvent =
   | StatusEvent
   | ThoughtEvent
   | ReportSectionEvent
   | ChatTokenEvent
   | SwarmHealthEvent
-  | AgentMessageEvent;
+  | AgentMessageEvent
+  | ReportCompleteEvent;
 
 /* ── Agent metadata (for UI rendering) ──────────── */
 export interface AgentMeta {

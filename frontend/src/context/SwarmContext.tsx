@@ -18,6 +18,7 @@ import type {
   AlternativesData,
   ChartOutput,
   MessageDirection,
+  ReportCompleteEvent,
 } from "../schemas/events"
 
 /* ── State shape ─────────────────────────────────── */
@@ -183,6 +184,19 @@ function reducer(state: SwarmState, action: Action): SwarmState {
               processing_power: evt.processing_power,
             },
           }
+
+        case "report_complete": {
+          const rc = evt as ReportCompleteEvent
+          const newCharts: Record<string, ChartOutput> = { ...state.chartMap }
+          for (const chart of rc.charts) {
+            newCharts[chart.chart_id] = chart
+          }
+          return {
+            ...state,
+            executiveSummary: rc.markdown,
+            chartMap: newCharts,
+          }
+        }
 
         case "agent_message":
           return {

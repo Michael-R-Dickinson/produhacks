@@ -50,12 +50,12 @@ None — discussion stayed within phase scope
 <phase_requirements>
 ## Phase Requirements
 
-| ID | Description | Research Support |
-|----|-------------|-----------------|
-| INFRA-01 | uAgents Bureau running all 5 agents in one process | Bureau `run_async()` pattern confirmed; background thread isolation pattern documented below |
+| ID       | Description                                                      | Research Support                                                                                                                                              |
+| -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| INFRA-01 | uAgents Bureau running all 5 agents in one process               | Bureau `run_async()` pattern confirmed; background thread isolation pattern documented below                                                                  |
 | INFRA-02 | FastAPI bridge with SSE endpoints for web-to-agent communication | `sse-starlette` 3.3.3 + `EventSourceResponse` pattern; cross-loop queue via `call_soon_threadsafe`; Chrome PNA fix via Starlette `allow_private_network=True` |
-| INFRA-03 | Pydantic message models for all inter-agent communication | uAgents Model base class pattern documented; typed per-agent contracts specified |
-| INFRA-04 | Mock data mode for all agents (toggle for demo vs development) | `MOCK_DATA=true` env var pattern recommended; per-agent mock fixtures in `agents/mocks/` |
+| INFRA-03 | Pydantic message models for all inter-agent communication        | uAgents Model base class pattern documented; typed per-agent contracts specified                                                                              |
+| INFRA-04 | Mock data mode for all agents (toggle for demo vs development)   | `MOCK_DATA=true` env var pattern recommended; per-agent mock fixtures in `agents/mocks/`                                                                      |
 </phase_requirements>
 
 ---
@@ -76,30 +76,30 @@ The Chrome Private Network Access (PNA) problem is solved at the Starlette CORS 
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| uagents | 0.24.0 | Agent runtime, Bureau, inter-agent messaging | fetch.ai hackathon requirement; current stable (2026-03-04) |
-| Python | 3.11 | Agent implementation | Supported by uAgents 3.10-3.14; 3.11 widely available |
-| fastapi | 0.115.x | FastAPI bridge server | Standard ASGI framework; confirmed compatible with uagents |
-| uvicorn | 0.30.x | ASGI server | Standard FastAPI runner |
-| sse-starlette | 3.3.3 | SSE streaming from FastAPI | Current stable (2026-03-17); EventSourceResponse handles keep-alive, disconnect |
-| pydantic | v2.x | Message model definitions | Bundled with fastapi; uAgents Model base class extends Pydantic |
-| python-dotenv | 1.x | Environment variable loading | Standard .env management; used for MOCK_DATA toggle |
+| Library       | Version | Purpose                                      | Why Standard                                                                    |
+| ------------- | ------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| uagents       | 0.24.0  | Agent runtime, Bureau, inter-agent messaging | fetch.ai hackathon requirement; current stable (2026-03-04)                     |
+| Python        | 3.11    | Agent implementation                         | Supported by uAgents 3.10-3.14; 3.11 widely available                           |
+| fastapi       | 0.115.x | FastAPI bridge server                        | Standard ASGI framework; confirmed compatible with uagents                      |
+| uvicorn       | 0.30.x  | ASGI server                                  | Standard FastAPI runner                                                         |
+| sse-starlette | 3.3.3   | SSE streaming from FastAPI                   | Current stable (2026-03-17); EventSourceResponse handles keep-alive, disconnect |
+| pydantic      | v2.x    | Message model definitions                    | Bundled with fastapi; uAgents Model base class extends Pydantic                 |
+| python-dotenv | 1.x     | Environment variable loading                 | Standard .env management; used for MOCK_DATA toggle                             |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| starlette | 0.51.0+ | CORSMiddleware with `allow_private_network` | Pulled in by fastapi; must be 0.51.0+ for PNA header support |
-| httpx | 0.27.x | Async HTTP calls from agents | Non-blocking; needed if any stub agent verifies it can call an endpoint |
+| Library   | Version | Purpose                                     | When to Use                                                             |
+| --------- | ------- | ------------------------------------------- | ----------------------------------------------------------------------- |
+| starlette | 0.51.0+ | CORSMiddleware with `allow_private_network` | Pulled in by fastapi; must be 0.51.0+ for PNA header support            |
+| httpx     | 0.27.x  | Async HTTP calls from agents                | Non-blocking; needed if any stub agent verifies it can call an endpoint |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| sse-starlette | StreamingResponse + manual SSE format | sse-starlette handles keep-alive, disconnect, and proper media type automatically; no benefit to rolling manually |
-| Background thread (Bureau) | Two separate processes via start.sh | Two processes avoids event loop isolation entirely but adds startup coordination complexity; threading is simpler for greenfield |
-| `call_soon_threadsafe` + `asyncio.Queue` | `janus.Queue` | janus must be created in the consuming loop's context; `call_soon_threadsafe` is standard library and simpler for this one-way event push pattern |
+| Instead of                               | Could Use                             | Tradeoff                                                                                                                                          |
+| ---------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sse-starlette                            | StreamingResponse + manual SSE format | sse-starlette handles keep-alive, disconnect, and proper media type automatically; no benefit to rolling manually                                 |
+| Background thread (Bureau)               | Two separate processes via start.sh   | Two processes avoids event loop isolation entirely but adds startup coordination complexity; threading is simpler for greenfield                  |
+| `call_soon_threadsafe` + `asyncio.Queue` | `janus.Queue`                         | janus must be created in the consuming loop's context; `call_soon_threadsafe` is standard library and simpler for this one-way event push pattern |
 
 **Installation:**
 ```bash
@@ -372,7 +372,7 @@ from agents.bridge.events import push_event
 
 MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
-portfolio_agent = Agent(name="portfolio", seed="portfolio-agent-seed-investiswarm", port=8001)
+portfolio_agent = Agent(name="portfolio", seed="portfolio-agent-seed-Wealth Council", port=8001)
 
 @portfolio_agent.on_message(model=AnalyzePortfolio, replies={PortfolioResponse})
 async def handle_analyze(ctx: Context, sender: str, msg: AnalyzePortfolio) -> None:
@@ -401,13 +401,13 @@ async def handle_analyze(ctx: Context, sender: str, msg: AnalyzePortfolio) -> No
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| SSE formatting and keep-alive | Manual `StreamingResponse` with `text/event-stream` | `sse-starlette` `EventSourceResponse` | Handles keep-alive pings, client disconnect detection, proper headers automatically |
-| Thread-safe event loop crossing | Custom locking/queuing schemes | `loop.call_soon_threadsafe(queue.put_nowait, event)` | Python stdlib; correct; one line |
-| Chrome PNA CORS header | Custom middleware class | `CORSMiddleware(allow_private_network=True)` | Starlette 0.51.0+ includes this natively; no custom class needed |
-| Pydantic model inheritance for agents | Custom serialization | `uagents.Model` subclass | `Model` is already a Pydantic BaseModel; uAgents serializes/deserializes automatically |
-| Agent seed phrase management | Random address generation | Deterministic seed strings | Agent addresses are derived from seeds — hardcoded seeds give stable, predictable addresses for hardcoding in config |
+| Problem                               | Don't Build                                         | Use Instead                                          | Why                                                                                                                  |
+| ------------------------------------- | --------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| SSE formatting and keep-alive         | Manual `StreamingResponse` with `text/event-stream` | `sse-starlette` `EventSourceResponse`                | Handles keep-alive pings, client disconnect detection, proper headers automatically                                  |
+| Thread-safe event loop crossing       | Custom locking/queuing schemes                      | `loop.call_soon_threadsafe(queue.put_nowait, event)` | Python stdlib; correct; one line                                                                                     |
+| Chrome PNA CORS header                | Custom middleware class                             | `CORSMiddleware(allow_private_network=True)`         | Starlette 0.51.0+ includes this natively; no custom class needed                                                     |
+| Pydantic model inheritance for agents | Custom serialization                                | `uagents.Model` subclass                             | `Model` is already a Pydantic BaseModel; uAgents serializes/deserializes automatically                               |
+| Agent seed phrase management          | Random address generation                           | Deterministic seed strings                           | Agent addresses are derived from seeds — hardcoded seeds give stable, predictable addresses for hardcoding in config |
 
 **Key insight:** The Bureau/FastAPI threading problem looks tricky but has a one-line stdlib solution. The only custom code needed is `push_event()` — everything else uses existing libraries as designed.
 
@@ -486,7 +486,7 @@ MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
 news_agent = Agent(
     name="news",
-    seed="news-agent-seed-investiswarm-v1",  # deterministic address
+    seed="news-agent-seed-Wealth Council-v1",  # deterministic address
     port=8002,
 )
 
@@ -581,12 +581,12 @@ def mock_portfolio_response() -> PortfolioResponse:
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `bureau.run()` blocking call | `bureau.run_async()` coroutine | uAgents 0.20+ | Bureau can now run alongside other async tasks |
-| Custom CORS middleware for PNA | `CORSMiddleware(allow_private_network=True)` | Starlette 0.51.0 (Jan 2026) | No custom class needed; one-liner fix |
-| `asyncio.Queue` shared across threads | `call_soon_threadsafe` + per-loop Queue | Always correct — misconception in many tutorials | Prevents silent data loss in multi-loop architectures |
-| Two separate processes for Bureau + FastAPI | Single process, background thread | Architecture choice | Simpler startup; same process means easier event loop reference passing |
+| Old Approach                                | Current Approach                             | When Changed                                     | Impact                                                                  |
+| ------------------------------------------- | -------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------- |
+| `bureau.run()` blocking call                | `bureau.run_async()` coroutine               | uAgents 0.20+                                    | Bureau can now run alongside other async tasks                          |
+| Custom CORS middleware for PNA              | `CORSMiddleware(allow_private_network=True)` | Starlette 0.51.0 (Jan 2026)                      | No custom class needed; one-liner fix                                   |
+| `asyncio.Queue` shared across threads       | `call_soon_threadsafe` + per-loop Queue      | Always correct — misconception in many tutorials | Prevents silent data loss in multi-loop architectures                   |
+| Two separate processes for Bureau + FastAPI | Single process, background thread            | Architecture choice                              | Simpler startup; same process means easier event loop reference passing |
 
 **Deprecated/outdated approaches to avoid:**
 - `loop.run_until_complete(bureau.run())` — `run()` calls `asyncio.run()` internally and creates its own loop
@@ -617,26 +617,26 @@ def mock_portfolio_response() -> PortfolioResponse:
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | pytest (not yet installed — Wave 0 gap) |
-| Config file | `agents/pyproject.toml` — Wave 0 gap |
-| Quick run command | `pytest agents/tests/ -x -q` |
-| Full suite command | `pytest agents/tests/ -q` |
+| Property           | Value                                   |
+| ------------------ | --------------------------------------- |
+| Framework          | pytest (not yet installed — Wave 0 gap) |
+| Config file        | `agents/pyproject.toml` — Wave 0 gap    |
+| Quick run command  | `pytest agents/tests/ -x -q`            |
+| Full suite command | `pytest agents/tests/ -q`               |
 
 ### Phase Requirements to Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| INFRA-01 | All 5 agents register with Bureau and are addressable | integration | `pytest agents/tests/test_bureau.py::test_all_agents_registered -x` | Wave 0 |
-| INFRA-01 | Round-trip message: orchestrator -> portfolio agent -> orchestrator | integration | `pytest agents/tests/test_bureau.py::test_stub_roundtrip -x` | Wave 0 |
-| INFRA-02 | SSE endpoint returns 200 with correct content-type | smoke | `pytest agents/tests/test_bridge.py::test_sse_connects -x` | Wave 0 |
-| INFRA-02 | push_event() delivers event to SSE consumer | integration | `pytest agents/tests/test_bridge.py::test_event_delivered -x` | Wave 0 |
-| INFRA-02 | CORS Access-Control-Allow-Private-Network header present | smoke | `pytest agents/tests/test_bridge.py::test_pna_header -x` | Wave 0 |
-| INFRA-03 | All model classes are importable from shared module | unit | `pytest agents/tests/test_models.py::test_imports -x` | Wave 0 |
-| INFRA-03 | Models serialize/deserialize without data loss | unit | `pytest agents/tests/test_models.py::test_roundtrip -x` | Wave 0 |
-| INFRA-04 | MOCK_DATA=true returns mock fixture, not None | unit | `pytest agents/tests/test_mock.py::test_mock_toggle -x` | Wave 0 |
-| INFRA-04 | All 5 agents return non-None response in mock mode | integration | `pytest agents/tests/test_mock.py::test_all_agents_mock -x` | Wave 0 |
+| Req ID   | Behavior                                                            | Test Type   | Automated Command                                                   | File Exists? |
+| -------- | ------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------- | ------------ |
+| INFRA-01 | All 5 agents register with Bureau and are addressable               | integration | `pytest agents/tests/test_bureau.py::test_all_agents_registered -x` | Wave 0       |
+| INFRA-01 | Round-trip message: orchestrator -> portfolio agent -> orchestrator | integration | `pytest agents/tests/test_bureau.py::test_stub_roundtrip -x`        | Wave 0       |
+| INFRA-02 | SSE endpoint returns 200 with correct content-type                  | smoke       | `pytest agents/tests/test_bridge.py::test_sse_connects -x`          | Wave 0       |
+| INFRA-02 | push_event() delivers event to SSE consumer                         | integration | `pytest agents/tests/test_bridge.py::test_event_delivered -x`       | Wave 0       |
+| INFRA-02 | CORS Access-Control-Allow-Private-Network header present            | smoke       | `pytest agents/tests/test_bridge.py::test_pna_header -x`            | Wave 0       |
+| INFRA-03 | All model classes are importable from shared module                 | unit        | `pytest agents/tests/test_models.py::test_imports -x`               | Wave 0       |
+| INFRA-03 | Models serialize/deserialize without data loss                      | unit        | `pytest agents/tests/test_models.py::test_roundtrip -x`             | Wave 0       |
+| INFRA-04 | MOCK_DATA=true returns mock fixture, not None                       | unit        | `pytest agents/tests/test_mock.py::test_mock_toggle -x`             | Wave 0       |
+| INFRA-04 | All 5 agents return non-None response in mock mode                  | integration | `pytest agents/tests/test_mock.py::test_all_agents_mock -x`         | Wave 0       |
 
 ### Sampling Rate
 

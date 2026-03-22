@@ -155,14 +155,14 @@ Use `RestrictedPython` or run generated code in a subprocess with a timeout and 
 
 Shortcuts that seem reasonable but create long-term problems.
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| No caching on financial API calls | Simpler agent code | Rate limit exhaustion, demo failures | Never — mock mode is the alternative |
-| Storing orchestration state in Python globals | Avoids ctx.storage API learning curve | Silent data loss on Agentverse, hard-to-debug race conditions | Never for hosted agents |
-| Inline WebSocket sends inside agent handlers | Feels unified | Couples pipeline to transport, blocks on slow clients | Never |
-| Single monolithic orchestrator prompt with all agent outputs | Simple to implement | Context window overflow, slow synthesis, brittle output | Only if all sub-agent summaries are strictly capped |
-| Hardcoded agent addresses in frontend | Avoids service discovery | Breaks when agents are redeployed to new addresses | Acceptable for 24h hackathon if addresses are in a config file |
-| No mock data mode | Saves ~1 hour initial setup | Tests burn live API quota, demo can fail | Never — mock mode is the insurance policy |
+| Shortcut                                                     | Immediate Benefit                     | Long-term Cost                                                | When Acceptable                                                |
+| ------------------------------------------------------------ | ------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------- |
+| No caching on financial API calls                            | Simpler agent code                    | Rate limit exhaustion, demo failures                          | Never — mock mode is the alternative                           |
+| Storing orchestration state in Python globals                | Avoids ctx.storage API learning curve | Silent data loss on Agentverse, hard-to-debug race conditions | Never for hosted agents                                        |
+| Inline WebSocket sends inside agent handlers                 | Feels unified                         | Couples pipeline to transport, blocks on slow clients         | Never                                                          |
+| Single monolithic orchestrator prompt with all agent outputs | Simple to implement                   | Context window overflow, slow synthesis, brittle output       | Only if all sub-agent summaries are strictly capped            |
+| Hardcoded agent addresses in frontend                        | Avoids service discovery              | Breaks when agents are redeployed to new addresses            | Acceptable for 24h hackathon if addresses are in a config file |
+| No mock data mode                                            | Saves ~1 hour initial setup           | Tests burn live API quota, demo can fail                      | Never — mock mode is the insurance policy                      |
 
 ---
 
@@ -170,16 +170,16 @@ Shortcuts that seem reasonable but create long-term problems.
 
 Common mistakes when connecting to external services.
 
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| Agentverse hosted agents | Using module-level global variables for state | Use `ctx.storage.get/set` for all persistent state |
-| uAgents protocol from React | Calling agent addresses directly from browser JS | Route all frontend requests through a FastAPI bridge service |
-| Alpha Vantage / Polygon free tier | Calling API on every request during development | Implement response caching from day one; use mock mode for development |
-| Finnhub news/market API | Not setting `Content-Type: application/json` in request headers | Follow their SDK examples; always specify headers explicitly |
-| uAgents message protocol | Defining message models without `replies=` on handlers | Always declare expected reply types in `@on_message(replies={...})` |
-| Cross-origin requests (CORS) | Agents and bridge on different ports without CORS headers | Configure `CORSMiddleware` on the FastAPI bridge explicitly |
-| Agentverse mailbox agents | Assuming real-time delivery | Mailbox adds latency; use direct peer communication for synchronous report flows |
-| WebSocket from React | Not handling reconnection on dropped connection | Implement exponential backoff reconnect in the frontend WebSocket client |
+| Integration                       | Common Mistake                                                  | Correct Approach                                                                 |
+| --------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Agentverse hosted agents          | Using module-level global variables for state                   | Use `ctx.storage.get/set` for all persistent state                               |
+| uAgents protocol from React       | Calling agent addresses directly from browser JS                | Route all frontend requests through a FastAPI bridge service                     |
+| Alpha Vantage / Polygon free tier | Calling API on every request during development                 | Implement response caching from day one; use mock mode for development           |
+| Finnhub news/market API           | Not setting `Content-Type: application/json` in request headers | Follow their SDK examples; always specify headers explicitly                     |
+| uAgents message protocol          | Defining message models without `replies=` on handlers          | Always declare expected reply types in `@on_message(replies={...})`              |
+| Cross-origin requests (CORS)      | Agents and bridge on different ports without CORS headers       | Configure `CORSMiddleware` on the FastAPI bridge explicitly                      |
+| Agentverse mailbox agents         | Assuming real-time delivery                                     | Mailbox adds latency; use direct peer communication for synchronous report flows |
+| WebSocket from React              | Not handling reconnection on dropped connection                 | Implement exponential backoff reconnect in the frontend WebSocket client         |
 
 ---
 
@@ -187,13 +187,13 @@ Common mistakes when connecting to external services.
 
 Patterns that work at small scale but fail as usage grows.
 
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Orchestrator awaiting sub-agents sequentially | Report takes 5x longer than necessary | Use `asyncio.gather()` to fan out to all sub-agents in parallel | Immediately — even at 1 user |
-| React re-rendering entire agent graph on every thought event | UI freezes during active streaming | Memoize node components; use `useCallback` for handlers; debounce thought updates | At ~10 thought events/second |
-| Streaming thoughts as full text replacement vs. append | Jumpy UI, excessive DOM updates | Use append-only thought log per agent; only render last N lines | At ~5 agents all streaming simultaneously |
-| CSS animated SVG edges in React Flow | CPU spike, dropped frames | Limit animation to active connections only; use CSS `will-change: transform` | At 5+ simultaneously animated edges |
-| Passing entire report markdown to parent component on every token | Laggy report rendering | Buffer tokens, update markdown display on a 100ms interval not per-token | At reports longer than 500 tokens |
+| Trap                                                              | Symptoms                              | Prevention                                                                        | When It Breaks                            |
+| ----------------------------------------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
+| Orchestrator awaiting sub-agents sequentially                     | Report takes 5x longer than necessary | Use `asyncio.gather()` to fan out to all sub-agents in parallel                   | Immediately — even at 1 user              |
+| React re-rendering entire agent graph on every thought event      | UI freezes during active streaming    | Memoize node components; use `useCallback` for handlers; debounce thought updates | At ~10 thought events/second              |
+| Streaming thoughts as full text replacement vs. append            | Jumpy UI, excessive DOM updates       | Use append-only thought log per agent; only render last N lines                   | At ~5 agents all streaming simultaneously |
+| CSS animated SVG edges in React Flow                              | CPU spike, dropped frames             | Limit animation to active connections only; use CSS `will-change: transform`      | At 5+ simultaneously animated edges       |
+| Passing entire report markdown to parent component on every token | Laggy report rendering                | Buffer tokens, update markdown display on a 100ms interval not per-token          | At reports longer than 500 tokens         |
 
 ---
 
@@ -201,13 +201,13 @@ Patterns that work at small scale but fail as usage grows.
 
 Domain-specific security issues beyond general web security.
 
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Storing financial API keys directly in uAgent source code committed to repo | Key exposure in public hackathon repo | Use `.env` + `python-dotenv`; add `.env` to `.gitignore` before first commit |
-| Running LLM-generated code with `exec()` without sandboxing | Agent process crash or arbitrary execution | Wrap in restricted exec with timeout and import whitelist |
-| Accepting arbitrary ticker symbols and passing them directly to financial APIs without validation | API injection / unexpected data shapes | Validate tickers against a basic regex `[A-Z]{1,5}` before use |
-| Logging full LLM prompts including user portfolio data | Portfolio holdings visible in server logs | Sanitize logs; never log raw CSV content or portfolio positions |
-| Embedding API keys in frontend React code (even temporarily) | Keys visible in browser devtools | All API keys live server-side only; frontend communicates only with the bridge |
+| Mistake                                                                                           | Risk                                       | Prevention                                                                     |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Storing financial API keys directly in uAgent source code committed to repo                       | Key exposure in public hackathon repo      | Use `.env` + `python-dotenv`; add `.env` to `.gitignore` before first commit   |
+| Running LLM-generated code with `exec()` without sandboxing                                       | Agent process crash or arbitrary execution | Wrap in restricted exec with timeout and import whitelist                      |
+| Accepting arbitrary ticker symbols and passing them directly to financial APIs without validation | API injection / unexpected data shapes     | Validate tickers against a basic regex `[A-Z]{1,5}` before use                 |
+| Logging full LLM prompts including user portfolio data                                            | Portfolio holdings visible in server logs  | Sanitize logs; never log raw CSV content or portfolio positions                |
+| Embedding API keys in frontend React code (even temporarily)                                      | Keys visible in browser devtools           | All API keys live server-side only; frontend communicates only with the bridge |
 
 ---
 
@@ -215,14 +215,14 @@ Domain-specific security issues beyond general web security.
 
 Common user experience mistakes in this domain.
 
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| No loading state for report generation (30+ second operation) | User thinks the app is broken, refreshes and loses progress | Show animated agent graph as the loading state — it IS the progress indicator |
-| Displaying raw per-agent output sections instead of unified narrative | Looks like a data dump, not an intelligence product | Enforce narrative synthesis in orchestrator; never display raw agent JSON |
-| Agent "thoughts" streaming too fast to read | Overwhelming, feels noisy | Rate-limit thought display to 2-3 thoughts/second per agent; queue and throttle |
-| Report appears as a wall of markdown text | Poor readability, poor demo impact | Style markdown with clear section headers, callout boxes for key insights, chart embeds inline |
-| No error state when report generation fails midway | Silent failure — user stares at loading agent graph | Show per-agent error states in graph nodes; surface failure reason in UI |
-| Chat interface not clearly showing which "agent" responded | Confusion about the system's multi-agent nature | Label each chat response with the orchestrator's routing decision ("Portfolio Agent analysis:") |
+| Pitfall                                                               | User Impact                                                 | Better Approach                                                                                 |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| No loading state for report generation (30+ second operation)         | User thinks the app is broken, refreshes and loses progress | Show animated agent graph as the loading state — it IS the progress indicator                   |
+| Displaying raw per-agent output sections instead of unified narrative | Looks like a data dump, not an intelligence product         | Enforce narrative synthesis in orchestrator; never display raw agent JSON                       |
+| Agent "thoughts" streaming too fast to read                           | Overwhelming, feels noisy                                   | Rate-limit thought display to 2-3 thoughts/second per agent; queue and throttle                 |
+| Report appears as a wall of markdown text                             | Poor readability, poor demo impact                          | Style markdown with clear section headers, callout boxes for key insights, chart embeds inline  |
+| No error state when report generation fails midway                    | Silent failure — user stares at loading agent graph         | Show per-agent error states in graph nodes; surface failure reason in UI                        |
+| Chat interface not clearly showing which "agent" responded            | Confusion about the system's multi-agent nature             | Label each chat response with the orchestrator's routing decision ("Portfolio Agent analysis:") |
 
 ---
 
@@ -245,14 +245,14 @@ Things that appear complete but are missing critical pieces.
 
 When pitfalls occur despite prevention, how to recover.
 
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| Hosted agent statelessness discovered late | MEDIUM | Switch to local agents + mailbox for the demo; costs 2-3 hours to rewire but is recoverable |
-| Financial API rate limit exhausted | LOW | Switch to mock mode immediately; mock data is the fallback, not the failure |
-| WebSocket bridge not working at demo time | HIGH | Fall back to polling (HTTP GET every 3 seconds) — ugly but functional for a demo |
-| Context window overflow in orchestrator | MEDIUM | Truncate each sub-agent response to 300 tokens before synthesis; rebuild prompt |
-| Modeling agent crashes on bad code execution | LOW | Restart agent process; add a hard try/except wrapper around all exec calls |
-| Chrome PNA blocks local agents at demo | MEDIUM | Launch Chrome with `--disable-web-security` flag for demo only, or switch to deployed agents |
+| Pitfall                                      | Recovery Cost | Recovery Steps                                                                               |
+| -------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| Hosted agent statelessness discovered late   | MEDIUM        | Switch to local agents + mailbox for the demo; costs 2-3 hours to rewire but is recoverable  |
+| Financial API rate limit exhausted           | LOW           | Switch to mock mode immediately; mock data is the fallback, not the failure                  |
+| WebSocket bridge not working at demo time    | HIGH          | Fall back to polling (HTTP GET every 3 seconds) — ugly but functional for a demo             |
+| Context window overflow in orchestrator      | MEDIUM        | Truncate each sub-agent response to 300 tokens before synthesis; rebuild prompt              |
+| Modeling agent crashes on bad code execution | LOW           | Restart agent process; add a hard try/except wrapper around all exec calls                   |
+| Chrome PNA blocks local agents at demo       | MEDIUM        | Launch Chrome with `--disable-web-security` flag for demo only, or switch to deployed agents |
 
 ---
 
@@ -260,15 +260,15 @@ When pitfalls occur despite prevention, how to recover.
 
 How roadmap phases should address these pitfalls.
 
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| Hosted agent statelessness | Phase 1: Agent scaffolding | State survives a handler restart when using `ctx.storage` |
-| No web-to-agent bridge | Phase 1: Architecture and bridge | FastAPI bridge can trigger a dummy agent and receive a response |
-| Financial API rate limits | Phase 1: API client scaffolding | Mock mode toggle exists; caching layer in place; tested without hitting live APIs |
-| Orchestrator context overflow | Phase 2: Agent communication contracts | Each sub-agent response model has an enforced `summary` field |
-| Visualization built before pipeline | Phase 3: Visualization (after pipeline) | First end-to-end report is complete before any visualization work begins |
-| Chrome PNA localhost blocking | Phase 1 (architecture) + Phase 4 (demo prep) | Demo machine test run confirms no localhost browser requests |
-| Code execution without sandboxing | Phase 2: Modeling agent | All `exec()` calls have timeout + import whitelist + error handling |
+| Pitfall                             | Prevention Phase                             | Verification                                                                      |
+| ----------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------- |
+| Hosted agent statelessness          | Phase 1: Agent scaffolding                   | State survives a handler restart when using `ctx.storage`                         |
+| No web-to-agent bridge              | Phase 1: Architecture and bridge             | FastAPI bridge can trigger a dummy agent and receive a response                   |
+| Financial API rate limits           | Phase 1: API client scaffolding              | Mock mode toggle exists; caching layer in place; tested without hitting live APIs |
+| Orchestrator context overflow       | Phase 2: Agent communication contracts       | Each sub-agent response model has an enforced `summary` field                     |
+| Visualization built before pipeline | Phase 3: Visualization (after pipeline)      | First end-to-end report is complete before any visualization work begins          |
+| Chrome PNA localhost blocking       | Phase 1 (architecture) + Phase 4 (demo prep) | Demo machine test run confirms no localhost browser requests                      |
+| Code execution without sandboxing   | Phase 2: Modeling agent                      | All `exec()` calls have timeout + import whitelist + error handling               |
 
 ---
 
@@ -291,5 +291,5 @@ How roadmap phases should address these pitfalls.
 - [WebSocket reverse proxy timeout / heartbeat gotcha](https://cesium-ml.org/blog/2016/07/13/a-pattern-for-websockets-in-python/)
 
 ---
-*Pitfalls research for: InvestiSwarm — multi-agent investment intelligence platform*
+*Pitfalls research for: Wealth Council — multi-agent investment intelligence platform*
 *Researched: 2026-03-21*

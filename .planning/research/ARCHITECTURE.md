@@ -60,21 +60,21 @@
 
 ### Component Responsibilities
 
-| Component | Responsibility | Implementation |
-|-----------|----------------|----------------|
-| React Frontend | Report display, agent graph visualization, chat UI, CSV upload | Vite + React + ReactFlow or D3 |
-| FastAPI Bridge | HTTP/SSE gateway between frontend and agent layer; event queue management | FastAPI + asyncio.Queue |
-| Orchestrator Agent | Receives triggers, dispatches to domain agents, synthesizes final report with LLM | uAgents + LLM call (OpenAI/Gemini) |
-| Portfolio Agent | Parses uploaded CSV, computes diversification, sector exposure, stock impact | uAgents + pandas/numpy |
-| News Agent | Fetches financial news from APIs, scores sentiment, filters relevance | uAgents + newsapi/alphavantage |
-| Modeling Agent | Runs regression/backtesting, generates charts as base64 PNG | uAgents + matplotlib/scipy |
-| Crypto/Commodities Agent | Fetches crypto/commodity prices, headlines, and sentiment | uAgents + CoinGecko API |
-| Shared Event Queue | Thread-safe queue where all agents push thought/status events | asyncio.Queue in FastAPI process |
+| Component                | Responsibility                                                                    | Implementation                     |
+| ------------------------ | --------------------------------------------------------------------------------- | ---------------------------------- |
+| React Frontend           | Report display, agent graph visualization, chat UI, CSV upload                    | Vite + React + ReactFlow or D3     |
+| FastAPI Bridge           | HTTP/SSE gateway between frontend and agent layer; event queue management         | FastAPI + asyncio.Queue            |
+| Orchestrator Agent       | Receives triggers, dispatches to domain agents, synthesizes final report with LLM | uAgents + LLM call (OpenAI/Gemini) |
+| Portfolio Agent          | Parses uploaded CSV, computes diversification, sector exposure, stock impact      | uAgents + pandas/numpy             |
+| News Agent               | Fetches financial news from APIs, scores sentiment, filters relevance             | uAgents + newsapi/alphavantage     |
+| Modeling Agent           | Runs regression/backtesting, generates charts as base64 PNG                       | uAgents + matplotlib/scipy         |
+| Crypto/Commodities Agent | Fetches crypto/commodity prices, headlines, and sentiment                         | uAgents + CoinGecko API            |
+| Shared Event Queue       | Thread-safe queue where all agents push thought/status events                     | asyncio.Queue in FastAPI process   |
 
 ## Recommended Project Structure
 
 ```
-investiswarm/
+Wealth Council/
 ├── frontend/                    # Vite + React application
 │   ├── src/
 │   │   ├── components/
@@ -296,11 +296,11 @@ reportStore
 
 This is a 24-hour hackathon demo — scaling is not a concern. The architecture below is intentionally minimal.
 
-| Scale | Architecture |
-|-------|--------------|
-| Single demo user | Bureau (all agents in one process) + FastAPI bridge on localhost |
-| Multi-user (post-hackathon) | Move agents to Agentverse hosted; use Redis queue per session; auth layer |
-| Production | Separate agent pods, message broker (RabbitMQ/Redis Streams), user session isolation |
+| Scale                       | Architecture                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| Single demo user            | Bureau (all agents in one process) + FastAPI bridge on localhost                     |
+| Multi-user (post-hackathon) | Move agents to Agentverse hosted; use Redis queue per session; auth layer            |
+| Production                  | Separate agent pods, message broker (RabbitMQ/Redis Streams), user session isolation |
 
 ### Hackathon Scaling Priorities
 
@@ -345,21 +345,21 @@ This is a 24-hour hackathon demo — scaling is not a concern. The architecture 
 
 ### External Services
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Financial news API (NewsAPI / Alpha Vantage) | HTTP GET in News Agent on report trigger | Free tier: 100 req/day on NewsAPI. Cache results. |
-| CoinGecko API | HTTP GET in Crypto Agent | Free, no auth. 10-30 calls/min. |
-| LLM (OpenAI / Gemini) | HTTP POST in Orchestrator for synthesis | Required for narrative generation. Use streaming completions if possible. |
-| Agentverse Almanac | Auto-registration on agent startup via uAgents SDK | Required to satisfy fetch.ai track requirement. Needs FET tokens for gas. |
+| Service                                      | Integration Pattern                                | Notes                                                                     |
+| -------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| Financial news API (NewsAPI / Alpha Vantage) | HTTP GET in News Agent on report trigger           | Free tier: 100 req/day on NewsAPI. Cache results.                         |
+| CoinGecko API                                | HTTP GET in Crypto Agent                           | Free, no auth. 10-30 calls/min.                                           |
+| LLM (OpenAI / Gemini)                        | HTTP POST in Orchestrator for synthesis            | Required for narrative generation. Use streaming completions if possible. |
+| Agentverse Almanac                           | Auto-registration on agent startup via uAgents SDK | Required to satisfy fetch.ai track requirement. Needs FET tokens for gas. |
 
 ### Internal Boundaries
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| React ↔ FastAPI Bridge | HTTP REST + SSE | Vite proxy config points `/api/*` to bridge port during dev |
-| FastAPI Bridge ↔ Orchestrator Agent | `ctx.send` to orchestrator's local REST endpoint (`/report`) | Bridge holds orchestrator's address constant |
-| Orchestrator ↔ Domain Agents | `ctx.send_and_receive` by agent address | Addresses are deterministic from seed phrases — hardcode in config |
-| Agents ↔ Event Queue | In-process `asyncio.Queue` (if bridge and bureau share process via threads) OR HTTP callback endpoint | Shared queue is simplest; see anti-pattern 2 for process boundary caveat |
+| Boundary                            | Communication                                                                                         | Notes                                                                    |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| React ↔ FastAPI Bridge              | HTTP REST + SSE                                                                                       | Vite proxy config points `/api/*` to bridge port during dev              |
+| FastAPI Bridge ↔ Orchestrator Agent | `ctx.send` to orchestrator's local REST endpoint (`/report`)                                          | Bridge holds orchestrator's address constant                             |
+| Orchestrator ↔ Domain Agents        | `ctx.send_and_receive` by agent address                                                               | Addresses are deterministic from seed phrases — hardcode in config       |
+| Agents ↔ Event Queue                | In-process `asyncio.Queue` (if bridge and bureau share process via threads) OR HTTP callback endpoint | Shared queue is simplest; see anti-pattern 2 for process boundary caveat |
 
 ## Build Order Implications
 
@@ -385,5 +385,5 @@ Dependencies flow bottom-up. Build in this order:
 - SSE streaming pattern for agent thoughts: industry standard (FastAPI + asyncio.Queue + EventSource) — MEDIUM confidence for this specific combination, HIGH confidence for SSE as the right transport choice
 
 ---
-*Architecture research for: InvestiSwarm — fetch.ai uAgents investment analysis platform*
+*Architecture research for: Wealth Council — fetch.ai uAgents investment analysis platform*
 *Researched: 2026-03-21*

@@ -1,4 +1,4 @@
-# Requirements: InvestiSwarm
+# Requirements: Wealth Council
 
 **Defined:** 2026-03-21
 **Core Value:** A single cohesive investment report that synthesizes multiple specialized analysis domains into one actionable narrative
@@ -106,59 +106,59 @@ Deferred to post-hackathon.
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Real-time market data streaming | Agents fetch on report generation, not continuous |
-| Mobile app | Web-first for hackathon |
-| Direct agent chat (@mentioning specific agents) | All chat routes through orchestrator |
-| OAuth/social login | No auth needed for hackathon demo |
-| Backtesting strategy builder UI | Too complex for 24h; modeling agent just runs preset analyses |
-| LLM in domain agents | Portfolio, Modeling, Alt Assets are pure computation; News uses FinBERT not LLM |
+| Feature                                         | Reason                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------- |
+| Real-time market data streaming                 | Agents fetch on report generation, not continuous                               |
+| Mobile app                                      | Web-first for hackathon                                                         |
+| Direct agent chat (@mentioning specific agents) | All chat routes through orchestrator                                            |
+| OAuth/social login                              | No auth needed for hackathon demo                                               |
+| Backtesting strategy builder UI                 | Too complex for 24h; modeling agent just runs preset analyses                   |
+| LLM in domain agents                            | Portfolio, Modeling, Alt Assets are pure computation; News uses FinBERT not LLM |
 
 ## Traceability
 
 Which phases cover which requirements. Updated during roadmap creation.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| INFRA-01 | Phase 1 | Complete |
-| INFRA-02 | Phase 1 | Complete |
-| INFRA-03 | Phase 1 | Pending |
-| INFRA-04 | Phase 1 | Pending |
-| PORT-01 | Phase 2 | Complete |
-| PORT-02 | Phase 2 | Complete |
-| PORT-03 | Phase 2 | Complete |
-| PORT-04 | Phase 2 | Complete |
-| PORT-05 | Phase 2 | Complete |
-| NEWS-01 | Phase 2 | Complete |
-| NEWS-02 | Phase 2 | Complete |
-| NEWS-03 | Phase 2 | Complete |
-| NEWS-04 | Phase 2 | Complete |
-| NEWS-05 | Phase 2 | Complete |
-| MODL-01 | Phase 2 | Complete |
-| MODL-02 | Phase 2 | Complete |
-| MODL-03 | Phase 2 | Complete |
-| MODL-04 | Phase 2 | Complete |
-| MODL-05 | Phase 2 | Complete |
-| ALT-01 | Phase 2 | Complete |
-| ALT-02 | Phase 2 | Complete |
-| ALT-03 | Phase 2 | Complete |
-| ALT-04 | Phase 2 | Complete |
-| ORCH-01 | Phase 2 | Complete |
-| ORCH-02 | Phase 2 | Complete |
-| ORCH-03 | Phase 2 | Complete |
-| ORCH-04 | Phase 2 | Complete |
-| ORCH-05 | Phase 2 | Complete |
-| REPT-01 | Phase 3 | Complete |
-| REPT-02 | Phase 3 | Complete |
-| REPT-03 | Phase 3 | Complete |
-| GRPH-01 | Phase 3 | Complete |
-| GRPH-02 | Phase 3 | Complete |
-| GRPH-03 | Phase 3 | Complete |
-| GRPH-04 | Phase 3 | Complete |
-| CHAT-01 | Phase 4 | Pending |
-| CHAT-02 | Phase 4 | Pending |
-| CHAT-03 | Phase 4 | Pending |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| INFRA-01    | Phase 1 | Complete |
+| INFRA-02    | Phase 1 | Complete |
+| INFRA-03    | Phase 1 | Pending  |
+| INFRA-04    | Phase 1 | Pending  |
+| PORT-01     | Phase 2 | Complete |
+| PORT-02     | Phase 2 | Complete |
+| PORT-03     | Phase 2 | Complete |
+| PORT-04     | Phase 2 | Complete |
+| PORT-05     | Phase 2 | Complete |
+| NEWS-01     | Phase 2 | Complete |
+| NEWS-02     | Phase 2 | Complete |
+| NEWS-03     | Phase 2 | Complete |
+| NEWS-04     | Phase 2 | Complete |
+| NEWS-05     | Phase 2 | Complete |
+| MODL-01     | Phase 2 | Complete |
+| MODL-02     | Phase 2 | Complete |
+| MODL-03     | Phase 2 | Complete |
+| MODL-04     | Phase 2 | Complete |
+| MODL-05     | Phase 2 | Complete |
+| ALT-01      | Phase 2 | Complete |
+| ALT-02      | Phase 2 | Complete |
+| ALT-03      | Phase 2 | Complete |
+| ALT-04      | Phase 2 | Complete |
+| ORCH-01     | Phase 2 | Complete |
+| ORCH-02     | Phase 2 | Complete |
+| ORCH-03     | Phase 2 | Complete |
+| ORCH-04     | Phase 2 | Complete |
+| ORCH-05     | Phase 2 | Complete |
+| REPT-01     | Phase 3 | Complete |
+| REPT-02     | Phase 3 | Complete |
+| REPT-03     | Phase 3 | Complete |
+| GRPH-01     | Phase 3 | Complete |
+| GRPH-02     | Phase 3 | Complete |
+| GRPH-03     | Phase 3 | Complete |
+| GRPH-04     | Phase 3 | Complete |
+| CHAT-01     | Phase 4 | Pending  |
+| CHAT-02     | Phase 4 | Pending  |
+| CHAT-03     | Phase 4 | Pending  |
 
 **Coverage:**
 - v1 requirements: 38 total

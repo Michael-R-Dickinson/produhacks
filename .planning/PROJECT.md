@@ -1,4 +1,4 @@
-# InvestiSwarm
+# Wealth Council
 
 ## What This Is
 
@@ -57,13 +57,13 @@ A single cohesive investment report that synthesizes multiple specialized analys
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Unified narrative over sectioned report | More valuable synthesis, demonstrates orchestrator intelligence | -- Pending |
-| On-demand over scheduled reports | Simpler architecture for 24h hackathon | -- Pending |
-| CSV upload over brokerage API | Dramatically reduces scope while still demonstrating portfolio analysis | -- Pending |
-| Single agent graph view (nodes = cards) | One cohesive visualization instead of two separate views | -- Pending |
-| Chat through orchestrator only | Simpler UX, demonstrates agent routing in the graph view | -- Pending |
+| Decision                                | Rationale                                                               | Outcome    |
+| --------------------------------------- | ----------------------------------------------------------------------- | ---------- |
+| Unified narrative over sectioned report | More valuable synthesis, demonstrates orchestrator intelligence         | -- Pending |
+| On-demand over scheduled reports        | Simpler architecture for 24h hackathon                                  | -- Pending |
+| CSV upload over brokerage API           | Dramatically reduces scope while still demonstrating portfolio analysis | -- Pending |
+| Single agent graph view (nodes = cards) | One cohesive visualization instead of two separate views                | -- Pending |
+| Chat through orchestrator only          | Simpler UX, demonstrates agent routing in the graph view                | -- Pending |
 
 ---
 ## Current State

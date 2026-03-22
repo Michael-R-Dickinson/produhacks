@@ -16,7 +16,7 @@ MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
 portfolio_agent = Agent(
     name="portfolio",
-    seed="portfolio-agent-seed-investiswarm",
+    seed="portfolio-agent-seed-Wealth Council",
     port=PORTFOLIO_PORT,
 )
 
@@ -105,49 +105,72 @@ def compute_correlation_matrix(
 
 
 @portfolio_agent.on_message(model=AnalyzePortfolio, replies={PortfolioResponse})
-async def handle_analyze_portfolio(ctx: Context, sender: str, msg: AnalyzePortfolio) -> None:
+async def handle_analyze_portfolio(
+    ctx: Context, sender: str, msg: AnalyzePortfolio
+) -> None:
     agent_id = "portfolio"
 
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.WORKING))
-    push_sse_event(SSEEvent.agent_message(
-        agent_id, from_agent="orchestrator", to_agent=agent_id,
-        title="AnalyzePortfolio", description=f"Analyze {len(msg.holdings)} holdings",
-        direction=MessageDirection.REQUEST,
-    ))
+    push_sse_event(
+        SSEEvent.agent_message(
+            agent_id,
+            from_agent="orchestrator",
+            to_agent=agent_id,
+            title="AnalyzePortfolio",
+            description=f"Analyze {len(msg.holdings)} holdings",
+            direction=MessageDirection.REQUEST,
+        )
+    )
 
     if MOCK_DATA or msg.mock:
         response = mock_portfolio_response()
     else:
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id, f"Loading portfolio: {len(MOCK_PORTFOLIO)} holdings across 6 sectors..."
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id,
+                f"Loading portfolio: {len(MOCK_PORTFOLIO)} holdings across 6 sectors...",
+            )
+        )
 
         sector_allocation = compute_sector_allocation(MOCK_PORTFOLIO)
         sector_summary = ", ".join(
-            f"{int(v * 100)}% {k}" for k, v in sorted(sector_allocation.items(), key=lambda x: -x[1])
+            f"{int(v * 100)}% {k}"
+            for k, v in sorted(sector_allocation.items(), key=lambda x: -x[1])
         )
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id, f"Sector allocation: {sector_summary}"
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(agent_id, f"Sector allocation: {sector_summary}")
+        )
 
-        equity_weights = [h["weight"] for h in MOCK_PORTFOLIO if h.get("type") != "crypto"]
+        equity_weights = [
+            h["weight"] for h in MOCK_PORTFOLIO if h.get("type") != "crypto"
+        ]
         all_weights = [h["weight"] for h in MOCK_PORTFOLIO]
         hhi = compute_herfindahl(all_weights)
         concentration = "moderate concentration" if hhi < 0.18 else "high concentration"
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id, f"Herfindahl index: {hhi:.3f} -- {concentration}"
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id, f"Herfindahl index: {hhi:.3f} -- {concentration}"
+            )
+        )
 
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id, "Computing 90-day correlation matrix across 10 equities..."
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id, "Computing 90-day correlation matrix across 10 equities..."
+            )
+        )
 
-        correlation_matrix = compute_correlation_matrix(EQUITY_TICKERS, lookback_days=90)
-        portfolio_beta = compute_portfolio_beta(EQUITY_TICKERS, equity_weights, lookback_days=365)
+        correlation_matrix = compute_correlation_matrix(
+            EQUITY_TICKERS, lookback_days=90
+        )
+        portfolio_beta = compute_portfolio_beta(
+            EQUITY_TICKERS, equity_weights, lookback_days=365
+        )
 
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id, f"Portfolio beta: {portfolio_beta:.2f} vs SPY benchmark"
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id, f"Portfolio beta: {portfolio_beta:.2f} vs SPY benchmark"
+            )
+        )
 
         top_holdings = compute_top_holdings(MOCK_PORTFOLIO, n=5)
 
@@ -169,11 +192,16 @@ async def handle_analyze_portfolio(ctx: Context, sender: str, msg: AnalyzePortfo
     )
 
     push_sse_event(SSEEvent.agent_thought(agent_id, "Analysis complete."))
-    push_sse_event(SSEEvent.agent_message(
-        agent_id, from_agent=agent_id, to_agent="orchestrator",
-        title="PortfolioResponse", description=desc,
-        direction=MessageDirection.RESPONSE,
-    ))
+    push_sse_event(
+        SSEEvent.agent_message(
+            agent_id,
+            from_agent=agent_id,
+            to_agent="orchestrator",
+            title="PortfolioResponse",
+            description=desc,
+            direction=MessageDirection.RESPONSE,
+        )
+    )
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 
     await ctx.send(sender, response)

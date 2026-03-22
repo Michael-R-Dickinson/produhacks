@@ -23,12 +23,14 @@ COINGECKO_IDS = {
 
 alternatives_agent = Agent(
     name="alternatives",
-    seed="alternatives-agent-seed-investiswarm",
+    seed="alternatives-agent-seed-Wealth Council",
     port=ALTERNATIVES_PORT,
 )
 
 
-async def fetch_crypto_prices(coins: list[str]) -> tuple[dict[str, float], dict[str, float]]:
+async def fetch_crypto_prices(
+    coins: list[str],
+) -> tuple[dict[str, float], dict[str, float]]:
     """Fetch current prices and 7d changes from CoinGecko.
 
     Returns (prices_dict, change_7d_dict): ({ticker: usd_price}, {ticker: 7d_percent_change}).
@@ -140,18 +142,27 @@ def compute_cross_correlations(
     return result
 
 
-@alternatives_agent.on_message(model=AnalyzeAlternatives, replies={AlternativesResponse})
-async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlternatives) -> None:
+@alternatives_agent.on_message(
+    model=AnalyzeAlternatives, replies={AlternativesResponse}
+)
+async def handle_analyze_alternatives(
+    ctx: Context, sender: str, msg: AnalyzeAlternatives
+) -> None:
     import asyncio
 
     agent_id = "alternatives"
 
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.WORKING))
-    push_sse_event(SSEEvent.agent_message(
-        agent_id, from_agent="orchestrator", to_agent=agent_id,
-        title="AnalyzeAlternatives", description="Fetch crypto/commodity data",
-        direction=MessageDirection.REQUEST,
-    ))
+    push_sse_event(
+        SSEEvent.agent_message(
+            agent_id,
+            from_agent="orchestrator",
+            to_agent=agent_id,
+            title="AnalyzeAlternatives",
+            description="Fetch crypto/commodity data",
+            direction=MessageDirection.REQUEST,
+        )
+    )
 
     if MOCK_DATA or msg.mock:
         response = mock_alternatives_response()
@@ -159,7 +170,9 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
         finnhub_api_key = os.environ["FINNHUB_API_KEY"]
         from agents.data.portfolio import CRYPTO_TICKERS, EQUITY_TICKERS
 
-        push_sse_event(SSEEvent.agent_thought(agent_id, "Pulling crypto prices from CoinGecko..."))
+        push_sse_event(
+            SSEEvent.agent_thought(agent_id, "Pulling crypto prices from CoinGecko...")
+        )
 
         prices, change_7d = await fetch_crypto_prices(CRYPTO_TICKERS)
 
@@ -171,22 +184,28 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
         btc_price = prices.get("BTC", 0.0)
         btc_7d = change_7d.get("BTC", 0.0)
         btc_signal = trend_signal(btc_7d)
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id,
-            f"BTC at ${btc_price:,.0f} ({btc_7d:+.1f}% 7d) -- {btc_signal} signal",
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id,
+                f"BTC at ${btc_price:,.0f} ({btc_7d:+.1f}% 7d) -- {btc_signal} signal",
+            )
+        )
 
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id,
-            f"BTC dominance: {btc_dominance:.1f}% -- altcoin rotation risk moderate",
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id,
+                f"BTC dominance: {btc_dominance:.1f}% -- altcoin rotation risk moderate",
+            )
+        )
 
         gold = commodities.get("GOLD", 0.0)
         oil = commodities.get("OIL", 0.0)
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id,
-            f"Gold ${gold:,.0f}, Oil ${oil:.0f} -- checking portfolio correlations...",
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id,
+                f"Gold ${gold:,.0f}, Oil ${oil:.0f} -- checking portfolio correlations...",
+            )
+        )
 
         import yfinance as yf
 
@@ -202,19 +221,27 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
         alt_prices_history: dict[str, list[float]] = {}
         for cg_ticker, yf_symbol in [("BTC", "BTC-USD"), ("ETH", "ETH-USD")]:
             if yf_symbol in crypto_history_raw.columns:
-                alt_prices_history[cg_ticker] = crypto_history_raw[yf_symbol].dropna().tolist()
+                alt_prices_history[cg_ticker] = (
+                    crypto_history_raw[yf_symbol].dropna().tolist()
+                )
 
         for etf_ticker, etf_symbol in [("GOLD", "GLD"), ("OIL", "USO")]:
-            etf_hist = yf.download(etf_symbol, period="3mo", progress=False, auto_adjust=True)["Close"]
+            etf_hist = yf.download(
+                etf_symbol, period="3mo", progress=False, auto_adjust=True
+            )["Close"]
             alt_prices_history[etf_ticker] = etf_hist.squeeze().dropna().tolist()
 
-        cross_correlations = compute_cross_correlations(alt_prices_history, equity_returns_series)
+        cross_correlations = compute_cross_correlations(
+            alt_prices_history, equity_returns_series
+        )
 
-        push_sse_event(SSEEvent.agent_thought(
-            agent_id,
-            f"Cross-asset correlations computed: BTC-portfolio {cross_correlations.get('BTC', 0.0):.2f}, "
-            f"Gold-portfolio {cross_correlations.get('GOLD', 0.0):.2f}",
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                agent_id,
+                f"Cross-asset correlations computed: BTC-portfolio {cross_correlations.get('BTC', 0.0):.2f}, "
+                f"Gold-portfolio {cross_correlations.get('GOLD', 0.0):.2f}",
+            )
+        )
 
         trend_signals = {ticker: trend_signal(chg) for ticker, chg in change_7d.items()}
 
@@ -240,11 +267,16 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
     )
 
     push_sse_event(SSEEvent.agent_thought(agent_id, "Analysis complete."))
-    push_sse_event(SSEEvent.agent_message(
-        agent_id, from_agent=agent_id, to_agent="orchestrator",
-        title="AlternativesResponse", description=desc,
-        direction=MessageDirection.RESPONSE,
-    ))
+    push_sse_event(
+        SSEEvent.agent_message(
+            agent_id,
+            from_agent=agent_id,
+            to_agent="orchestrator",
+            title="AlternativesResponse",
+            description=desc,
+            direction=MessageDirection.RESPONSE,
+        )
+    )
     push_sse_event(SSEEvent.agent_status(agent_id, AgentStatus.DONE))
 
     await ctx.send(sender, response)

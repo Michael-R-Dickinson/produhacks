@@ -1,8 +1,8 @@
-# Roadmap: InvestiSwarm
+# Roadmap: Wealth Council
 
 ## Overview
 
-InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure first (the FastAPI bridge and Pydantic models that everything else plugs into), then the full agent pipeline end-to-end (all domain agents plus orchestrator synthesis, verifiable via curl before any frontend exists), then the frontend with live agent graph visualization (built against a working pipeline, not mocks), then chat interaction and demo polish. The agent graph visualization is the primary differentiator for the fetch.ai track and is deliberately last -- it is an observability layer on top of the pipeline, not a prerequisite for it.
+Wealth Council ships in four phases ordered by hard dependencies: infrastructure first (the FastAPI bridge and Pydantic models that everything else plugs into), then the full agent pipeline end-to-end (all domain agents plus orchestrator synthesis, verifiable via curl before any frontend exists), then the frontend with live agent graph visualization (built against a working pipeline, not mocks), then chat interaction and demo polish. The agent graph visualization is the primary differentiator for the fetch.ai track and is deliberately last -- it is an observability layer on top of the pipeline, not a prerequisite for it.
 
 ## Phases
 
@@ -84,9 +84,9 @@ Plans:
 **Execution Order:**
 Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation | 3/3 | Complete | 2026-03-22 |
-| 2. Agent Pipeline | 6/6 | Complete   | 2026-03-22 |
-| 3. Frontend and Visualization | 3/3 | Complete   | 2026-03-22 |
-| 4. Chat and Demo Polish | 0/TBD | Not started | - |
+| Phase                         | Plans Complete | Status      | Completed  |
+| ----------------------------- | -------------- | ----------- | ---------- |
+| 1. Foundation                 | 3/3            | Complete    | 2026-03-22 |
+| 2. Agent Pipeline             | 6/6            | Complete    | 2026-03-22 |
+| 3. Frontend and Visualization | 3/3            | Complete    | 2026-03-22 |
+| 4. Chat and Demo Polish       | 0/TBD          | Not started | -          |

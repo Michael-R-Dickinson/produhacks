@@ -10,7 +10,7 @@ from google import genai
 
 from agents.ports import BUREAU_PORT
 
-app = FastAPI(title="InvestiSwarm Bridge")
+app = FastAPI(title="Wealth Council Bridge")
 
 app.add_middleware(
     CORSMiddleware,
@@ -130,7 +130,11 @@ async def trigger_report(request: Request) -> dict:
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"http://localhost:{BUREAU_PORT}/report",
-            json={"holdings": EQUITY_TICKERS, "mock": False, "knowledge_level": knowledge_level},
+            json={
+                "holdings": EQUITY_TICKERS,
+                "mock": False,
+                "knowledge_level": knowledge_level,
+            },
             timeout=60.0,  # orchestrator needs time for fan-out + LLM
         )
     return {"status": "triggered", "orchestrator_status": resp.status_code}

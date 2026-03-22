@@ -12,51 +12,51 @@
 
 Features that users assume exist. Missing these = product feels incomplete or broken in a hackathon demo.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Portfolio CSV upload + parsing | Every portfolio tool accepts CSV; users expect ticker/quantity/cost at minimum | LOW | Standard format: Symbol, Quantity, Cost. Validate before parsing. |
-| Sector/asset allocation breakdown | Instant expectation from anyone who has used Morningstar, Personal Capital, or Portfolio Visualizer | MEDIUM | Needs market data lookup to fill sector for each ticker. Can use yfinance or Finnhub /stock/profile2 |
-| Investment report generation (on-demand) | Core product value -- button triggers the full swarm run | HIGH | Orchestrator must coordinate all agents and produce a unified markdown narrative |
-| Formatted report display with markdown rendering | Users expect readable, structured output, not raw JSON | LOW | react-markdown or similar; tables, headers, bold/italic |
-| Chart embedding in report | Modeling agent output; bar charts, line graphs, scatter plots embedded as images or interactive | MEDIUM | Matplotlib/Plotly on Python side; base64 encode or serve as static file |
-| Financial news integration | Any investment tool in 2026 fetches relevant news; absence feels broken | MEDIUM | Finnhub free tier: 60 req/min, news + sentiment endpoints included |
-| Sentiment scoring on news | NLP-based positive/negative/neutral labeling is expected in modern tools | MEDIUM | Finnhub provides pre-scored sentiment; fallback to LLM-scored on fetch |
-| Loading/progress state during report generation | Multi-agent run takes time; dead UI = confused user | LOW | Spinner, progress bar, or ideally live agent graph activity |
-| Error handling with user feedback | Agent failures, API timeouts, bad CSV format | LOW | Critical for hackathon demo reliability |
+| Feature                                          | Why Expected                                                                                        | Complexity | Notes                                                                                                |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------- |
+| Portfolio CSV upload + parsing                   | Every portfolio tool accepts CSV; users expect ticker/quantity/cost at minimum                      | LOW        | Standard format: Symbol, Quantity, Cost. Validate before parsing.                                    |
+| Sector/asset allocation breakdown                | Instant expectation from anyone who has used Morningstar, Personal Capital, or Portfolio Visualizer | MEDIUM     | Needs market data lookup to fill sector for each ticker. Can use yfinance or Finnhub /stock/profile2 |
+| Investment report generation (on-demand)         | Core product value -- button triggers the full swarm run                                            | HIGH       | Orchestrator must coordinate all agents and produce a unified markdown narrative                     |
+| Formatted report display with markdown rendering | Users expect readable, structured output, not raw JSON                                              | LOW        | react-markdown or similar; tables, headers, bold/italic                                              |
+| Chart embedding in report                        | Modeling agent output; bar charts, line graphs, scatter plots embedded as images or interactive     | MEDIUM     | Matplotlib/Plotly on Python side; base64 encode or serve as static file                              |
+| Financial news integration                       | Any investment tool in 2026 fetches relevant news; absence feels broken                             | MEDIUM     | Finnhub free tier: 60 req/min, news + sentiment endpoints included                                   |
+| Sentiment scoring on news                        | NLP-based positive/negative/neutral labeling is expected in modern tools                            | MEDIUM     | Finnhub provides pre-scored sentiment; fallback to LLM-scored on fetch                               |
+| Loading/progress state during report generation  | Multi-agent run takes time; dead UI = confused user                                                 | LOW        | Spinner, progress bar, or ideally live agent graph activity                                          |
+| Error handling with user feedback                | Agent failures, API timeouts, bad CSV format                                                        | LOW        | Critical for hackathon demo reliability                                                              |
 
 ### Differentiators (Competitive Advantage)
 
 Features that no standard investment tool has. These win the hackathon category and validate the fetch.ai track requirement.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Live agent graph visualization (nodes + edges animated) | No investment tool shows the AI reasoning process in real-time; uniquely compelling for judges | HIGH | React Flow nodes as custom agent cards; edges pulse on message send; SSE or WebSocket from backend |
-| Agent "thoughts" stream per node | Each agent card streams its current reasoning step live; demonstrates swarm coordination visually | HIGH | Requires backend to emit per-agent events; frontend subscribes per-agent or via multiplexed stream |
-| Animated inter-agent message connections | Visual proof of swarm collaboration -- edges light up when Agent A sends to Agent B | MEDIUM | React Flow edge animation on message event; store active edges in state, timeout to return to idle |
-| Message hover tooltip (title + description) | Reveals what the agents are actually sending each other; judges can follow the reasoning | LOW | React Flow edge `label` or custom tooltip on edge hover |
-| Unified narrative synthesis (not sectioned per agent) | Demonstrates real orchestrator intelligence; competitors produce section-per-domain dumps | HIGH | Orchestrator LLM prompt must weave portfolio context + news + quant models into one coherent text |
-| Chat interface routed through orchestrator | Ask "should I add NVDA?" and the orchestrator dispatches to portfolio + news + modeling agents | HIGH | Requires orchestrator to parse intent and route to correct sub-agents, then re-synthesize |
-| Backtesting results embedded in report | Quantitative validation of recommendations with actual historical performance data | HIGH | Modeling agent runs in code execution sandbox; generates matplotlib chart, returns as base64 |
-| Crypto + commodities domain agent | Most portfolio tools cover equities only; BTC/ETH/gold coverage differentiates | MEDIUM | CoinGecko (free, no auth) for crypto; Alpha Vantage for commodities |
-| "Impact of adding X" portfolio analysis | User asks what happens to diversification if they add a stock; portfolio agent responds | MEDIUM | Delta calculation: current correlation matrix vs hypothetical; Sharpe ratio comparison |
-| fetch.ai agentverse deployment | Agents run on Agentverse not just locally; satisfies the track requirement and is demo-compelling | HIGH | Critical for the fetch.ai track; uAgents protocol for all inter-agent communication |
+| Feature                                                 | Value Proposition                                                                                 | Complexity | Notes                                                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| Live agent graph visualization (nodes + edges animated) | No investment tool shows the AI reasoning process in real-time; uniquely compelling for judges    | HIGH       | React Flow nodes as custom agent cards; edges pulse on message send; SSE or WebSocket from backend |
+| Agent "thoughts" stream per node                        | Each agent card streams its current reasoning step live; demonstrates swarm coordination visually | HIGH       | Requires backend to emit per-agent events; frontend subscribes per-agent or via multiplexed stream |
+| Animated inter-agent message connections                | Visual proof of swarm collaboration -- edges light up when Agent A sends to Agent B               | MEDIUM     | React Flow edge animation on message event; store active edges in state, timeout to return to idle |
+| Message hover tooltip (title + description)             | Reveals what the agents are actually sending each other; judges can follow the reasoning          | LOW        | React Flow edge `label` or custom tooltip on edge hover                                            |
+| Unified narrative synthesis (not sectioned per agent)   | Demonstrates real orchestrator intelligence; competitors produce section-per-domain dumps         | HIGH       | Orchestrator LLM prompt must weave portfolio context + news + quant models into one coherent text  |
+| Chat interface routed through orchestrator              | Ask "should I add NVDA?" and the orchestrator dispatches to portfolio + news + modeling agents    | HIGH       | Requires orchestrator to parse intent and route to correct sub-agents, then re-synthesize          |
+| Backtesting results embedded in report                  | Quantitative validation of recommendations with actual historical performance data                | HIGH       | Modeling agent runs in code execution sandbox; generates matplotlib chart, returns as base64       |
+| Crypto + commodities domain agent                       | Most portfolio tools cover equities only; BTC/ETH/gold coverage differentiates                    | MEDIUM     | CoinGecko (free, no auth) for crypto; Alpha Vantage for commodities                                |
+| "Impact of adding X" portfolio analysis                 | User asks what happens to diversification if they add a stock; portfolio agent responds           | MEDIUM     | Delta calculation: current correlation matrix vs hypothetical; Sharpe ratio comparison             |
+| fetch.ai agentverse deployment                          | Agents run on Agentverse not just locally; satisfies the track requirement and is demo-compelling | HIGH       | Critical for the fetch.ai track; uAgents protocol for all inter-agent communication                |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
 Features that seem valuable but are out of scope, risky, or actively harmful to the hackathon build.
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Brokerage API sync (Plaid, Fidelity, Schwab) | "Real" portfolio data; no CSV friction | OAuth flows, API approval, credential security -- days of setup, not hours | CSV upload is the correct scope for 24h; note it as "v2 roadmap" in demo |
-| Real-time streaming market prices (WebSocket) | Live portfolio P&L; "real" feel | Constant API cost, requires persistent connections, adds infra complexity with zero demo value | Fetch prices once per report generation; snapshot is fine for analysis |
-| Scheduled/cron report generation | "Get my report every morning" | Requires job scheduler, persistent storage, email delivery; out of hackathon scope | On-demand trigger button achieves the same demo value |
-| Direct agent @mention in chat | Power-user feature; "ask the news agent directly" | Breaks the swarm narrative; agents become siloed tools | All chat through orchestrator; the graph visualization shows the routing happening live |
-| Per-agent streaming chat UX (multiple chat threads) | Granular control | UI complexity explosion; defeats unified narrative value prop | Single chat thread routed by orchestrator |
-| User authentication / multi-user | "Real app" table stakes | Session management, DB schema, JWT -- burns a quarter of the hackathon clock | Single-user demo; hardcode or use localStorage for portfolio state |
-| Mobile responsive design | Wide audience reach | Adds CSS complexity with no judge value in a 24h hackathon; demo is on a laptop | Desktop-first; min-width constraint acceptable |
-| Persistent report history / database | Historical comparison | Requires persistence layer (PostgreSQL, SQLite) beyond the agent swarm; adds infra | In-memory for session; if needed, write to a local JSON file |
-| Trade execution / order routing | "Full circle" investment tool | Regulatory risk, brokerage API complexity, out of scope for any hackathon | Analysis and recommendations only; no execution |
-| Social/sharing features | "Share your analysis" | Auth required, public API exposure, moderation concerns | Screenshot / export to PDF as post-hackathon consideration |
+| Feature                                             | Why Requested                                     | Why Problematic                                                                                | Alternative                                                                             |
+| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Brokerage API sync (Plaid, Fidelity, Schwab)        | "Real" portfolio data; no CSV friction            | OAuth flows, API approval, credential security -- days of setup, not hours                     | CSV upload is the correct scope for 24h; note it as "v2 roadmap" in demo                |
+| Real-time streaming market prices (WebSocket)       | Live portfolio P&L; "real" feel                   | Constant API cost, requires persistent connections, adds infra complexity with zero demo value | Fetch prices once per report generation; snapshot is fine for analysis                  |
+| Scheduled/cron report generation                    | "Get my report every morning"                     | Requires job scheduler, persistent storage, email delivery; out of hackathon scope             | On-demand trigger button achieves the same demo value                                   |
+| Direct agent @mention in chat                       | Power-user feature; "ask the news agent directly" | Breaks the swarm narrative; agents become siloed tools                                         | All chat through orchestrator; the graph visualization shows the routing happening live |
+| Per-agent streaming chat UX (multiple chat threads) | Granular control                                  | UI complexity explosion; defeats unified narrative value prop                                  | Single chat thread routed by orchestrator                                               |
+| User authentication / multi-user                    | "Real app" table stakes                           | Session management, DB schema, JWT -- burns a quarter of the hackathon clock                   | Single-user demo; hardcode or use localStorage for portfolio state                      |
+| Mobile responsive design                            | Wide audience reach                               | Adds CSS complexity with no judge value in a 24h hackathon; demo is on a laptop                | Desktop-first; min-width constraint acceptable                                          |
+| Persistent report history / database                | Historical comparison                             | Requires persistence layer (PostgreSQL, SQLite) beyond the agent swarm; adds infra             | In-memory for session; if needed, write to a local JSON file                            |
+| Trade execution / order routing                     | "Full circle" investment tool                     | Regulatory risk, brokerage API complexity, out of scope for any hackathon                      | Analysis and recommendations only; no execution                                         |
+| Social/sharing features                             | "Share your analysis"                             | Auth required, public API exposure, moderation concerns                                        | Screenshot / export to PDF as post-hackathon consideration                              |
 
 ---
 
@@ -146,23 +146,23 @@ Minimum set to demonstrate the value proposition and satisfy the fetch.ai track.
 
 ## Feature Prioritization Matrix
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| CSV upload + portfolio parsing | HIGH | LOW | P1 |
-| Report generation (orchestrator) | HIGH | HIGH | P1 |
-| Live agent graph (nodes + animated edges) | HIGH | HIGH | P1 |
-| Agent thoughts streaming | HIGH | HIGH | P1 |
-| Unified narrative report + markdown | HIGH | MEDIUM | P1 |
-| fetch.ai agentverse deployment | HIGH (track requirement) | HIGH | P1 |
-| Financial news + sentiment | HIGH | MEDIUM | P1 |
-| Portfolio sector/diversification analysis | HIGH | MEDIUM | P1 |
-| Basic chart in report | MEDIUM | MEDIUM | P1 |
-| Chat interface (orchestrator-routed) | MEDIUM | HIGH | P2 |
-| Message hover tooltips | LOW | LOW | P2 |
-| Crypto/commodities agent | MEDIUM | MEDIUM | P2 |
-| "Impact of adding X" analysis | MEDIUM | MEDIUM | P2 |
-| Backtesting (multi-period) | MEDIUM | HIGH | P3 |
-| Report export / PDF | LOW | LOW | P3 |
+| Feature                                   | User Value               | Implementation Cost | Priority |
+| ----------------------------------------- | ------------------------ | ------------------- | -------- |
+| CSV upload + portfolio parsing            | HIGH                     | LOW                 | P1       |
+| Report generation (orchestrator)          | HIGH                     | HIGH                | P1       |
+| Live agent graph (nodes + animated edges) | HIGH                     | HIGH                | P1       |
+| Agent thoughts streaming                  | HIGH                     | HIGH                | P1       |
+| Unified narrative report + markdown       | HIGH                     | MEDIUM              | P1       |
+| fetch.ai agentverse deployment            | HIGH (track requirement) | HIGH                | P1       |
+| Financial news + sentiment                | HIGH                     | MEDIUM              | P1       |
+| Portfolio sector/diversification analysis | HIGH                     | MEDIUM              | P1       |
+| Basic chart in report                     | MEDIUM                   | MEDIUM              | P1       |
+| Chat interface (orchestrator-routed)      | MEDIUM                   | HIGH                | P2       |
+| Message hover tooltips                    | LOW                      | LOW                 | P2       |
+| Crypto/commodities agent                  | MEDIUM                   | MEDIUM              | P2       |
+| "Impact of adding X" analysis             | MEDIUM                   | MEDIUM              | P2       |
+| Backtesting (multi-period)                | MEDIUM                   | HIGH                | P3       |
+| Report export / PDF                       | LOW                      | LOW                 | P3       |
 
 **Priority key:**
 - P1: Must have for hackathon demo
@@ -173,17 +173,17 @@ Minimum set to demonstrate the value proposition and satisfy the fetch.ai track.
 
 ## Competitor Feature Analysis
 
-| Feature | Bloomberg Terminal | Portfolio Visualizer | Koyfin | InvestiSwarm (Our Approach) |
-|---------|--------------------|--------------------|--------|----------------------------|
-| Portfolio import | Manual entry / API | CSV + broker sync | CSV + broker sync | CSV upload (hackathon scope) |
-| News + sentiment | YES (proprietary feed) | NO | YES (basic) | YES (Finnhub free tier) |
-| Charting / backtesting | YES (institutional) | YES (deep) | YES (moderate) | YES (modeling agent, limited) |
-| Unified narrative AI report | NO (data only) | NO | NO | YES -- core differentiator |
-| Multi-agent architecture | NO | NO | NO | YES -- fetch.ai agentverse |
-| Live agent visualization | NO | NO | NO | YES -- primary UX innovation |
-| Chat with data | LIMITED (Bloomberg GPT) | NO | YES (basic) | YES (orchestrator-routed) |
-| Crypto / commodities | YES | YES | YES | YES (dedicated agent) |
-| Free / hackathon accessible | NO ($24k/year) | YES (limited free) | YES (free tier) | YES |
+| Feature                     | Bloomberg Terminal      | Portfolio Visualizer | Koyfin            | Wealth Council (Our Approach) |
+| --------------------------- | ----------------------- | -------------------- | ----------------- | ----------------------------- |
+| Portfolio import            | Manual entry / API      | CSV + broker sync    | CSV + broker sync | CSV upload (hackathon scope)  |
+| News + sentiment            | YES (proprietary feed)  | NO                   | YES (basic)       | YES (Finnhub free tier)       |
+| Charting / backtesting      | YES (institutional)     | YES (deep)           | YES (moderate)    | YES (modeling agent, limited) |
+| Unified narrative AI report | NO (data only)          | NO                   | NO                | YES -- core differentiator    |
+| Multi-agent architecture    | NO                      | NO                   | NO                | YES -- fetch.ai agentverse    |
+| Live agent visualization    | NO                      | NO                   | NO                | YES -- primary UX innovation  |
+| Chat with data              | LIMITED (Bloomberg GPT) | NO                   | YES (basic)       | YES (orchestrator-routed)     |
+| Crypto / commodities        | YES                     | YES                  | YES               | YES (dedicated agent)         |
+| Free / hackathon accessible | NO ($24k/year)          | YES (limited free)   | YES (free tier)   | YES                           |
 
 ---
 

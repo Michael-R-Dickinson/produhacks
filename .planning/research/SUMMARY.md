@@ -1,13 +1,13 @@
 # Project Research Summary
 
-**Project:** InvestiSwarm
+**Project:** Wealth Council
 **Domain:** Multi-agent investment intelligence platform (fetch.ai uAgents + Vite/React)
 **Researched:** 2026-03-21
 **Confidence:** MEDIUM
 
 ## Executive Summary
 
-InvestiSwarm is a fetch.ai hackathon project that must satisfy two simultaneous goals: deliver a genuinely useful investment analysis tool and demonstrate compelling multi-agent coordination using the uAgents framework. The recommended architecture is a three-tier system — a React/Vite frontend, a FastAPI bridge server, and a uAgents Bureau running all domain agents locally. This three-tier split is non-negotiable: uAgents speak a binary protocol inaccessible from the browser, so the FastAPI bridge is a core infrastructure component, not an afterthought. The live agent graph visualization (React Flow nodes animated via SSE) is the primary differentiator that separates this from any ordinary investment report tool, and it is what judges will remember.
+Wealth Council is a fetch.ai hackathon project that must satisfy two simultaneous goals: deliver a genuinely useful investment analysis tool and demonstrate compelling multi-agent coordination using the uAgents framework. The recommended architecture is a three-tier system — a React/Vite frontend, a FastAPI bridge server, and a uAgents Bureau running all domain agents locally. This three-tier split is non-negotiable: uAgents speak a binary protocol inaccessible from the browser, so the FastAPI bridge is a core infrastructure component, not an afterthought. The live agent graph visualization (React Flow nodes animated via SSE) is the primary differentiator that separates this from any ordinary investment report tool, and it is what judges will remember.
 
 The recommended build order flows from dependencies: shared Pydantic message models first, then independent domain agents (Portfolio, News, Modeling, Crypto), then the Bureau wiring and Orchestrator fan-out, then the FastAPI SSE bridge, and finally the React frontend. The visualization layer must be built last as a decoupled broadcast side-channel — building it first is the single most common failure mode for this category of project. Financial API rate limits (Finnhub at 60 req/min is the right primary; Alpha Vantage's 25 req/day free tier is nearly useless as a primary source) and orchestrator context window overflow are the two technical risks most likely to cause demo failures.
 
@@ -171,12 +171,12 @@ Phases with standard patterns (skip research-phase):
 
 ## Confidence Assessment
 
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | MEDIUM-HIGH | uAgents core patterns: HIGH (official docs verified). Finnhub free tier limits: MEDIUM (rate limit page confirmed). React Flow 12.x capabilities: HIGH. GPT-4o mini pricing: MEDIUM. |
-| Features | MEDIUM | Product domain well understood. fetch.ai-specific integration patterns have limited production examples outside official docs. |
-| Architecture | MEDIUM | Three-tier pattern and SSE bridge verified via official uAgents docs and fetch.ai innovation lab examples. The specific asyncio.Queue bridge is a recommended adaptation, not a natively documented pattern. |
-| Pitfalls | MEDIUM-HIGH | uAgents-specific pitfalls (hosted statelessness, PNA, REST endpoint restrictions) verified against official docs. General multi-agent and hackathon patterns: HIGH confidence from multiple independent sources. |
+| Area         | Confidence  | Notes                                                                                                                                                                                                            |
+| ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stack        | MEDIUM-HIGH | uAgents core patterns: HIGH (official docs verified). Finnhub free tier limits: MEDIUM (rate limit page confirmed). React Flow 12.x capabilities: HIGH. GPT-4o mini pricing: MEDIUM.                             |
+| Features     | MEDIUM      | Product domain well understood. fetch.ai-specific integration patterns have limited production examples outside official docs.                                                                                   |
+| Architecture | MEDIUM      | Three-tier pattern and SSE bridge verified via official uAgents docs and fetch.ai innovation lab examples. The specific asyncio.Queue bridge is a recommended adaptation, not a natively documented pattern.     |
+| Pitfalls     | MEDIUM-HIGH | uAgents-specific pitfalls (hosted statelessness, PNA, REST endpoint restrictions) verified against official docs. General multi-agent and hackathon patterns: HIGH confidence from multiple independent sources. |
 
 **Overall confidence:** MEDIUM
 

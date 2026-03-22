@@ -9,7 +9,7 @@ provides:
   - "8 typed Pydantic message models (4 request, 4 response) importable from agents.models"
   - "4 mock data fixtures returning valid typed response instances"
   - "push_event() bridge utility using call_soon_threadsafe for cross-loop event push"
-  - "Installable Python package (investiswarm) with pytest configured"
+  - "Installable Python package (Wealth Council) with pytest configured"
 affects:
   - 01-02
   - 01-03
@@ -79,7 +79,7 @@ completed: 2026-03-22
 - 4 request models and 4 response models defined as `uagents.Model` subclasses, all importable from `agents.models`
 - 4 mock fixtures returning valid typed instances with realistic financial data (sector allocation, news sentiment, Sharpe ratio, crypto prices)
 - `push_event()` bridge utility implemented with `call_soon_threadsafe` pattern — thread-safe event push from Bureau thread to FastAPI event loop
-- Installable package (`investiswarm`) with pytest configured; all 10 tests green
+- Installable package (`Wealth Council`) with pytest configured; all 10 tests green
 
 ## Task Commits
 

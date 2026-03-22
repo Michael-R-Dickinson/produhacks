@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 orchestrator = Agent(
     name="orchestrator",
-    seed="orchestrator-agent-seed-investiswarm",
+    seed="orchestrator-agent-seed-Wealth Council",
     port=ORCHESTRATOR_PORT,
 )
 
@@ -82,9 +82,7 @@ def detect_contradictions(
     contradictions = []
 
     # Build ticker -> weight lookup from top_holdings
-    ticker_weights = {
-        h["ticker"]: h.get("weight", 0.0) for h in portfolio.top_holdings
-    }
+    ticker_weights = {h["ticker"]: h.get("weight", 0.0) for h in portfolio.top_holdings}
 
     for ticker, sentiment in news.aggregate_sentiment.items():
         weight = ticker_weights.get(ticker, 0.0)
@@ -175,7 +173,10 @@ Respond with ONLY a JSON array of chart type strings, nothing else. Example: ["r
         # Validate against known chart types
         return [s for s in selected if s in AVAILABLE_CHARTS]
     except (json.JSONDecodeError, TypeError):
-        logger.warning("Chart planning LLM returned unparseable response: %s — using all charts", raw)
+        logger.warning(
+            "Chart planning LLM returned unparseable response: %s — using all charts",
+            raw,
+        )
         return list(AVAILABLE_CHARTS.keys())
 
 
@@ -249,11 +250,11 @@ def build_synthesis_prompt(
     knowledge_level: int,
 ) -> str:
     """Build the LLM synthesis prompt from all agent data."""
-    system_msg = (
-        "You are a professional financial analyst writing a morning brief for a portfolio manager."
-    )
+    system_msg = "You are a professional financial analyst writing a morning brief for a portfolio manager."
 
-    audience_instruction = KNOWLEDGE_LEVEL_INSTRUCTIONS.get(knowledge_level, KNOWLEDGE_LEVEL_INSTRUCTIONS[3])
+    audience_instruction = KNOWLEDGE_LEVEL_INSTRUCTIONS.get(
+        knowledge_level, KNOWLEDGE_LEVEL_INSTRUCTIONS[3]
+    )
 
     instructions = f"""## Audience & Tone
 {audience_instruction}
@@ -303,7 +304,7 @@ Make the report visually rich and scannable. Use markdown formatting generously:
 
     if chart_refs:
         chart_lines = [
-            f"- [chart:{r['chart_id']}] \"{r['title']}\": {r['summary']}"
+            f'- [chart:{r["chart_id"]}] "{r["title"]}": {r["summary"]}'
             for r in chart_refs
         ]
         prompt_parts += [
@@ -342,7 +343,9 @@ async def synthesize_report(
         if c.image_base64
     ]
 
-    prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_refs, knowledge_level)
+    prompt = build_synthesis_prompt(
+        portfolio, news, modeling, alt, contradictions, chart_refs, knowledge_level
+    )
 
     response = await get_gemini().aio.models.generate_content(
         model="gemini-2.5-flash",
@@ -360,13 +363,32 @@ async def synthesize_report(
 @orchestrator.on_rest_post("/report", ReportRequest, ReportResponse)
 async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.WORKING))
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching to portfolio, news, and alternatives agents..."))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator", "Dispatching to portfolio, news, and alternatives agents..."
+        )
+    )
 
     # --- Phase 1: Fan-out to non-modeling agents concurrently ---
     phase1_results = await asyncio.gather(
-        ctx.send_and_receive(PORTFOLIO_ADDR, AnalyzePortfolio(holdings=req.holdings, mock=req.mock), response_type=PortfolioResponse, timeout=30),
-        ctx.send_and_receive(NEWS_ADDR, FetchNews(tickers=req.holdings, mock=req.mock), response_type=NewsResponse, timeout=30),
-        ctx.send_and_receive(ALT_ADDR, AnalyzeAlternatives(mock=req.mock), response_type=AlternativesResponse, timeout=30),
+        ctx.send_and_receive(
+            PORTFOLIO_ADDR,
+            AnalyzePortfolio(holdings=req.holdings, mock=req.mock),
+            response_type=PortfolioResponse,
+            timeout=30,
+        ),
+        ctx.send_and_receive(
+            NEWS_ADDR,
+            FetchNews(tickers=req.holdings, mock=req.mock),
+            response_type=NewsResponse,
+            timeout=30,
+        ),
+        ctx.send_and_receive(
+            ALT_ADDR,
+            AnalyzeAlternatives(mock=req.mock),
+            response_type=AlternativesResponse,
+            timeout=30,
+        ),
         return_exceptions=True,
     )
 
@@ -377,22 +399,33 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
             return result[0]
         return result
 
-    portfolio_data = safe_result(extract_msg(phase1_results[0]), mock_portfolio_response())
+    portfolio_data = safe_result(
+        extract_msg(phase1_results[0]), mock_portfolio_response()
+    )
     news_data = safe_result(extract_msg(phase1_results[1]), mock_news_response())
     alt_data = safe_result(extract_msg(phase1_results[2]), mock_alternatives_response())
 
-    push_sse_event(SSEEvent.agent_thought(
-        "orchestrator",
-        f"3 agents responded. Analyzing {len(news_data.headlines)} headlines, {len(portfolio_data.sector_allocation)} sectors...",
-    ))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator",
+            f"3 agents responded. Analyzing {len(news_data.headlines)} headlines, {len(portfolio_data.sector_allocation)} sectors...",
+        )
+    )
 
     # --- Phase 2: Ask Gemini which charts to generate ---
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Consulting Gemini to plan chart selection based on agent data..."))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator",
+            "Consulting Gemini to plan chart selection based on agent data...",
+        )
+    )
     selected_charts = await plan_chart_selection(portfolio_data, news_data, alt_data)
-    push_sse_event(SSEEvent.agent_thought(
-        "orchestrator",
-        f"Chart plan decided: {', '.join(selected_charts)}. Dispatching to modeling agent...",
-    ))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator",
+            f"Chart plan decided: {', '.join(selected_charts)}. Dispatching to modeling agent...",
+        )
+    )
 
     # --- Phase 3: Send targeted request to modeling agent ---
     modeling_result = await ctx.send_and_receive(
@@ -403,34 +436,55 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     )
     modeling_data = safe_result(extract_msg(modeling_result), mock_model_response())
 
-    push_sse_event(SSEEvent.agent_thought(
-        "orchestrator",
-        f"Modeling agent returned {len(modeling_data.charts)} charts. Preparing final synthesis...",
-    ))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator",
+            f"Modeling agent returned {len(modeling_data.charts)} charts. Preparing final synthesis...",
+        )
+    )
 
     # Contradiction detection
     contradictions = detect_contradictions(portfolio_data, news_data, modeling_data)
     if contradictions:
-        push_sse_event(SSEEvent.agent_thought(
-            "orchestrator",
-            f"Flagging {len(contradictions)} cross-agent contradictions",
-        ))
+        push_sse_event(
+            SSEEvent.agent_thought(
+                "orchestrator",
+                f"Flagging {len(contradictions)} cross-agent contradictions",
+            )
+        )
 
     # --- Phase 4: LLM synthesis with all data + targeted charts ---
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Synthesizing unified narrative with Gemini..."))
+    push_sse_event(
+        SSEEvent.agent_thought(
+            "orchestrator", "Synthesizing unified narrative with Gemini..."
+        )
+    )
     report_markdown = await synthesize_report(
-        portfolio_data, news_data, modeling_data, alt_data,
-        contradictions, modeling_data.charts, req.knowledge_level,
+        portfolio_data,
+        news_data,
+        modeling_data,
+        alt_data,
+        contradictions,
+        modeling_data.charts,
+        req.knowledge_level,
     )
 
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Report complete. Delivering to client."))
-    logger.info("Sending report.complete — markdown length: %d, charts: %d", len(report_markdown), len(modeling_data.charts))
+    push_sse_event(
+        SSEEvent.agent_thought("orchestrator", "Report complete. Delivering to client.")
+    )
+    logger.info(
+        "Sending report.complete — markdown length: %d, charts: %d",
+        len(report_markdown),
+        len(modeling_data.charts),
+    )
 
     # Push completed report via SSE
-    push_sse_event(SSEEvent.report_complete(
-        markdown=report_markdown,
-        charts=[c.model_dump() for c in modeling_data.charts],
-    ))
+    push_sse_event(
+        SSEEvent.report_complete(
+            markdown=report_markdown,
+            charts=[c.model_dump() for c in modeling_data.charts],
+        )
+    )
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.DONE))
 
     return ReportResponse(status="complete")

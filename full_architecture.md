@@ -1,8 +1,8 @@
-# InvestiSwarm -- Full Architecture
+# Wealth Council -- Full Architecture
 
 ## Overview
 
-InvestiSwarm is a multi-agent investment analysis platform. Five specialized uAgents collaborate through a central orchestrator to produce a unified narrative investment report. A FastAPI bridge translates between the browser (HTTP/SSE) and the agent protocol.
+Wealth Council is a multi-agent investment analysis platform. Five specialized uAgents collaborate through a central orchestrator to produce a unified narrative investment report. A FastAPI bridge translates between the browser (HTTP/SSE) and the agent protocol.
 
 ```mermaid
 graph TB
@@ -104,12 +104,12 @@ classDiagram
     AnalyzeAlternatives --> AlternativesAgent : dispatched to
 ```
 
-| Model | Target Agent | Key Fields | Notes |
-|-------|-------------|------------|-------|
-| `AnalyzePortfolio` | Portfolio `:8001` | `holdings` (ticker list) | Mock flag bypasses API calls |
-| `FetchNews` | News `:8002` | `tickers` (ticker list) | |
-| `RunModel` | Modeling `:8003` | `holdings`, `analyses`, `lookback_days` | `analyses` selects from chart registry |
-| `AnalyzeAlternatives` | Alternatives `:8004` | (none beyond mock) | Fetches crypto + commodities |
+| Model                 | Target Agent         | Key Fields                              | Notes                                  |
+| --------------------- | -------------------- | --------------------------------------- | -------------------------------------- |
+| `AnalyzePortfolio`    | Portfolio `:8001`    | `holdings` (ticker list)                | Mock flag bypasses API calls           |
+| `FetchNews`           | News `:8002`         | `tickers` (ticker list)                 |                                        |
+| `RunModel`            | Modeling `:8003`     | `holdings`, `analyses`, `lookback_days` | `analyses` selects from chart registry |
+| `AnalyzeAlternatives` | Alternatives `:8004` | (none beyond mock)                      | Fetches crypto + commodities           |
 
 ---
 
@@ -155,43 +155,43 @@ classDiagram
 #### Field Reference
 
 **PortfolioResponse**
-| Field | Type | Example |
-|-------|------|---------|
-| `sector_allocation` | `dict[str, float]` | `{"Technology": 0.42, "Healthcare": 0.18}` |
-| `top_holdings` | `list[dict]` | `[{"ticker": "AAPL", "weight": 0.18, "sector": "Technology"}]` |
-| `herfindahl_index` | `float` | `0.087` (lower = more diversified) |
-| `portfolio_beta` | `float` | `1.12` |
+| Field               | Type               | Example                                                        |
+| ------------------- | ------------------ | -------------------------------------------------------------- |
+| `sector_allocation` | `dict[str, float]` | `{"Technology": 0.42, "Healthcare": 0.18}`                     |
+| `top_holdings`      | `list[dict]`       | `[{"ticker": "AAPL", "weight": 0.18, "sector": "Technology"}]` |
+| `herfindahl_index`  | `float`            | `0.087` (lower = more diversified)                             |
+| `portfolio_beta`    | `float`            | `1.12`                                                         |
 
 **NewsResponse**
-| Field | Type | Example |
-|-------|------|---------|
-| `headlines` | `list[dict]` | `[{"title": "...", "sentiment": 0.82, "ticker": "AAPL"}]` |
-| `aggregate_sentiment` | `dict[str, float]` | `{"AAPL": 0.82, "MSFT": -0.35}` -- range [-1, 1] |
-| `overall_sentiment` | `float` | `0.29` |
+| Field                 | Type               | Example                                                   |
+| --------------------- | ------------------ | --------------------------------------------------------- |
+| `headlines`           | `list[dict]`       | `[{"title": "...", "sentiment": 0.82, "ticker": "AAPL"}]` |
+| `aggregate_sentiment` | `dict[str, float]` | `{"AAPL": 0.82, "MSFT": -0.35}` -- range [-1, 1]          |
+| `overall_sentiment`   | `float`            | `0.29`                                                    |
 
 **ModelResponse**
-| Field | Type | Example |
-|-------|------|---------|
-| `holdings_analyzed` | `list[str]` | `["AAPL", "MSFT", "NVDA"]` |
-| `sharpe_ratio` | `float` | `1.34` |
-| `volatility` | `float` | `0.187` (annualized) |
-| `trend_slope` | `float` | `0.0023` (regression coefficient) |
-| `charts` | `list[ChartOutput]` | One per analysis type |
-| `metrics` | `dict[str, float]` | Known keys: `r_squared`, `max_drawdown`, `beta` |
+| Field               | Type                | Example                                         |
+| ------------------- | ------------------- | ----------------------------------------------- |
+| `holdings_analyzed` | `list[str]`         | `["AAPL", "MSFT", "NVDA"]`                      |
+| `sharpe_ratio`      | `float`             | `1.34`                                          |
+| `volatility`        | `float`             | `0.187` (annualized)                            |
+| `trend_slope`       | `float`             | `0.0023` (regression coefficient)               |
+| `charts`            | `list[ChartOutput]` | One per analysis type                           |
+| `metrics`           | `dict[str, float]`  | Known keys: `r_squared`, `max_drawdown`, `beta` |
 
 **ChartOutput** (embedded in `ModelResponse.charts`)
-| Field | Type | Example |
-|-------|------|---------|
-| `chart_type` | `str` | `"regression"` |
-| `title` | `str` | `"Portfolio Linear Regression (1Y)"` |
-| `image_base64` | `str` | Base64-encoded PNG |
-| `summary` | `str` | One-line description for narrative weaving |
+| Field          | Type  | Example                                    |
+| -------------- | ----- | ------------------------------------------ |
+| `chart_type`   | `str` | `"regression"`                             |
+| `title`        | `str` | `"Portfolio Linear Regression (1Y)"`       |
+| `image_base64` | `str` | Base64-encoded PNG                         |
+| `summary`      | `str` | One-line description for narrative weaving |
 
 **AlternativesResponse**
-| Field | Type | Example |
-|-------|------|---------|
-| `crypto_prices` | `dict[str, float]` | `{"BTC": 67450.0, "ETH": 3520.0}` |
-| `cross_correlations` | `dict[str, float]` | `{"BTC": 0.12, "GOLD": -0.05}` |
+| Field                | Type               | Example                           |
+| -------------------- | ------------------ | --------------------------------- |
+| `crypto_prices`      | `dict[str, float]` | `{"BTC": 67450.0, "ETH": 3520.0}` |
+| `cross_correlations` | `dict[str, float]` | `{"BTC": 0.12, "GOLD": -0.05}`    |
 
 ---
 
@@ -268,14 +268,14 @@ classDiagram
 
 Every SSE event is an `SSEEvent` envelope. The `event_type` discriminates the `payload` shape:
 
-| `event_type` | Payload Model | Used By | Phase |
-|---|---|---|---|
-| `agent.status` | `AgentStatusPayload` | All agents -- lifecycle transitions | 1 (stubs), 2+ (real) |
-| `agent.thought` | `AgentThoughtPayload` | All agents -- reasoning steps | 1 (stubs), 2+ (real) |
-| `agent.message` | `AgentMessagePayload` | Inter-agent comms visualization | 3 (graph edges) |
-| `report.chunk` | `ReportChunkPayload` | Orchestrator -- streaming report | 2 |
-| `report.complete` | `ReportCompletePayload` | Orchestrator -- final report | 2 |
-| `chat.response` | `ChatResponsePayload` | Orchestrator -- chat replies | 4 |
+| `event_type`      | Payload Model           | Used By                             | Phase                |
+| ----------------- | ----------------------- | ----------------------------------- | -------------------- |
+| `agent.status`    | `AgentStatusPayload`    | All agents -- lifecycle transitions | 1 (stubs), 2+ (real) |
+| `agent.thought`   | `AgentThoughtPayload`   | All agents -- reasoning steps       | 1 (stubs), 2+ (real) |
+| `agent.message`   | `AgentMessagePayload`   | Inter-agent comms visualization     | 3 (graph edges)      |
+| `report.chunk`    | `ReportChunkPayload`    | Orchestrator -- streaming report    | 2                    |
+| `report.complete` | `ReportCompletePayload` | Orchestrator -- final report        | 2                    |
+| `chat.response`   | `ChatResponsePayload`   | Orchestrator -- chat replies        | 4                    |
 
 ---
 
@@ -358,23 +358,23 @@ src/                          React/Vite app                                [Pha
 
 ## Phase Roadmap Summary
 
-| Phase | Name | Goal | Status |
-|-------|------|------|--------|
-| **1** | Foundation | Scaffold, models, bridge, mock data, Bureau -- verified E2E by curl | In Progress (2/3 plans done) |
-| **2** | Agent Pipeline | Real agent logic produces complete markdown report via curl (no frontend) | Not Started |
-| **3** | Frontend + Visualization | React app with live agent graph, streaming thoughts, report rendering | Not Started |
-| **4** | Chat + Demo Polish | Follow-up chat, graph animation, clean demo flow | Not Started |
+| Phase | Name                     | Goal                                                                      | Status                       |
+| ----- | ------------------------ | ------------------------------------------------------------------------- | ---------------------------- |
+| **1** | Foundation               | Scaffold, models, bridge, mock data, Bureau -- verified E2E by curl       | In Progress (2/3 plans done) |
+| **2** | Agent Pipeline           | Real agent logic produces complete markdown report via curl (no frontend) | Not Started                  |
+| **3** | Frontend + Visualization | React app with live agent graph, streaming thoughts, report rendering     | Not Started                  |
+| **4** | Chat + Demo Polish       | Follow-up chat, graph animation, clean demo flow                          | Not Started                  |
 
 ---
 
 ## Configuration
 
-| Variable | Default | Purpose | Phase |
-|----------|---------|---------|-------|
-| `MOCK_DATA` | `"true"` | Enables mock data mode for all agents | 1 |
-| Finnhub API key | -- | Financial news + commodity data (60 req/min) | 2 |
-| CoinGecko API | -- | Crypto prices (30 req/min, no key needed) | 2 |
-| OpenAI API key | -- | GPT-4o mini for orchestrator narrative synthesis | 2 |
+| Variable        | Default  | Purpose                                          | Phase |
+| --------------- | -------- | ------------------------------------------------ | ----- |
+| `MOCK_DATA`     | `"true"` | Enables mock data mode for all agents            | 1     |
+| Finnhub API key | --       | Financial news + commodity data (60 req/min)     | 2     |
+| CoinGecko API   | --       | Crypto prices (30 req/min, no key needed)        | 2     |
+| OpenAI API key  | --       | GPT-4o mini for orchestrator narrative synthesis | 2     |
 
 ---
 

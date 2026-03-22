@@ -179,6 +179,66 @@ Respond with ONLY a JSON array of chart type strings, nothing else. Example: ["r
         return list(AVAILABLE_CHARTS.keys())
 
 
+KNOWLEDGE_LEVEL_INSTRUCTIONS: dict[int, str] = {
+    1: (
+        "CRITICAL: You are writing for someone with ZERO financial background — treat them like a smart 12-year-old."
+        "\n\nYOU MUST:\n"
+        "- Use plain, everyday English ONLY. No jargon whatsoever.\n"
+        "- Define EVERY financial term immediately in plain language (e.g., 'beta — basically, how wild the stock rides compared to the market').\n"
+        "- Replace all metrics with relatable analogies (e.g., instead of 'Sharpe ratio 1.4', say 'you earn 1.40 of return for every 1.00 of risk — a good deal').\n"
+        "- Use short sentences (max 20 words each).\n"
+        "- Spell out what every number MEANS for the reader's money in plain terms.\n"
+        "\nYOU MUST NOT:\n"
+        "- Use any unexplained acronyms (P/E, HHI, OLS, YTD, etc.)\n"
+        "- Assume the reader knows what a hedge, beta, correlation, or Sharpe ratio is.\n"
+        "- Use dense data-heavy sentences."
+    ),
+    2: (
+        "You are writing for someone who knows what stocks and bonds are, and has heard of diversification, but is not a finance professional."
+        "\n\nYOU MUST:\n"
+        "- Use plain language as the default, with light jargon only where it saves space.\n"
+        "- Briefly define technical terms the FIRST time you use them (e.g., 'beta (market sensitivity)').\n"
+        "- Focus on what this means for the reader's portfolio in practical terms, not just the raw numbers.\n"
+        "- Keep explanations accessible — avoid assuming knowledge beyond basic investing.\n"
+        "\nYOU MUST NOT:\n"
+        "- Drop advanced metrics (Sharpe, HHI, OLS) without a brief explanation.\n"
+        "- Use jargon-heavy sentences that require re-reading to understand."
+    ),
+    3: (
+        "You are writing for an informed investor who is comfortable with standard financial concepts: P/E ratios, diversification, beta, sentiment, and basic portfolio theory."
+        "\n\nYOU MUST:\n"
+        "- Use standard analyst language and financial terminology freely.\n"
+        "- Be direct and data-driven, citing metrics where they add clarity.\n"
+        "- Weave analysis and implications together naturally.\n"
+        "\nYOU MUST NOT:\n"
+        "- Over-explain well-known concepts like beta or correlation.\n"
+        "- Use institutional/quant jargon without brief context."
+    ),
+    4: (
+        "You are writing for a finance professional who is deeply familiar with advanced metrics and portfolio management."
+        "\n\nYOU MUST:\n"
+        "- Use dense, precise analyst language. Be concise and data-driven.\n"
+        "- Freely reference Sharpe ratios, Herfindahl index, correlation matrices, factor exposure, momentum, drawdowns, and vol surfaces.\n"
+        "- Prioritize information density over hand-holding.\n"
+        "- Frame insights as actionable signals, not educational explanations.\n"
+        "\nYOU MUST NOT:\n"
+        "- Waste words explaining standard metrics.\n"
+        "- Soften technical language for accessibility."
+    ),
+    5: (
+        "You are writing for a quantitative/institutional audience — portfolio managers, quants, and risk analysts with deep expertise."
+        "\n\nYOU MUST:\n"
+        "- Use the densest, most precise financial and statistical language possible.\n"
+        "- Use Greek letters (α, β, σ, ρ), factor decomposition, regime terminology (fat tails, convexity, mean reversion), and institutional framing.\n"
+        "- Maximize information per sentence. No hand-holding.\n"
+        "- Frame everything in terms of risk-adjusted return, factor exposure, and portfolio construction implications.\n"
+        "\nYOU MUST NOT:\n"
+        "- Define any standard financial concept.\n"
+        "- Use conversational or softened language."
+    ),
+}
+
+
 def build_synthesis_prompt(
     portfolio: PortfolioResponse,
     news: NewsResponse,
@@ -186,19 +246,25 @@ def build_synthesis_prompt(
     alt: AlternativesResponse,
     contradictions: list[str],
     chart_refs: list[dict[str, str]],
+    knowledge_level: int,
 ) -> str:
     """Build the LLM synthesis prompt from all agent data."""
     system_msg = (
         "You are a professional financial analyst writing a morning brief for a portfolio manager."
     )
 
-    instructions = """Organize the report into thematic sections by investment theme (NOT by data source agent). Required sections:
+    audience_instruction = KNOWLEDGE_LEVEL_INSTRUCTIONS.get(knowledge_level, KNOWLEDGE_LEVEL_INSTRUCTIONS[3])
+
+    instructions = f"""## Audience & Tone
+{audience_instruction}
+
+Organize the report into thematic sections by investment theme (NOT by data source agent). Required sections:
 1. Executive Summary (3-4 sentences, key actionable insights)
 2. 2-3 thematic sections (e.g., "Tech Sector Outlook", "Risk Assessment", "Market Sentiment & Momentum")
 3. Alternative Assets & Market Context
 4. Notable Contradictions (if any detected)
 
-Do not section by data source. Weave all data into a unified narrative. Use a professional analyst tone.
+Do not section by data source. Weave all data into a unified narrative.
 Keep the report to 600-800 words for 2-3 screens of content.
 
 ## Formatting Requirements
@@ -267,6 +333,7 @@ async def synthesize_report(
     alt: AlternativesResponse,
     contradictions: list[str],
     charts,
+    knowledge_level: int = 2,
 ) -> str:
     """Call Gemini to synthesize a unified thematic narrative."""
     chart_refs = [
@@ -275,7 +342,7 @@ async def synthesize_report(
         if c.image_base64
     ]
 
-    prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_refs)
+    prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_refs, knowledge_level)
 
     response = await get_gemini().aio.models.generate_content(
         model="gemini-2.5-flash",
@@ -353,7 +420,7 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Synthesizing unified narrative with Gemini..."))
     report_markdown = await synthesize_report(
         portfolio_data, news_data, modeling_data, alt_data,
-        contradictions, modeling_data.charts,
+        contradictions, modeling_data.charts, req.knowledge_level,
     )
 
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Report complete. Delivering to client."))

@@ -114,15 +114,23 @@ async def chat(request: Request, body: ChatRequest) -> EventSourceResponse:
 
 
 @app.post("/report")
-async def trigger_report() -> dict:
+async def trigger_report(request: Request) -> dict:
     """Trigger full report pipeline via orchestrator's REST endpoint."""
     from agents.data.portfolio import EQUITY_TICKERS
     import httpx
 
+    # Parse optional JSON body for knowledge_level
+    knowledge_level = 2  # default
+    try:
+        body = await request.json()
+        knowledge_level = body.get("knowledge_level", 2)
+    except Exception:
+        pass
+
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"http://localhost:{BUREAU_PORT}/report",
-            json={"holdings": EQUITY_TICKERS, "mock": False},
+            json={"holdings": EQUITY_TICKERS, "mock": False, "knowledge_level": knowledge_level},
             timeout=60.0,  # orchestrator needs time for fan-out + LLM
         )
     return {"status": "triggered", "orchestrator_status": resp.status_code}

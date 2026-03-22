@@ -7,6 +7,8 @@ import { Zap } from "lucide-react";
 
 type PagePhase = "empty" | "generating" | "ready" | "complete";
 
+const KNOWLEDGE_LABELS = ["Beginner", "Intermediate", "Advanced", "Professional", "Expert"] as const;
+
 function getPagePhase(state: {
     executiveSummary: string | null;
     agentStatuses: Record<string, string>;
@@ -24,6 +26,7 @@ function getPagePhase(state: {
 
 export default function DailyReport() {
     const { state, triggerReport } = useSwarm();
+    const [knowledgeLevel, setKnowledgeLevel] = useState(2);
     const [userDismissed, setUserDismissed] = useState(false);
 
     const phase = getPagePhase(state, userDismissed);
@@ -47,7 +50,39 @@ export default function DailyReport() {
                     <p style={{ fontSize: 14, color: "var(--text-tertiary)", maxWidth: 360, textAlign: "center" }}>
                         Trigger the agent swarm to analyze your portfolio, scan market news, and generate a comprehensive report.
                     </p>
-                    <button className="sidebar-cta" onClick={triggerReport} style={{ marginTop: 8 }}>
+
+                    {/* Knowledge Level Slider */}
+                    <div className="knowledge-slider">
+                        <label className="knowledge-slider__label">
+                            Knowledge Level
+                        </label>
+                        <div className="knowledge-slider__track-wrapper">
+                            <input
+                                type="range"
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={knowledgeLevel}
+                                onChange={(e) => setKnowledgeLevel(Number(e.target.value))}
+                                className="knowledge-slider__input"
+                            />
+                            <div className="knowledge-slider__ticks">
+                                {KNOWLEDGE_LABELS.map((label, i) => (
+                                    <span
+                                        key={label}
+                                        className={`knowledge-slider__tick ${i + 1 === knowledgeLevel ? "knowledge-slider__tick--active" : ""}`}
+                                    >
+                                        {label}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="knowledge-slider__badge">
+                            {KNOWLEDGE_LABELS[knowledgeLevel - 1]}
+                        </div>
+                    </div>
+
+                    <button className="sidebar-cta" onClick={() => triggerReport(knowledgeLevel)} style={{ marginTop: 8 }}>
                         <Zap size={14} />
                         Generate Report
                     </button>

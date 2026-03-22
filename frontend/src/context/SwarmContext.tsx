@@ -3,8 +3,8 @@ import {
   createContext,
   useContext,
   useReducer,
-  useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from "react"
 import { connectSSE } from "../services/sse"
@@ -50,6 +50,7 @@ export interface SwarmState {
     processing_power: number
   } | null
   connected: boolean
+  reportTriggered: boolean
 }
 
 const initialState: SwarmState = {
@@ -71,6 +72,7 @@ const initialState: SwarmState = {
   chatStreaming: "",
   swarmHealth: null,
   connected: false,
+  reportTriggered: false,
 }
 
 /* ── Reducer ─────────────────────────────────────── */
@@ -78,7 +80,7 @@ type Action =
   | { type: "SSE_EVENT"; event: SSEEvent }
   | { type: "SET_CONNECTED"; connected: boolean }
   | { type: "ADD_CHAT_MESSAGE"; message: ChatMessage }
-  | { type: "RESET" }
+  | { type: "TRIGGER_REPORT" }
 
 function reducer(state: SwarmState, action: Action): SwarmState {
   switch (action.type) {
@@ -88,8 +90,8 @@ function reducer(state: SwarmState, action: Action): SwarmState {
     case "ADD_CHAT_MESSAGE":
       return { ...state, chatMessages: [...state.chatMessages, action.message] }
 
-    case "RESET":
-      return { ...initialState }
+    case "TRIGGER_REPORT":
+      return { ...initialState, reportTriggered: true }
 
     case "SSE_EVENT": {
       const evt = action.event
@@ -192,22 +194,15 @@ const SwarmContext = createContext<SwarmContextValue | null>(null)
 
 export function SwarmProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
-
-  useEffect(() => {
-    dispatch({ type: "SET_CONNECTED", connected: true })
-
-    const cleanup = connectSSE((event) => {
-      dispatch({ type: "SSE_EVENT", event })
-    })
-
-    return () => {
-      cleanup()
-      dispatch({ type: "SET_CONNECTED", connected: false })
-    }
-  }, [])
+  const sseCleanupRef = useRef<(() => void) | null>(null)
 
   const triggerReport = useCallback(() => {
-    dispatch({ type: "RESET" })
+    // Clean up any existing SSE connection
+    sseCleanupRef.current?.()
+    sseCleanupRef.current = null
+
+    dispatch({ type: "TRIGGER_REPORT" })
+
     const backendUrl = import.meta.env.VITE_API_URL as string | undefined
     if (backendUrl) {
       fetch(`${backendUrl}/report`, { method: "POST" })
@@ -216,11 +211,13 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
         )
         .catch(console.error)
     }
+
+    // Connect SSE after a brief delay to let backend start streaming
     setTimeout(() => {
-      const cleanup = connectSSE((event) => {
+      dispatch({ type: "SET_CONNECTED", connected: true })
+      sseCleanupRef.current = connectSSE((event) => {
         dispatch({ type: "SSE_EVENT", event })
       })
-      return cleanup
     }, 100)
   }, [])
 

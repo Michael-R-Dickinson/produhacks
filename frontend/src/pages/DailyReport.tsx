@@ -8,12 +8,14 @@ type PagePhase = "empty" | "generating" | "complete";
 function getPagePhase(state: {
     executiveSummary: string | null;
     agentStatuses: Record<string, string>;
+    reportTriggered: boolean;
 }): PagePhase {
     if (state.executiveSummary !== null) return "complete";
     const anyActive = Object.values(state.agentStatuses).some(
         (s) => s === "working" || s === "done"
     );
-    return anyActive ? "generating" : "empty";
+    if (anyActive || state.reportTriggered) return "generating";
+    return "empty";
 }
 
 export default function DailyReport() {

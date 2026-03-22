@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-01-PLAN.md — model contracts, mock portfolio, base64 chart
-last_updated: "2026-03-22T07:19:19.869Z"
+stopped_at: Completed 02-03-PLAN.md — Finnhub fetch, FinBERT scoring, sentiment aggregation
+last_updated: "2026-03-22T07:28:38.512Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 3
+  completed_plans: 6
 ---
 
 # Project State
@@ -46,6 +46,7 @@ Plan: 2 of 5
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase 02 P03 | 8 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [02-01]: agents/data/portfolio.py is the single source of truth for mock holdings — all mock providers import from it
 - [02-01]: MOCK_CHART_BASE64 embedded as a module constant in modeling.py rather than loaded from disk at runtime
 - [02-01]: correlation_matrix uses all 10 equity tickers with realistic within/cross-sector correlation values
+- [Phase 02-03]: FinBERT loaded lazily via get_finbert() so test imports never trigger 500MB model download
+- [Phase 02-03]: filter_headlines_for_tickers caps at 5 per ticker to prevent any single holding dominating the aggregate sentiment signal
+- [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:32:00Z
-Stopped at: Completed 02-01-PLAN.md — model contracts, mock portfolio, base64 chart
-Resume file: .planning/phases/02-agent-pipeline/02-02-PLAN.md
+Last session: 2026-03-22T07:28:31.340Z
+Stopped at: Completed 02-03-PLAN.md — Finnhub fetch, FinBERT scoring, sentiment aggregation
+Resume file: None

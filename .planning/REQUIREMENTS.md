@@ -24,11 +24,11 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### News Agent (Partial LLM -- FinBERT for Sentiment)
 
-- [ ] **NEWS-01**: Fetches financial news headlines from Finnhub API
-- [ ] **NEWS-02**: Filters headlines for relevance to portfolio holdings
-- [ ] **NEWS-03**: Scores sentiment per article using FinBERT (not LLM)
-- [ ] **NEWS-04**: Computes aggregate sentiment metrics per holding/sector
-- [ ] **NEWS-05**: Returns structured sentiment data + raw headlines to orchestrator
+- [x] **NEWS-01**: Fetches financial news headlines from Finnhub API
+- [x] **NEWS-02**: Filters headlines for relevance to portfolio holdings
+- [x] **NEWS-03**: Scores sentiment per article using FinBERT (not LLM)
+- [x] **NEWS-04**: Computes aggregate sentiment metrics per holding/sector
+- [x] **NEWS-05**: Returns structured sentiment data + raw headlines to orchestrator
 
 ### Modeling Agent (No LLM -- Pure Computation)
 
@@ -130,11 +130,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PORT-03 | Phase 2 | Pending |
 | PORT-04 | Phase 2 | Pending |
 | PORT-05 | Phase 2 | Pending |
-| NEWS-01 | Phase 2 | Pending |
-| NEWS-02 | Phase 2 | Pending |
-| NEWS-03 | Phase 2 | Pending |
-| NEWS-04 | Phase 2 | Pending |
-| NEWS-05 | Phase 2 | Pending |
+| NEWS-01 | Phase 2 | Complete |
+| NEWS-02 | Phase 2 | Complete |
+| NEWS-03 | Phase 2 | Complete |
+| NEWS-04 | Phase 2 | Complete |
+| NEWS-05 | Phase 2 | Complete |
 | MODL-01 | Phase 2 | Pending |
 | MODL-02 | Phase 2 | Pending |
 | MODL-03 | Phase 2 | Complete |

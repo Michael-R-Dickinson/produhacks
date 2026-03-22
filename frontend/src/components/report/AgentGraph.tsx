@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from "react";
 import { Brain, PieChart, Newspaper, TrendingUp, Bitcoin } from "lucide-react";
 import { useSwarm } from "../../context/SwarmContext";
 import { AGENTS } from "../../schemas/events";
-import type { AgentId } from "../../schemas/events";
+import type { AgentId, AgentMeta } from "../../schemas/events";
 import type { AgentMessage } from "../../context/SwarmContext";
+import AgentDetailModal from "./AgentDetailModal";
 
 const iconMap: Record<string, React.ReactNode> = {
     brain: <Brain size={18} />,
@@ -33,6 +34,7 @@ export default function AgentGraph(): JSX.Element {
     const { state } = useSwarm();
     const containerRef = useRef<HTMLDivElement>(null);
     const [edgeHover, setEdgeHover] = useState<EdgeHover | null>(null);
+    const [selectedAgent, setSelectedAgent] = useState<AgentMeta | null>(null);
 
     const agentList = AGENTS.filter((a) => a.id !== "orchestrator");
 
@@ -171,7 +173,9 @@ export default function AgentGraph(): JSX.Element {
                             transform: "translate(-50%, -50%)",
                             zIndex: isOrch ? 5 : 2,
                             borderColor: status === "working" || status === "done" ? agent.color : undefined,
+                            cursor: "pointer",
                         }}
+                        onClick={() => setSelectedAgent(agent)}
                     >
                         <div
                             className="agent-card__floater"
@@ -215,6 +219,16 @@ export default function AgentGraph(): JSX.Element {
                     </div>
                 );
             })}
+
+            {/* Agent detail modal */}
+            {selectedAgent && (
+                <AgentDetailModal
+                    agent={selectedAgent}
+                    state={state}
+                    agents={AGENTS}
+                    onClose={() => setSelectedAgent(null)}
+                />
+            )}
 
             {/* Edge hover tooltip - shows message info */}
             {edgeHover && (() => {

@@ -200,8 +200,8 @@ export interface AgentMeta {
 
 export const AGENTS: AgentMeta[] = [
   { id: "orchestrator", name: "Orchestrator", icon: "brain", color: "#2563eb" },
-  { id: "portfolio", name: "Portfolio Alpha", icon: "pie-chart", color: "#8b5cf6" },
-  { id: "news", name: "Sentiment Engine", icon: "newspaper", color: "#f59e0b" },
-  { id: "modeling", name: "Quant Modeler", icon: "trending-up", color: "#10b981" },
-  { id: "alternatives", name: "Alt Assets", icon: "bitcoin", color: "#ef4444" },
+  { id: "portfolio", name: "Portfolio Analyzer", icon: "pie-chart", color: "#8b5cf6" },
+  { id: "news", name: "News Scraper", icon: "newspaper", color: "#f59e0b" },
+  { id: "modeling", name: "Statistical Modeler", icon: "trending-up", color: "#10b981" },
+  { id: "alternatives", name: "Physical Assets", icon: "bitcoin", color: "#ef4444" },
 ];

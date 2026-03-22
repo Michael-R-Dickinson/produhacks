@@ -92,6 +92,32 @@ export default function QuantSignals() {
                 </ResponsiveContainer>
             </div>
 
+            {/* Agent-generated PNGs (base64) — shown when backend/mock sends charts[] */}
+            {state.modeling.charts && state.modeling.charts.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Model charts</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-start" }}>
+                        {state.modeling.charts.slice(0, 6).map((c) => (
+                            <figure key={c.chart_type} style={{ margin: 0, maxWidth: 280 }}>
+                                <img
+                                    src={`data:image/png;base64,${c.image_base64}`}
+                                    alt={c.title}
+                                    style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        borderRadius: 8,
+                                        border: "1px solid var(--border-default)",
+                                    }}
+                                />
+                                <figcaption style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 6 }}>
+                                    {c.title}
+                                </figcaption>
+                            </figure>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Metric tiles */}
             <div className="metrics-row">
                 <div className="metric-tile">

@@ -77,6 +77,9 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
     emit(2800, { agent_id: "modeling", type: "thought", text: "Running linear regression on portfolio value trajectory..." });
     emit(3600, { agent_id: "modeling", type: "thought", text: "Computing Sharpe ratio, volatility metrics, and maximum drawdown..." });
     emit(4200, { agent_id: "modeling", type: "thought", text: "Generating correlation matrix heatmap across holdings..." });
+    // 1×1 PNG — proves data URL path; real bridge sends full charts from modeling_ui_payload()
+    const TINY_PNG =
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
     emit(5200, {
         agent_id: "modeling",
         type: "report_section",
@@ -85,8 +88,16 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
             sharpe_ratio: 1.34,
             volatility: 0.187,
             trend_slope: 0.0023,
-            chart_base64: null,
+            chart_base64: TINY_PNG,
             metrics: { r_squared: 0.74, max_drawdown: -0.087, beta: 1.12 },
+            charts: [
+                {
+                    chart_type: "regression",
+                    title: "Regression (mock SSE placeholder)",
+                    image_base64: TINY_PNG,
+                    summary: "Connect VITE_SSE_URL to the bridge for full chart set.",
+                },
+            ],
         },
     });
     emit(5400, { agent_id: "modeling", type: "status", status: "done" });

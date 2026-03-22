@@ -14,7 +14,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
-from agents.bridge.app import app, event_queue
+from agents.bridge.app import app
 import agents.bridge.events as ev
 
 
@@ -110,13 +110,56 @@ async def test_event_delivered():
     """push_sse_event() enqueues a typed SSEEvent retrievable from the queue."""
     from agents.models.events import SSEEvent
 
+    q: asyncio.Queue = asyncio.Queue()
     loop = asyncio.get_running_loop()
-    ev._fastapi_loop = loop
-    ev._event_queue = event_queue
-
-    ev.push_sse_event(SSEEvent.agent_thought("test", "hello"))
-
-    event = await asyncio.wait_for(event_queue.get(), timeout=2.0)
+    prev_loop, prev_q = ev._fastapi_loop, ev._event_queue
+    try:
+        ev._fastapi_loop = loop
+        ev._event_queue = q
+        ev.push_sse_event(SSEEvent.agent_thought("test", "hello"))
+        event = await asyncio.wait_for(q.get(), timeout=2.0)
+    finally:
+        ev._fastapi_loop = prev_loop
+        ev._event_queue = prev_q
     assert event["agent_id"] == "test"
     assert event["event_type"] == "agent.thought"
     assert event["payload"]["text"] == "hello"
+
+
+@pytest.mark.asyncio
+async def test_push_ui_event_delivers_frontend_shaped_dict():
+    from agents.bridge.events import push_ui_event
+
+    q: asyncio.Queue = asyncio.Queue()
+    loop = asyncio.get_running_loop()
+    prev_loop, prev_q = ev._fastapi_loop, ev._event_queue
+    try:
+        ev._fastapi_loop = loop
+        ev._event_queue = q
+        payload = {
+            "agent_id": "modeling",
+            "type": "report_section",
+            "section": "modeling",
+            "data": {"sharpe_ratio": 1.0, "volatility": 0.1, "trend_slope": 0.0, "charts": []},
+        }
+        push_ui_event(payload)
+        event = await asyncio.wait_for(q.get(), timeout=2.0)
+    finally:
+        ev._fastapi_loop = prev_loop
+        ev._event_queue = prev_q
+    assert event == payload
+
+
+def test_modeling_ui_payload_matches_frontend_contract():
+    import json
+
+    from agents.bridge.modeling_payload import modeling_ui_payload
+    from agents.mocks.modeling import mock_model_response
+
+    r = mock_model_response()
+    data = modeling_ui_payload(r)
+    json.dumps(data)
+    assert "charts" in data
+    assert len(data["charts"]) == len(r.charts)
+    assert data["chart_base64"] == (r.charts[0].image_base64 if r.charts else None)
+    assert all("image_base64" in c for c in data["charts"])

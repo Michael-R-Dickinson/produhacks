@@ -37,11 +37,25 @@ async def _sse_event_generator(request: Request):
 
 
 def _run_trigger_stub() -> None:
-    from agents.bridge.events import push_sse_event
+    from agents.bridge.events import push_sse_event, push_ui_event
+    from agents.bridge.modeling_payload import modeling_ui_payload
+    from agents.mocks.modeling import mock_model_response
     from agents.models.events import AgentStatus, SSEEvent
 
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.WORKING))
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching analysis requests to domain agents..."))
+    push_sse_event(SSEEvent.agent_status("modeling", AgentStatus.WORKING))
+    push_sse_event(SSEEvent.agent_thought("modeling", "Building charts (mock pipeline) for SSE clients..."))
+    model_resp = mock_model_response()
+    push_ui_event(
+        {
+            "agent_id": "modeling",
+            "type": "report_section",
+            "section": "modeling",
+            "data": modeling_ui_payload(model_resp),
+        }
+    )
+    push_sse_event(SSEEvent.agent_status("modeling", AgentStatus.DONE))
     push_sse_event(SSEEvent.agent_thought("orchestrator", "Stub: full agent dispatch implemented in Phase 2"))
     push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.DONE))
 

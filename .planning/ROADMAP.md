@@ -62,7 +62,11 @@ Plans:
   2. Animated message pulses travel along edges between agent nodes as inter-agent messages are sent
   3. The completed report renders as formatted markdown with embedded chart images visible inline
   4. The CSV upload UI accepts a portfolio file and the report reflects the uploaded holdings
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — AgentGraph component (SVG nodes, animated edges, thought bubbles, edge hover) and ReportView component (markdown renderer with chart-safe urlTransform)
+- [ ] 03-02-PLAN.md — DailyReport page rebuild (3-phase UI), routing cleanup, Sidebar simplification, old component deletion, visual verification
 
 ### Phase 4: Chat and Demo Polish
 **Goal**: Judges can ask follow-up questions in the chat interface and see the agent graph respond, and the demo runs cleanly on the presentation machine with no last-minute failures
@@ -84,5 +88,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-03-22 |
 | 2. Agent Pipeline | 6/6 | Complete   | 2026-03-22 |
-| 3. Frontend and Visualization | 0/TBD | Not started | - |
+| 3. Frontend and Visualization | 0/2 | Planning complete | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

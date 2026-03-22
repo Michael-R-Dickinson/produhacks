@@ -7,6 +7,7 @@ from agents.models.events import AgentStatus, MessageDirection, SSEEvent
 from agents.models.requests import RunModel
 from agents.models.responses import ModelResponse
 from agents.modeling_charts import build_model_response
+from agents.ports import MODELING_PORT
 
 
 def mock_data_env() -> bool:
@@ -17,7 +18,7 @@ def mock_data_env() -> bool:
 modeling_agent = Agent(
     name="modeling",
     seed="modeling-agent-seed-investiswarm",
-    port=8003,
+    port=MODELING_PORT,
 )
 
 

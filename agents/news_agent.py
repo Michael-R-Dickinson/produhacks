@@ -9,13 +9,14 @@ from agents.mocks.news import mock_news_response
 from agents.models.events import AgentStatus, MessageDirection, SSEEvent
 from agents.models.requests import FetchNews
 from agents.models.responses import NewsResponse
+from agents.ports import NEWS_PORT
 
 MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 
 news_agent = Agent(
     name="news",
     seed="news-agent-seed-investiswarm",
-    port=8002,
+    port=NEWS_PORT,
 )
 
 # -- FinBERT lazy loader --

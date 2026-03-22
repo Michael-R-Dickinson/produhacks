@@ -16,6 +16,7 @@ from agents.models.requests import (
     ReportRequest,
     RunModel,
 )
+from agents.ports import ORCHESTRATOR_PORT
 
 
 class ReportResponse(UAgentModel):
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 orchestrator = Agent(
     name="orchestrator",
     seed="orchestrator-agent-seed-investiswarm",
-    port=8005,
+    port=ORCHESTRATOR_PORT,
 )
 
 from agents.portfolio_agent import portfolio_agent

@@ -1,0 +1,9 @@
+"""Centralized port assignments for all agents and services."""
+
+FASTAPI_PORT = 8000
+PORTFOLIO_PORT = 8001
+NEWS_PORT = 8002
+MODELING_PORT = 8003
+ALTERNATIVES_PORT = 8004
+ORCHESTRATOR_PORT = 8005
+BUREAU_PORT = 8006

@@ -5,6 +5,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
+from agents.ports import BUREAU_PORT
+
 app = FastAPI(title="InvestiSwarm Bridge")
 
 app.add_middleware(
@@ -80,7 +82,7 @@ async def trigger_report() -> dict:
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            "http://localhost:8005/submit/report",
+            f"http://localhost:{BUREAU_PORT}/submit/report",
             json={"holdings": EQUITY_TICKERS, "mock": False},
             timeout=60.0,  # orchestrator needs time for fan-out + LLM
         )

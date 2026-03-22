@@ -13,7 +13,13 @@ from agents.modeling_agent import modeling_agent
 from agents.alternatives_agent import alternatives_agent
 
 
-_all_agents = [orchestrator, portfolio_agent, news_agent, modeling_agent, alternatives_agent]
+_all_agents = [
+    orchestrator,
+    portfolio_agent,
+    news_agent,
+    modeling_agent,
+    alternatives_agent,
+]
 
 
 @app.on_event("startup")
@@ -24,7 +30,9 @@ async def start_bureau_thread() -> None:
 
 
 def main() -> None:
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    from agents.ports import FASTAPI_PORT
+
+    uvicorn.run(app, host="0.0.0.0", port=FASTAPI_PORT)
 
 
 if __name__ == "__main__":

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-00-PLAN.md
-last_updated: "2026-03-22T09:40:49.819Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-22T09:42:04.618Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 1 of 3
 | Phase 02-agent-pipeline P05 | 4min | 2 tasks | 4 files |
 | Phase 02 P06 | 5 | 2 tasks | 2 files |
 | Phase 03-frontend-and-visualization P00 | 5 | 1 tasks | 7 files |
+| Phase 03-frontend-and-visualization P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Direct await is cleaner than asyncio.gather for a single coroutine — asyncio.gather returns a list, not the coroutine's return value directly
 - [Phase 03-frontend-and-visualization]: jsdom environment chosen for react-markdown compatibility in urlTransform tests
 - [Phase 03-frontend-and-visualization]: vitest.config.ts created separately from vite.config.ts to isolate test environment from build config
+- [Phase 03-01]: viewBox 0 0 100 100 on SVG so percentage-based defaultPositions map directly to SVG coordinate space without conversion math
+- [Phase 03-01]: resolveChartRefs exported from ReportView.tsx (not ExecutiveSummary) to consolidate function before ExecutiveSummary removal in Plan 02
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T09:40:49.816Z
-Stopped at: Completed 03-00-PLAN.md
+Last session: 2026-03-22T09:42:04.616Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

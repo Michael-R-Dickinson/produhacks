@@ -67,10 +67,10 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### Agent Graph Visualization
 
-- [ ] **GRPH-01**: Node per agent displayed as card with name and status
+- [x] **GRPH-01**: Node per agent displayed as card with name and status
 - [x] **GRPH-02**: Real-time streaming thought feed in each agent card
-- [ ] **GRPH-03**: Animated message pulses traveling along edge connections
-- [ ] **GRPH-04**: Hover on connections shows message title and description
+- [x] **GRPH-03**: Animated message pulses traveling along edge connections
+- [x] **GRPH-04**: Hover on connections shows message title and description
 
 ## v2 Requirements
 
@@ -152,10 +152,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REPT-01 | Phase 3 | Complete |
 | REPT-02 | Phase 3 | Complete |
 | REPT-03 | Phase 3 | Complete |
-| GRPH-01 | Phase 3 | Pending |
+| GRPH-01 | Phase 3 | Complete |
 | GRPH-02 | Phase 3 | Complete |
-| GRPH-03 | Phase 3 | Pending |
-| GRPH-04 | Phase 3 | Pending |
+| GRPH-03 | Phase 3 | Complete |
+| GRPH-04 | Phase 3 | Complete |
 | CHAT-01 | Phase 4 | Pending |
 | CHAT-02 | Phase 4 | Pending |
 | CHAT-03 | Phase 4 | Pending |

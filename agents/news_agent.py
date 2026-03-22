@@ -19,7 +19,7 @@ MOCK_DATA = os.getenv("MOCK_DATA", "true").lower() == "true"
 news_agent = Agent(
     name="news",
     seed="news-agent-seed-investiswarm",
-    port=8014,
+    port=8002,
 )
 
 # -- FinBERT lazy loader --

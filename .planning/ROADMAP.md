@@ -26,7 +26,12 @@ InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure f
   2. All Pydantic message models for agent-to-agent communication are defined and importable from a shared module
   3. Mock data mode is toggled via environment variable and each agent returns realistic mock output instead of calling live APIs
   4. The FastAPI bridge exposes an SSE endpoint that a browser EventSource can connect to without Chrome Private Network Access errors
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold, Pydantic message models, mock fixtures, event bridge module
+- [ ] 01-02-PLAN.md — Five stub agents, Bureau runner, FastAPI bridge with SSE, main.py entrypoint
+- [ ] 01-03-PLAN.md — Integration tests and end-to-end curl verification
 
 ### Phase 2: Agent Pipeline
 **Goal**: Triggering a report request produces a complete unified narrative markdown document synthesized from all five agents — verifiable via curl with no frontend running
@@ -69,7 +74,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/3 | Planning complete | - |
 | 2. Agent Pipeline | 0/TBD | Not started | - |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

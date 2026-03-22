@@ -28,84 +28,84 @@ Retail investors today face a fragmented research experience. Evaluating a portf
 
 ### TARGET PERSONA(S)
 
-| Persona | Mindset |
-|---|---|
-| **Self-Directed Retail Investor** ("Alex") | "I manage my own $50K–$500K portfolio as a software engineer by day. I want informed decisions, but I don't have 45 minutes every morning to cross-reference Bloomberg, Yahoo Finance, CoinGecko, and Reuters. I need a single source that sees my whole portfolio and tells me what matters today." |
-| **Part-Time Financial Advisor** ("Priya") | "I advise 15 clients as a side practice. Before each quarterly meeting I need a quick portfolio health summary — allocation, risk metrics, sentiment, red flags. I spend 2 hours manually assembling each client's review. I want that done in seconds." |
-| **Crypto-Curious Traditional Investor** ("Jordan") | "I have a 70/30 equities/crypto split. My brokerage ignores my crypto. CoinGecko ignores my equities. I want to see how BTC correlates with my AAPL position and whether my overall portfolio is riskier than I think." |
+| Persona                                            | Mindset                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Self-Directed Retail Investor** ("Alex")         | "I manage my own $50K–$500K portfolio as a software engineer by day. I want informed decisions, but I don't have 45 minutes every morning to cross-reference Bloomberg, Yahoo Finance, CoinGecko, and Reuters. I need a single source that sees my whole portfolio and tells me what matters today." |
+| **Part-Time Financial Advisor** ("Priya")          | "I advise 15 clients as a side practice. Before each quarterly meeting I need a quick portfolio health summary — allocation, risk metrics, sentiment, red flags. I spend 2 hours manually assembling each client's review. I want that done in seconds."                                             |
+| **Crypto-Curious Traditional Investor** ("Jordan") | "I have a 70/30 equities/crypto split. My brokerage ignores my crypto. CoinGecko ignores my equities. I want to see how BTC correlates with my AAPL position and whether my overall portfolio is riskier than I think."                                                                              |
 
 ### CUSTOMER PROBLEM & HYPOTHESES
 
 **I am a** self-directed retail investor **trying to** get a comprehensive, cross-domain view of my portfolio's health in under 5 minutes…
 
-| Problem — But… | Because… (Root Cause) | Hypothesis |
-|---|---|---|
-| I need to check 5–8 different platforms (brokerage, chart tools, news sites, crypto trackers) to form a complete picture | **Root Cause 1:** Investment data is siloed by domain — portfolio analytics, news sentiment, quant models, and crypto trackers are built by different companies with no interoperability | If we **deploy specialized agents per domain and synthesize their outputs through a central orchestrator**, then investors get a single report covering all domains in under 30 seconds |
-| No existing tool tells me when my news sentiment is bullish but my quantitative momentum is bearish — contradictions critical for decision quality | **Root Cause 2:** Cross-domain contradiction detection requires structured data from multiple sources to be compared programmatically — something a human scanning separate tabs will miss | If we **implement automated contradiction detection** (comparing news sentiment against quantitative signals), then investors catch critical signal conflicts they would have missed |
-| General-purpose LLMs hallucinate financial numbers — asking ChatGPT to "analyze my portfolio" produces plausible but unverifiable output | **Root Cause 3:** General LLMs have no traceable data sources for financial metrics — no audit trail | If we **restrict LLM usage to narrative synthesis only** (all numbers computed by deterministic agents with traceable API sources), then 100% of reported metrics are verifiable and accurate |
+| Problem — But…                                                                                                                                     | Because… (Root Cause)                                                                                                                                                                      | Hypothesis                                                                                                                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I need to check 5–8 different platforms (brokerage, chart tools, news sites, crypto trackers) to form a complete picture                           | **Root Cause 1:** Investment data is siloed by domain — portfolio analytics, news sentiment, quant models, and crypto trackers are built by different companies with no interoperability   | If we **deploy specialized agents per domain and synthesize their outputs through a central orchestrator**, then investors get a single report covering all domains in under 30 seconds       |
+| No existing tool tells me when my news sentiment is bullish but my quantitative momentum is bearish — contradictions critical for decision quality | **Root Cause 2:** Cross-domain contradiction detection requires structured data from multiple sources to be compared programmatically — something a human scanning separate tabs will miss | If we **implement automated contradiction detection** (comparing news sentiment against quantitative signals), then investors catch critical signal conflicts they would have missed          |
+| General-purpose LLMs hallucinate financial numbers — asking ChatGPT to "analyze my portfolio" produces plausible but unverifiable output           | **Root Cause 3:** General LLMs have no traceable data sources for financial metrics — no audit trail                                                                                       | If we **restrict LLM usage to narrative synthesis only** (all numbers computed by deterministic agents with traceable API sources), then 100% of reported metrics are verifiable and accurate |
 
 ### Current State → Target State
 
-| Dimension | Current State (Before Wealth Council) | Target State (With Wealth Council) |
-|---|---|---|
-| **Research workflow** | Open 5–8 browser tabs, manually cross-reference data, form conclusions in your head | One-click report generation; unified narrative in ~15 seconds |
-| **Portfolio risk metrics** | No HHI, no beta, no correlation matrix unless you run your own spreadsheet | Auto-computed: sector allocation, HHI diversification index, portfolio beta vs SPY, 90-day correlation matrix |
-| **News sentiment** | Scan headlines manually; subjective judgment | FinBERT-scored sentiment per headline, aggregated per-ticker and portfolio-wide, near-neutral noise filtered |
-| **Quantitative analysis** | Manual TradingView; no Sharpe ratio unless self-calculated | Sharpe ratio, annualized volatility, trend regression, 5 chart types generated automatically |
-| **Alternative assets** | CoinGecko and brokerage completely separate | Unified cross-asset Pearson correlations showing how BTC/ETH/Gold/Oil move relative to equities |
-| **Cross-signal awareness** | Never detected | Automated: "Bearish news on AAPL (−0.4 sentiment) but it's your #1 holding at 18% weight" |
-| **Report output** | No report — mental model from scattered tabs | Executive-grade markdown report with embedded charts, synthesized by Gemini from structured agent data |
-| **Agent visibility** | N/A | Live swarm activity graph showing each agent's real-time thoughts, status, and inter-agent message flow |
+| Dimension                  | Current State (Before Wealth Council)                                               | Target State (With Wealth Council)                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Research workflow**      | Open 5–8 browser tabs, manually cross-reference data, form conclusions in your head | One-click report generation; unified narrative in ~15 seconds                                                 |
+| **Portfolio risk metrics** | No HHI, no beta, no correlation matrix unless you run your own spreadsheet          | Auto-computed: sector allocation, HHI diversification index, portfolio beta vs SPY, 90-day correlation matrix |
+| **News sentiment**         | Scan headlines manually; subjective judgment                                        | FinBERT-scored sentiment per headline, aggregated per-ticker and portfolio-wide, near-neutral noise filtered  |
+| **Quantitative analysis**  | Manual TradingView; no Sharpe ratio unless self-calculated                          | Sharpe ratio, annualized volatility, trend regression, 5 chart types generated automatically                  |
+| **Alternative assets**     | CoinGecko and brokerage completely separate                                         | Unified cross-asset Pearson correlations showing how BTC/ETH/Gold/Oil move relative to equities               |
+| **Cross-signal awareness** | Never detected                                                                      | Automated: "Bearish news on AAPL (−0.4 sentiment) but it's your #1 holding at 18% weight"                     |
+| **Report output**          | No report — mental model from scattered tabs                                        | Executive-grade markdown report with embedded charts, synthesized by Gemini from structured agent data        |
+| **Agent visibility**       | N/A                                                                                 | Live swarm activity graph showing each agent's real-time thoughts, status, and inter-agent message flow       |
 
 ---
 
 ## FUNCTIONAL REQUIREMENTS
 
-| Scope | Priority | Requirements |
-|---|---|---|
-| **Agent Infrastructure** | P0 | Fetch.ai uAgents Bureau running all 5 agents in a single process |
-| | P0 | FastAPI bridge with SSE endpoints translating HTTP/browser ↔ agent protocol |
-| | P0 | Pydantic message models for all inter-agent communication (type-safe contracts) |
-| | P0 | Mock data mode toggle (`MOCK_DATA=true` in `.env`) — entire pipeline runs offline with zero API keys |
-| **Portfolio Agent** | P0 | Load portfolio holdings (12 holdings across 6 sectors: Technology, Healthcare, Financials, Energy, Consumer Discretionary, Crypto) |
-| | P0 | Compute sector/asset allocation breakdown with weights summing to 1.0 |
-| | P0 | Calculate diversification metrics: Herfindahl-Hirschman Index (HHI) and portfolio beta vs SPY |
-| | P0 | Run 90-day pairwise correlation matrix across all equities using yfinance + pandas |
-| | P0 | Return structured `PortfolioResponse` to orchestrator |
-| **News / Sentiment Agent** | P0 | Fetch financial news headlines from Finnhub API (general market + per-ticker company news, 7-day window) |
-| | P0 | Filter headlines for relevance to portfolio tickers, cap at 5 per ticker |
-| | P0 | Score sentiment per headline using FinBERT (`ProsusAI/finbert`) — lazy-loaded to avoid 500MB download during tests |
-| | P0 | Discard near-neutral headlines (\|sentiment\| < 0.1) to reduce noise |
-| | P0 | Compute aggregate sentiment per ticker and portfolio-wide overall sentiment |
-| **Modeling / Quant Agent** | P0 | Retrieve historical price data via yfinance |
-| | P0 | Run analyses from extensible chart registry: `regression`, `correlation_matrix`, `sector_performance`, `volatility_cone`, `price_history` |
-| | P0 | Generate matplotlib charts as base64 PNG strings with `ChartOutput` metadata (type, title, summary) |
-| | P0 | Compute risk metrics: Sharpe ratio, annualized volatility, trend slope |
-| **Alt Assets Agent** | P0 | Fetch crypto prices + 7-day changes (BTC, ETH, SOL, BNB, AVAX) from CoinGecko |
-| | P0 | Fetch BTC market cap dominance from CoinGecko global endpoint |
-| | P0 | Fetch commodity prices (Gold, Oil) from Finnhub |
-| | P0 | Compute trend signals: >3% bullish, <−3% bearish, else neutral |
-| | P0 | Compute Pearson cross-correlations between alt assets and equity portfolio |
-| **Orchestrator Agent** | P0 | Fan-out to all 4 domain agents concurrently via `asyncio.gather` with `return_exceptions=True` |
-| | P0 | `safe_result()` — if an agent times out or errors, fall back to mock data (never crash the pipeline) |
-| | P0 | `detect_contradictions()` — flag bearish news on top holdings; flag bullish sentiment contradicting negative momentum |
-| | P0 | Use Gemini to plan which charts to generate based on agent data context |
-| | P0 | `synthesize_report()` — single Google Gemini call to generate 600–800 word unified narrative |
-| **Daily Report Page** | P0 | One-page centric: this IS the app's primary experience |
-| | P0 | "Generate Report" CTA button in sidebar triggers full pipeline |
-| | P0 | During generation: animated agent swarm graph showing real-time agent thoughts and status |
-| | P0 | After completion: graph collapses, full markdown report with inline base64 charts fades in |
-| | P0 | Report renders as unified narrative organized by investment theme, NOT by agent/data source |
-| **Swarm Activity Graph** | P1 | 5 agent cards in circular layout: Orchestrator center, 4 domain agents at corners |
-| | P1 | Animated dashed SVG connection lines from orchestrator to each agent |
-| | P1 | Travelling dot animation along active connections |
-| | P1 | Each card shows: agent name, icon, status badge (Processing/Complete), latest 3 thoughts in code-block style |
-| | P1 | Edge hover tooltips showing message title and description |
-| **Chat Interface** | P2 | Text input routed through orchestrator agent |
-| | P2 | Responses contextual to current report data |
-| | P2 | Agent graph shows which agents are dispatched during chat queries |
-| **Portfolio Upload** | P2 | CSV upload UI accepting brokerage export files |
-| | P2 | Parsed holdings replace mock portfolio for the session |
+| Scope                      | Priority | Requirements                                                                                                                              |
+| -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agent Infrastructure**   | P0       | Fetch.ai uAgents Bureau running all 5 agents in a single process                                                                          |
+|                            | P0       | FastAPI bridge with SSE endpoints translating HTTP/browser ↔ agent protocol                                                               |
+|                            | P0       | Pydantic message models for all inter-agent communication (type-safe contracts)                                                           |
+|                            | P0       | Mock data mode toggle (`MOCK_DATA=true` in `.env`) — entire pipeline runs offline with zero API keys                                      |
+| **Portfolio Agent**        | P0       | Load portfolio holdings (12 holdings across 6 sectors: Technology, Healthcare, Financials, Energy, Consumer Discretionary, Crypto)        |
+|                            | P0       | Compute sector/asset allocation breakdown with weights summing to 1.0                                                                     |
+|                            | P0       | Calculate diversification metrics: Herfindahl-Hirschman Index (HHI) and portfolio beta vs SPY                                             |
+|                            | P0       | Run 90-day pairwise correlation matrix across all equities using yfinance + pandas                                                        |
+|                            | P0       | Return structured `PortfolioResponse` to orchestrator                                                                                     |
+| **News / Sentiment Agent** | P0       | Fetch financial news headlines from Finnhub API (general market + per-ticker company news, 7-day window)                                  |
+|                            | P0       | Filter headlines for relevance to portfolio tickers, cap at 5 per ticker                                                                  |
+|                            | P0       | Score sentiment per headline using FinBERT (`ProsusAI/finbert`) — lazy-loaded to avoid 500MB download during tests                        |
+|                            | P0       | Discard near-neutral headlines (\|sentiment\| < 0.1) to reduce noise                                                                      |
+|                            | P0       | Compute aggregate sentiment per ticker and portfolio-wide overall sentiment                                                               |
+| **Modeling / Quant Agent** | P0       | Retrieve historical price data via yfinance                                                                                               |
+|                            | P0       | Run analyses from extensible chart registry: `regression`, `correlation_matrix`, `sector_performance`, `volatility_cone`, `price_history` |
+|                            | P0       | Generate matplotlib charts as base64 PNG strings with `ChartOutput` metadata (type, title, summary)                                       |
+|                            | P0       | Compute risk metrics: Sharpe ratio, annualized volatility, trend slope                                                                    |
+| **Alt Assets Agent**       | P0       | Fetch crypto prices + 7-day changes (BTC, ETH, SOL, BNB, AVAX) from CoinGecko                                                             |
+|                            | P0       | Fetch BTC market cap dominance from CoinGecko global endpoint                                                                             |
+|                            | P0       | Fetch commodity prices (Gold, Oil) from Finnhub                                                                                           |
+|                            | P0       | Compute trend signals: >3% bullish, <−3% bearish, else neutral                                                                            |
+|                            | P0       | Compute Pearson cross-correlations between alt assets and equity portfolio                                                                |
+| **Orchestrator Agent**     | P0       | Fan-out to all 4 domain agents concurrently via `asyncio.gather` with `return_exceptions=True`                                            |
+|                            | P0       | `safe_result()` — if an agent times out or errors, fall back to mock data (never crash the pipeline)                                      |
+|                            | P0       | `detect_contradictions()` — flag bearish news on top holdings; flag bullish sentiment contradicting negative momentum                     |
+|                            | P0       | Use Gemini to plan which charts to generate based on agent data context                                                                   |
+|                            | P0       | `synthesize_report()` — single Google Gemini call to generate 600–800 word unified narrative                                              |
+| **Daily Report Page**      | P0       | One-page centric: this IS the app's primary experience                                                                                    |
+|                            | P0       | "Generate Report" CTA button in sidebar triggers full pipeline                                                                            |
+|                            | P0       | During generation: animated agent swarm graph showing real-time agent thoughts and status                                                 |
+|                            | P0       | After completion: graph collapses, full markdown report with inline base64 charts fades in                                                |
+|                            | P0       | Report renders as unified narrative organized by investment theme, NOT by agent/data source                                               |
+| **Swarm Activity Graph**   | P1       | 5 agent cards in circular layout: Orchestrator center, 4 domain agents at corners                                                         |
+|                            | P1       | Animated dashed SVG connection lines from orchestrator to each agent                                                                      |
+|                            | P1       | Travelling dot animation along active connections                                                                                         |
+|                            | P1       | Each card shows: agent name, icon, status badge (Processing/Complete), latest 3 thoughts in code-block style                              |
+|                            | P1       | Edge hover tooltips showing message title and description                                                                                 |
+| **Chat Interface**         | P2       | Text input routed through orchestrator agent                                                                                              |
+|                            | P2       | Responses contextual to current report data                                                                                               |
+|                            | P2       | Agent graph shows which agents are dispatched during chat queries                                                                         |
+| **Portfolio Upload**       | P2       | CSV upload UI accepting brokerage export files                                                                                            |
+|                            | P2       | Parsed holdings replace mock portfolio for the session                                                                                    |
 
 ---
 
@@ -131,32 +131,32 @@ Chat interface, edge hover tooltips in swarm graph, UX hardening, and demo dry-r
 
 ## OPEN QUESTIONS
 
-| Open Question | Driver | Decision/Response | Status | Date to Close |
-|---|---|---|---|---|
-| Deploy agents to Agentverse or keep local Bureau? | PM | Local Bureau for hackathon — Agentverse deferred to v2 | Resolved | Mar 21 |
-| Which LLM for orchestrator synthesis? | PD | Google Gemini 2.5 Flash (migrated from GPT-4o mini) | Resolved | Mar 22 |
-| FinBERT vs LLM-based sentiment scoring? | PD | FinBERT — fine-tuned financial NLP is more accurate and cheaper than general LLM | Resolved | Mar 21 |
-| yfinance rate limiting strategy? | PD | No caching for v1 — fresh calls per report. Caching deferred to v2 | Resolved | Mar 22 |
-| CSV upload parsing scope? | PM | Deferred to v2 — mock portfolio for hackathon demo | Resolved | Mar 21 |
-| Real-time vs on-demand data? | PM | On-demand only — agents fetch on report generation, not continuously | Resolved | Mar 21 |
+| Open Question                                     | Driver | Decision/Response                                                                | Status   | Date to Close |
+| ------------------------------------------------- | ------ | -------------------------------------------------------------------------------- | -------- | ------------- |
+| Deploy agents to Agentverse or keep local Bureau? | PM     | Local Bureau for hackathon — Agentverse deferred to v2                           | Resolved | Mar 21        |
+| Which LLM for orchestrator synthesis?             | PD     | Google Gemini 2.5 Flash (migrated from GPT-4o mini)                              | Resolved | Mar 22        |
+| FinBERT vs LLM-based sentiment scoring?           | PD     | FinBERT — fine-tuned financial NLP is more accurate and cheaper than general LLM | Resolved | Mar 21        |
+| yfinance rate limiting strategy?                  | PD     | No caching for v1 — fresh calls per report. Caching deferred to v2               | Resolved | Mar 22        |
+| CSV upload parsing scope?                         | PM     | Deferred to v2 — mock portfolio for hackathon demo                               | Resolved | Mar 21        |
+| Real-time vs on-demand data?                      | PM     | On-demand only — agents fetch on report generation, not continuously             | Resolved | Mar 21        |
 
 ---
 
 ## TEAM / DACE
 
-| Function | Name |
-|---|---|
-| PM | Michael Dickinson (Driver) |
-| PD | Anant Khanna, Anthony Lu |
-| XD | Yash Vasdev |
+| Function     | Name                        |
+| ------------ | --------------------------- |
+| PM           | Michael Dickinson (Driver)  |
+| PD           | Anant Khanna, Anthony Lu    |
+| XD           | Yash Vasdev                 |
 | Exec Sponsor | ProduHacks / Fetch.ai Track |
 
 ---
 
 ## ARTIFACTS
 
-| Resource | Link |
-|---|---|
+| Resource          | Link                                      |
+| ----------------- | ----------------------------------------- |
 | GitHub Repository | github.com/Michael-R-Dickinson/produhacks |
 
 ---
@@ -187,21 +187,21 @@ The Orchestrator calls Google Gemini 2.5 Flash twice: once to plan which charts 
 
 ### B. Tech Stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Frontend | React 18 + TypeScript + Vite | Interactive SPA |
-| Styling | Vanilla CSS with design tokens | Light theme, premium feel, no framework lock-in |
-| Icons | Lucide React | Consistent iconography |
-| Markdown | react-markdown + remark-gfm | Report rendering with GFM tables and formatting |
-| Schema Validation | Zod | SSE event parsing and type safety |
-| Real-time | Server-Sent Events (SSE) | Unidirectional agent → browser streaming |
-| Agent Framework | Fetch.ai uAgents | Multi-agent protocol and Bureau hosting |
-| API Bridge | FastAPI + sse-starlette | HTTP ↔ agent protocol translation |
-| LLM | Google Gemini 2.5 Flash (`google.genai`) | Orchestrator narrative synthesis + chart planning |
-| NLP | ProsusAI/FinBERT (HuggingFace transformers) | Financial sentiment scoring |
-| Financial Data | yfinance, Finnhub API, CoinGecko API | Market data, news, crypto prices |
-| Computation | NumPy, Pandas, Matplotlib | Portfolio math, charts |
-| Testing | Pytest (61 tests) | Monkeypatched unit tests, zero network dependency |
+| Layer             | Technology                                  | Purpose                                           |
+| ----------------- | ------------------------------------------- | ------------------------------------------------- |
+| Frontend          | React 18 + TypeScript + Vite                | Interactive SPA                                   |
+| Styling           | Vanilla CSS with design tokens              | Light theme, premium feel, no framework lock-in   |
+| Icons             | Lucide React                                | Consistent iconography                            |
+| Markdown          | react-markdown + remark-gfm                 | Report rendering with GFM tables and formatting   |
+| Schema Validation | Zod                                         | SSE event parsing and type safety                 |
+| Real-time         | Server-Sent Events (SSE)                    | Unidirectional agent → browser streaming          |
+| Agent Framework   | Fetch.ai uAgents                            | Multi-agent protocol and Bureau hosting           |
+| API Bridge        | FastAPI + sse-starlette                     | HTTP ↔ agent protocol translation                 |
+| LLM               | Google Gemini 2.5 Flash (`google.genai`)    | Orchestrator narrative synthesis + chart planning |
+| NLP               | ProsusAI/FinBERT (HuggingFace transformers) | Financial sentiment scoring                       |
+| Financial Data    | yfinance, Finnhub API, CoinGecko API        | Market data, news, crypto prices                  |
+| Computation       | NumPy, Pandas, Matplotlib                   | Portfolio math, charts                            |
+| Testing           | Pytest (61 tests)                           | Monkeypatched unit tests, zero network dependency |
 
 ### C. Environment Variables & Setup
 
@@ -209,11 +209,11 @@ The app ships with **`MOCK_DATA=true` by default**. The entire pipeline runs off
 
 **To use real live market data**, set these environment variables in a `.env` file:
 
-| Variable | Required | Source | Purpose |
-|---|---|---|---|
-| `MOCK_DATA` | No (defaults to `true`) | — | Set to `false` to enable live API calls |
-| `FINNHUB_API_KEY` | Only for live mode | Free tier at finnhub.io | News headlines + commodity prices |
-| `GEMINI_API_KEY` | Only for live mode | Free tier at aistudio.google.com | Orchestrator LLM synthesis + chart planning |
+| Variable          | Required                | Source                           | Purpose                                     |
+| ----------------- | ----------------------- | -------------------------------- | ------------------------------------------- |
+| `MOCK_DATA`       | No (defaults to `true`) | —                                | Set to `false` to enable live API calls     |
+| `FINNHUB_API_KEY` | Only for live mode      | Free tier at finnhub.io          | News headlines + commodity prices           |
+| `GEMINI_API_KEY`  | Only for live mode      | Free tier at aistudio.google.com | Orchestrator LLM synthesis + chart planning |
 
 **Quick start:** Install backend dependencies and run the FastAPI bridge on port 8000. In a separate terminal, install frontend dependencies and run the Vite dev server on port 5173. With mock mode enabled (default), the full app works immediately with no configuration.
 
@@ -221,20 +221,20 @@ The app ships with **`MOCK_DATA=true` by default**. The entire pipeline runs off
 
 **Mock Portfolio — 12 holdings, 6 sectors:**
 
-| Ticker | Weight | Sector |
-|---|---|---|
-| AAPL | 18% | Technology |
-| MSFT | 14% | Technology |
-| NVDA | 10% | Technology |
-| META | 7% | Technology |
-| UNH | 9% | Healthcare |
-| JNJ | 5% | Healthcare |
-| JPM | 7% | Financials |
-| GS | 4% | Financials |
-| XOM | 6% | Energy |
-| TSLA | 6% | Consumer Discretionary |
-| BTC | 8% | Crypto |
-| ETH | 6% | Crypto |
+| Ticker | Weight | Sector                 |
+| ------ | ------ | ---------------------- |
+| AAPL   | 18%    | Technology             |
+| MSFT   | 14%    | Technology             |
+| NVDA   | 10%    | Technology             |
+| META   | 7%     | Technology             |
+| UNH    | 9%     | Healthcare             |
+| JNJ    | 5%     | Healthcare             |
+| JPM    | 7%     | Financials             |
+| GS     | 4%     | Financials             |
+| XOM    | 6%     | Energy                 |
+| TSLA   | 6%     | Consumer Discretionary |
+| BTC    | 8%     | Crypto                 |
+| ETH    | 6%     | Crypto                 |
 
 **Mock Portfolio Agent output:**
 - Sector allocation: Technology 49%, Healthcare 14%, Crypto 14%, Financials 11%, Energy 6%, Consumer 6%
@@ -346,13 +346,13 @@ CSS Grid layout with sidebar + top nav + main content:
 
 Displayed during report generation inside a 500px container with rounded corners and a radial dot-grid background. 5 agent cards positioned in a circular layout:
 
-| Agent | Position | Icon | Color |
-|---|---|---|---|
-| **Orchestrator** | Center (50%, 50%) | Brain | #2563eb (blue) |
-| **Portfolio Alpha** | Top-left (15%, 18%) | PieChart | #8b5cf6 (purple) |
-| **Sentiment Engine** | Top-right (85%, 18%) | Newspaper | #f59e0b (amber) |
-| **Quant Modeler** | Bottom-right (85%, 82%) | TrendingUp | #10b981 (green) |
-| **Alt Assets** | Bottom-left (15%, 82%) | Bitcoin | #ef4444 (red) |
+| Agent                | Position                | Icon       | Color            |
+| -------------------- | ----------------------- | ---------- | ---------------- |
+| **Orchestrator**     | Center (50%, 50%)       | Brain      | #2563eb (blue)   |
+| **Portfolio Alpha**  | Top-left (15%, 18%)     | PieChart   | #8b5cf6 (purple) |
+| **Sentiment Engine** | Top-right (85%, 18%)    | Newspaper  | #f59e0b (amber)  |
+| **Quant Modeler**    | Bottom-right (85%, 82%) | TrendingUp | #10b981 (green)  |
+| **Alt Assets**       | Bottom-left (15%, 82%)  | Bitcoin    | #ef4444 (red)    |
 
 **Each agent card contains:**
 - Header row with a circular bordered icon, agent name in bold, and a status badge ("Processing" in amber or "Complete" in green)

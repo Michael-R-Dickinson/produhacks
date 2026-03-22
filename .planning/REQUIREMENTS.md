@@ -121,13 +121,50 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmap) | | |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| PORT-01 | Phase 2 | Pending |
+| PORT-02 | Phase 2 | Pending |
+| PORT-03 | Phase 2 | Pending |
+| PORT-04 | Phase 2 | Pending |
+| PORT-05 | Phase 2 | Pending |
+| NEWS-01 | Phase 2 | Pending |
+| NEWS-02 | Phase 2 | Pending |
+| NEWS-03 | Phase 2 | Pending |
+| NEWS-04 | Phase 2 | Pending |
+| NEWS-05 | Phase 2 | Pending |
+| MODL-01 | Phase 2 | Pending |
+| MODL-02 | Phase 2 | Pending |
+| MODL-03 | Phase 2 | Pending |
+| MODL-04 | Phase 2 | Pending |
+| MODL-05 | Phase 2 | Pending |
+| ALT-01 | Phase 2 | Pending |
+| ALT-02 | Phase 2 | Pending |
+| ALT-03 | Phase 2 | Pending |
+| ALT-04 | Phase 2 | Pending |
+| ORCH-01 | Phase 2 | Pending |
+| ORCH-02 | Phase 2 | Pending |
+| ORCH-03 | Phase 2 | Pending |
+| ORCH-04 | Phase 2 | Pending |
+| ORCH-05 | Phase 2 | Pending |
+| REPT-01 | Phase 3 | Pending |
+| REPT-02 | Phase 3 | Pending |
+| REPT-03 | Phase 3 | Pending |
+| GRPH-01 | Phase 3 | Pending |
+| GRPH-02 | Phase 3 | Pending |
+| GRPH-03 | Phase 3 | Pending |
+| GRPH-04 | Phase 3 | Pending |
+| CHAT-01 | Phase 4 | Pending |
+| CHAT-02 | Phase 4 | Pending |
+| CHAT-03 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 0
-- Unmapped: 30
+- v1 requirements: 38 total
+- Mapped to phases: 38
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after initial definition*
+*Last updated: 2026-03-21 after roadmap creation*

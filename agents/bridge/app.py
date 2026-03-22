@@ -11,7 +11,7 @@ app = FastAPI(title="InvestiSwarm Bridge")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_private_network=True,
@@ -38,40 +38,10 @@ async def _sse_event_generator(request: Request):
         yield {"data": json.dumps(event)}
 
 
-def _run_trigger_stub() -> None:
-    from agents.bridge.events import push_sse_event
-    from agents.models.events import AgentStatus, SSEEvent
-
-    push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.WORKING))
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Dispatching analysis requests to domain agents..."))
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Stub: full agent dispatch implemented in Phase 2"))
-    push_sse_event(SSEEvent.agent_status("orchestrator", AgentStatus.DONE))
-
-
 @app.get("/events")
-async def sse_events_legacy(request: Request) -> EventSourceResponse:
-    """Legacy SSE path (Phase 1). Prefer ``/api/report/stream`` for new clients."""
+async def sse_events(request: Request) -> EventSourceResponse:
+    """SSE stream of agent / report events."""
     return EventSourceResponse(_sse_event_generator(request))
-
-
-@app.get("/api/report/stream")
-async def api_report_stream(request: Request) -> EventSourceResponse:
-    """ARCHITECTURE.md: GET SSE stream of agent / report events."""
-    return EventSourceResponse(_sse_event_generator(request))
-
-
-@app.post("/trigger")
-async def trigger_report_legacy() -> dict:
-    """Legacy trigger. Prefer ``POST /api/report/generate``."""
-    _run_trigger_stub()
-    return {"status": "triggered"}
-
-
-@app.post("/api/report/generate")
-async def api_report_generate() -> dict:
-    """ARCHITECTURE.md: POST to start report pipeline (stub until orchestrator wiring)."""
-    _run_trigger_stub()
-    return {"status": "triggered"}
 
 
 @app.post("/report")

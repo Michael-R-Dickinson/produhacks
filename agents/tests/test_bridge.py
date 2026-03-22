@@ -73,29 +73,11 @@ async def test_pna_header():
 
 
 @pytest.mark.asyncio
-async def test_trigger_returns_200():
-    """POST /trigger returns 200 with triggered status."""
-    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/trigger")
-    assert response.status_code == 200
-    assert response.json() == {"status": "triggered"}
-
-
-@pytest.mark.asyncio
-async def test_api_report_generate_returns_200():
-    """POST /api/report/generate matches ARCHITECTURE.md naming."""
-    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/report/generate")
-    assert response.status_code == 200
-    assert response.json() == {"status": "triggered"}
-
-
-@pytest.mark.asyncio
-async def test_api_report_stream_options_pna():
-    """CORS preflight for /api/report/stream."""
+async def test_sse_events_options_pna():
+    """CORS preflight for /events."""
     async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.options(
-            "/api/report/stream",
+            "/events",
             headers={
                 "Origin": "http://localhost:5173",
                 "Access-Control-Request-Method": "GET",

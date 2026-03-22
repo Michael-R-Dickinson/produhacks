@@ -228,7 +228,7 @@ function reducer(state: SwarmState, action: Action): SwarmState {
 interface SwarmContextValue {
   state: SwarmState
   dispatch: React.Dispatch<Action>
-  triggerReport: () => void
+  triggerReport: (knowledgeLevel?: number) => void
   sendChat: (message: string) => void
 }
 
@@ -238,7 +238,7 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const sseCleanupRef = useRef<(() => void) | null>(null)
 
-  const triggerReport = useCallback(() => {
+  const triggerReport = useCallback((knowledgeLevel: number = 2) => {
     // Clean up any existing SSE connection
     sseCleanupRef.current?.()
     sseCleanupRef.current = null
@@ -247,7 +247,11 @@ export function SwarmProvider({ children }: { children: ReactNode }) {
 
     const backendUrl = import.meta.env.VITE_API_URL as string | undefined
     if (backendUrl) {
-      fetch(`${backendUrl}/report`, { method: "POST" })
+      fetch(`${backendUrl}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ knowledge_level: knowledgeLevel }),
+      })
         .then((response) =>
           console.log("Report triggered successfully", response),
         )

@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 
-from openai import AsyncOpenAI
+from google import genai
 from uagents import Agent, Context
 
 from agents.bridge.events import push_sse_event
@@ -49,15 +49,15 @@ NEWS_ADDR = news_agent.address
 MODELING_ADDR = modeling_agent.address
 ALT_ADDR = alternatives_agent.address
 
-_openai: AsyncOpenAI | None = None
+_gemini: genai.Client | None = None
 
 
-def get_openai() -> AsyncOpenAI:
-    """Lazy-initialize the AsyncOpenAI client so module import doesn't fail without the key."""
-    global _openai
-    if _openai is None:
-        _openai = AsyncOpenAI()  # reads OPENAI_API_KEY from env
-    return _openai
+def get_gemini() -> genai.Client:
+    """Lazy-initialize the Gemini client so module import doesn't fail without the key."""
+    global _gemini
+    if _gemini is None:
+        _gemini = genai.Client()  # reads GEMINI_API_KEY from env
+    return _gemini
 
 
 def safe_result(result, fallback):
@@ -171,7 +171,7 @@ async def synthesize_report(
     contradictions: list[str],
     charts,
 ) -> str:
-    """Call GPT-4o mini to synthesize a unified thematic narrative."""
+    """Call Gemini to synthesize a unified thematic narrative."""
     chart_embeds = [
         f"![{c.title}](data:image/png;base64,{c.image_base64})"
         for c in charts
@@ -180,17 +180,17 @@ async def synthesize_report(
 
     prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_embeds)
 
-    response = await get_openai().chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a professional financial analyst writing a morning brief for a portfolio manager."},
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=2000,
-        temperature=0.4,
+    response = await get_gemini().aio.models.generate_content(
+        model="gemini-flash-3.1-lite",
+        system_instruction="You are a professional financial analyst writing a morning brief for a portfolio manager.",
+        contents=prompt,
+        config=genai.types.GenerateContentConfig(
+            max_output_tokens=2000,
+            temperature=0.4,
+        ),
     )
 
-    return response.choices[0].message.content
+    return response.text
 
 
 @orchestrator.on_rest_post("/report", ReportRequest, ReportResponse)
@@ -235,7 +235,7 @@ async def handle_report(ctx: Context, req: ReportRequest) -> ReportResponse:
         ))
 
     # LLM synthesis
-    push_sse_event(SSEEvent.agent_thought("orchestrator", "Synthesizing unified narrative with GPT-4o mini..."))
+    push_sse_event(SSEEvent.agent_thought("orchestrator", "Synthesizing unified narrative with Gemini..."))
     report_markdown = await synthesize_report(
         portfolio_data, news_data, modeling_data, alt_data,
         contradictions, modeling_data.charts,

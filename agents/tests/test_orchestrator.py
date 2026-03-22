@@ -1,6 +1,6 @@
 """Tests for orchestrator pure logic functions.
 
-Tests do NOT call OpenAI API -- only contradiction detection and prompt building tested.
+Tests do NOT call Gemini API -- only contradiction detection and prompt building tested.
 """
 
 import pytest

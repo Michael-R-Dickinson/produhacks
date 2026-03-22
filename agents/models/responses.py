@@ -16,12 +16,22 @@ class NewsResponse(Model):
     overall_sentiment: float
 
 
+class ChartOutput(Model):
+    """Single chart produced by the modeling agent"""
+    chart_type: str
+    title: str
+    image_base64: str
+    summary: str
+
+
 class ModelResponse(Model):
     """Modeling Agent -> Orchestrator"""
+    holdings_analyzed: list[str]
     sharpe_ratio: float
     volatility: float
     trend_slope: float
-    chart_base64: str | None = None
+    charts: list[ChartOutput]
+    metrics: dict[str, float]
 
 
 class AlternativesResponse(Model):

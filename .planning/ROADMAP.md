@@ -10,7 +10,7 @@ InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure f
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation** - Scaffold, Pydantic message models, FastAPI SSE bridge, mock data mode, and API client wrappers verified end-to-end
+- [x] **Phase 1: Foundation** - Scaffold, Pydantic message models, FastAPI SSE bridge, mock data mode, and API client wrappers verified end-to-end
 - [ ] **Phase 2: Agent Pipeline** - All five agents (Portfolio, News, Modeling, Alt Assets, Orchestrator) producing a complete verifiable report with no frontend
 - [ ] **Phase 3: Frontend and Visualization** - React app with report rendering, CSV upload, and live agent graph with streaming thought feeds and animated edges
 - [ ] **Phase 4: Chat and Demo Polish** - Chat interface routed through orchestrator, edge hover tooltips, UX hardening, and demo dry-run
@@ -30,8 +30,8 @@ InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure f
 
 Plans:
 - [x] 01-01-PLAN.md — Project scaffold, Pydantic message models, mock fixtures, event bridge module
-- [ ] 01-02-PLAN.md — Five stub agents, Bureau runner, FastAPI bridge with SSE, main.py entrypoint
-- [ ] 01-03-PLAN.md — Integration tests and end-to-end curl verification
+- [x] 01-02-PLAN.md — Five stub agents, Bureau runner, FastAPI bridge with SSE, main.py entrypoint
+- [x] 01-03-PLAN.md — Integration tests and end-to-end curl verification
 
 ### Phase 2: Agent Pipeline
 **Goal**: Triggering a report request produces a complete unified narrative markdown document synthesized from all five agents — verifiable via curl with no frontend running
@@ -43,7 +43,14 @@ Plans:
   3. The News agent fetches Finnhub headlines, filters them for portfolio relevance, scores sentiment with FinBERT, and returns aggregate per-holding sentiment
   4. The Modeling agent retrieves historical price data, runs requested analyses from its chart registry, generates matplotlib charts as base64 PNGs with ChartOutput metadata (type, title, summary), and returns Sharpe ratio, volatility, and extensible metrics
   5. The Orchestrator fans out to all domain agents concurrently, receives all responses, and produces a unified narrative (not sectioned per-agent) using GPT-4o mini
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Model contract updates, Phase 2 dependencies, central mock portfolio, mock chart generation
+- [ ] 02-02-PLAN.md — Portfolio agent live computation (sector allocation, Herfindahl, beta, correlation matrix)
+- [ ] 02-03-PLAN.md — News agent live logic (Finnhub fetch, relevance filtering, FinBERT sentiment scoring)
+- [ ] 02-04-PLAN.md — Alt Assets agent live logic (CoinGecko crypto, Finnhub commodities, correlations) + Modeling agent mock enhancement
+- [ ] 02-05-PLAN.md — Orchestrator fan-out, contradiction detection, GPT-4o mini synthesis, bridge /report endpoint, E2E verification
 
 ### Phase 3: Frontend and Visualization
 **Goal**: The React app displays the live agent graph with streaming thought feeds and animated edges during report generation, and renders the completed report with embedded charts
@@ -74,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress|  |
-| 2. Agent Pipeline | 0/TBD | Not started | - |
+| 1. Foundation | 3/3 | Complete | 2026-03-22 |
+| 2. Agent Pipeline | 0/5 | Not started | - |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

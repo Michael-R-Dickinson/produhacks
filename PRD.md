@@ -48,7 +48,7 @@ Wealth Council is a multi-agent investment intelligence platform that synthesize
 | Scope                          | Priority | Requirements                                                                                                                                                                                                                                                      |
 | :----------------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Portfolio Agent (V0)           | P0       | Agent loads a hardcoded mock portfolio (10-15 holdings across sectors). Computes sector allocation breakdown, diversification index, and portfolio beta. Returns structured data to orchestrator.                                                                 |
-| Modeling Agent (V0)            | P0       | Agent uses mock historical price data. Generates charts (sector performance, correlation matrix, volatility) via matplotlib, returned as base64-encoded JPEGs. Computes Sharpe ratio and volatility metrics. Returns charts and metrics to orchestrator.          |
+| Modeling Agent (V0)            | P0       | Agent uses mock historical price data. Generates charts (sector performance, correlation matrix, volatility) via matplotlib, returned as base64-encoded PNGs. Computes Sharpe ratio and volatility metrics. Returns charts and metrics to orchestrator.           |
 | Orchestrator (V0)              | P0       | Collects outputs from Portfolio and Modeling agents. Populates a predefined report template with agent data -- portfolio metrics in their section, charts inline, risk metrics summarized. Outputs a complete markdown report. No LLM synthesis in V0.            |
 | Report Display (V0)            | P0       | Frontend renders the orchestrator's markdown report with inline chart images. Single "Generate Report" button triggers the pipeline.                                                                                                                              |
 | Frontend Shell (V0)            | P0       | Vite + React app with a single page. Initial state displays an agent graph showing all connected agents with their purposes labeled beneath each node. "Generate Report" button triggers the pipeline -- graph view transitions to the report view on completion. |
@@ -111,3 +111,71 @@ Wealth Council is a multi-agent investment intelligence platform that synthesize
 *Note on implementation:*
 When implementing this PRD with Agents, the root agent should never attempt tasks by itself, but instead always dispatch sub-agents to research first, then implementation agent to handle core implementation, the validation agents to write and run unit tests to ensure everything works correctly. This is especially true for interfaces which should be tested frequently on both sides and ensured that they match.
 If an agent is attempting to one-shot this project - stick with the V0 implementation strictly, anything more is too much.
+
+## Architecture Sketch (V0)
+
+### Overview
+
+Three components run in a single Python process:
+
+1. **FastAPI server** (uvicorn, port 8000) -- serves the frontend and exposes the report endpoint
+2. **uAgents Bureau** (background thread, port 8006) -- runs all agents with its own asyncio event loop
+3. **Vite + React frontend** (dev server, port 5173) -- calls FastAPI, never contacts agents directly
+
+### Endpoint
+
+**`POST /report`** -- Triggers the orchestrator agent via the Bureau's REST interface. Returns the completed report synchronously. CORS is set to allow all origins for V0.
+
+### Agent Flow
+
+```
+Frontend -> POST /report -> FastAPI -> Orchestrator Agent
+                                           |
+                            +--------------+--------------+
+                            |                             |
+                     Portfolio Agent               Modeling Agent
+                     (mock holdings,               (mock price data,
+                      sector metrics)               matplotlib charts)
+                            |                             |
+                            +--------------+--------------+
+                                           |
+                                    Orchestrator
+                                (template population)
+                                           |
+                                   ReportResponse
+                                           |
+                                    FastAPI -> Frontend
+```
+
+The orchestrator dispatches to Portfolio and Modeling agents concurrently, collects their responses, populates a markdown template, and returns the result.
+
+### Response Model
+
+```
+ReportResponse {
+    markdown: string       -- Complete report as markdown.
+                              Chart locations marked with [chart:<id>] placeholders.
+    charts: ChartOutput[]  -- Array of chart objects referenced by the markdown.
+}
+
+ChartOutput {
+    chart_id: string       -- 8-character hex identifier (e.g. "a1b2c3d4")
+    chart_type: string     -- "sector_performance" | "correlation_matrix" | "volatility"
+    title: string          -- Display title (e.g. "Sector Allocation Breakdown")
+    image_base64: string   -- Base64-encoded PNG, no data URI prefix
+    summary: string        -- One-line description of what the chart shows
+}
+```
+
+### Chart Resolution
+
+The frontend resolves chart placeholders before rendering:
+
+`[chart:a1b2c3d4]` becomes `![Sector Allocation Breakdown](data:image/png;base64,<image_base64>)`
+
+This means:
+- Charts are generated as **PNG via matplotlib**, encoded as **base64 strings**
+- The orchestrator's markdown template references charts by ID, not inline data
+- The frontend prepends the `data:image/png;base64,` URI prefix at render time
+
+ultrathink

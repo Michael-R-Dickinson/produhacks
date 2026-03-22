@@ -302,6 +302,50 @@ def _render_sector_performance(
     )
 
 
+def _rv_windows_annualized(daily_log_returns: np.ndarray, tenor_days: int) -> np.ndarray:
+    """Annualized realized vol for each sliding window of ``tenor_days`` daily log returns."""
+    r = daily_log_returns.astype(float)
+    n = len(r)
+    d = int(tenor_days)
+    if n < d:
+        return np.array([])
+    # population std per window (stable for short windows)
+    out = np.empty(n - d + 1)
+    for i in range(n - d + 1):
+        out[i] = float(np.std(r[i : i + d], ddof=0) * np.sqrt(252.0))
+    return out
+
+
+def _tenors_for_cone(n_returns: int, *, max_tenor: int = 180) -> np.ndarray:
+    """Tenors (days) with enough overlapping windows for percentile bands."""
+    candidates = np.array([7, 14, 21, 30, 45, 60, 90, 120, 150, 180])
+    min_windows = 15
+    ok: list[int] = []
+    for d in candidates:
+        d = int(d)
+        if d > max_tenor or d < 5:
+            continue
+        if n_returns - d + 1 >= min_windows:
+            ok.append(d)
+    if not ok:
+        min_windows = 8
+        for d in candidates:
+            d = int(d)
+            if d > max_tenor or d < 5:
+                continue
+            if n_returns - d + 1 >= min_windows:
+                ok.append(d)
+    if not ok:
+        d1 = max(5, min(n_returns // 4, 30))
+        d2 = max(d1 + 3, min(n_returns // 2, max_tenor))
+        if n_returns - d1 + 1 >= 5 and n_returns - d2 + 1 >= 5:
+            ok = [d1, d2]
+        else:
+            d = max(5, n_returns // 3)
+            ok = [d] if n_returns - d + 1 >= 5 else [max(5, n_returns - 10)]
+    return np.array(sorted(set(ok)), dtype=int)
+
+
 def _render_volatility_cone(
     holdings: list[str],
     lookback_days: int,
@@ -309,54 +353,80 @@ def _render_volatility_cone(
     mock: bool,
     panel: PricePanel | None,
 ) -> ChartOutput:
-    horizon = max(1, min(lookback_days, 180))
-    days_fwd = np.arange(1, horizon + 1)
+    """Options-style *volatility cone*: historical distribution of realized vol by tenor.
 
-    if panel is not None and panel.levels.shape[0] >= 5:
-        prices = np.clip(panel.levels, 1e-9, None)
-        log_ret = np.diff(np.log(prices), axis=0).mean(axis=1)
-        sigma_daily = float(np.std(log_ret) + 1e-12)
-        width = sigma_daily * np.sqrt(days_fwd.astype(float)) * 100
-        fig, ax = plt.subplots(figsize=(7, 3.6))
-        ax.fill_between(days_fwd, -width, width, alpha=0.35, color="#7c3aed", label="±1σ cone (realized vol)")
-        ax.plot(days_fwd, width, color="#5b21b6", linewidth=1)
-        ax.plot(days_fwd, -width, color="#5b21b6", linewidth=1)
-        ax.axhline(0, color="#444", linewidth=0.8)
-        ax.set_xlabel("Forward days")
-        ax.set_ylabel("Band width (% of notional)")
-        ax.set_title("Volatility cone (from yfinance realized vol)")
-        ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.25)
-        fig.tight_layout()
-        b64 = fig_to_base64_png(fig)
-        return ChartOutput(
-            chart_type="volatility_cone",
-            title="Forward volatility cone (illustrative)",
-            image_base64=b64,
-            summary=f"σ≈{sigma_daily * np.sqrt(252) * 100:.1f}% annualized from EW portfolio.",
-        )
-
-    rng = np.random.default_rng(11 if mock else 22)
-    sigma = 0.015 + 0.002 * len(holdings)
-    width = sigma * np.sqrt(days_fwd) * 100
-    fig, ax = plt.subplots(figsize=(7, 3.6))
-    ax.fill_between(days_fwd, -width, width, alpha=0.35, color="#7c3aed", label="±1σ cone (synthetic)")
-    ax.plot(days_fwd, width, color="#5b21b6", linewidth=1)
-    ax.plot(days_fwd, -width, color="#5b21b6", linewidth=1)
-    ax.axhline(0, color="#444", linewidth=0.8)
-    ax.set_xlabel("Forward days")
-    ax.set_ylabel("Band width (% of notional)")
+    This matches the usual practitioner definition (IV/HV ranges across maturities vs a
+    sqrt-time *price* uncertainty fan, which is a different object).
+    """
     suffix = " (mock)" if mock else ""
-    ax.set_title(f"Volatility cone (sqrt-time scaling){suffix}")
-    ax.legend(loc="upper left", fontsize=8)
+    source = "synthetic EW log returns"
+    r: np.ndarray
+
+    if panel is not None and panel.levels.shape[0] >= 45:
+        prices = np.clip(panel.levels, 1e-9, None)
+        r = np.diff(np.log(prices), axis=0).mean(axis=1)
+        source = "yfinance EW portfolio"
+    else:
+        rng = np.random.default_rng(11 if mock else 22)
+        n = max(220, min(600, lookback_days + 120 if lookback_days > 0 else 280))
+        base = 0.011 + 0.0008 * min(len(holdings), 8)
+        # Mild, deterministic vol path so percentiles differ by tenor (cone widens).
+        t_ix = np.arange(n, dtype=float)
+        vol_mult = 1.0 + 0.22 * np.sin(t_ix / 47.0) + 0.12 * np.sin(t_ix / 19.0)
+        vol_mult = np.clip(vol_mult, 0.65, 1.45)
+        r = rng.normal(0.0, base * vol_mult, size=n).astype(float)
+
+    tenors = _tenors_for_cone(len(r))
+    p10_l: list[float] = []
+    p25_l: list[float] = []
+    p50_l: list[float] = []
+    p75_l: list[float] = []
+    p90_l: list[float] = []
+    cur_l: list[float] = []
+    tenors_plot: list[int] = []
+
+    for d in tenors:
+        vols = _rv_windows_annualized(r, int(d))
+        if vols.size < 5:
+            continue
+        tenors_plot.append(int(d))
+        p10_l.append(float(np.percentile(vols, 10)) * 100.0)
+        p25_l.append(float(np.percentile(vols, 25)) * 100.0)
+        p50_l.append(float(np.percentile(vols, 50)) * 100.0)
+        p75_l.append(float(np.percentile(vols, 75)) * 100.0)
+        p90_l.append(float(np.percentile(vols, 90)) * 100.0)
+        cur_l.append(float(np.std(r[-int(d) :], ddof=0) * np.sqrt(252.0)) * 100.0)
+
+    tx = np.array(tenors_plot, dtype=float)
+    p10, p25 = np.array(p10_l), np.array(p25_l)
+    p50, p75, p90 = np.array(p50_l), np.array(p75_l), np.array(p90_l)
+    cur = np.array(cur_l)
+
+    fig, ax = plt.subplots(figsize=(7, 3.8))
+    ax.fill_between(tx, p10, p90, alpha=0.22, color="#7c3aed", label="10th–90th pct (hist. RV)")
+    ax.fill_between(tx, p25, p75, alpha=0.38, color="#7c3aed", label="25th–75th pct")
+    ax.plot(tx, p50, color="#5b21b6", linewidth=1.4, label="Median")
+    ax.plot(tx, cur, color="#b91c1c", linewidth=1.15, linestyle="--", label="Recent window")
+    ax.set_xlabel("Tenor (trading days)")
+    ax.set_ylabel("Annualized realized vol (%)")
+    ax.set_title(f"Volatility cone — RV percentiles by tenor{suffix}")
+    ax.legend(loc="upper right", fontsize=7.5)
     ax.grid(True, alpha=0.25)
     fig.tight_layout()
     b64 = fig_to_base64_png(fig)
+
+    med_30 = p50_l[tenors_plot.index(30)] if 30 in tenors_plot else (p50_l[len(p50_l) // 2] if p50_l else 0.0)
+    cur_30 = cur_l[tenors_plot.index(30)] if 30 in tenors_plot else (cur_l[len(cur_l) // 2] if cur_l else 0.0)
+    summary = (
+        f"{source}: at ~30d tenor, median hist. RV {med_30:.1f}%, recent {cur_30:.1f}% "
+        f"(cone = dispersion of past RV estimates by holding period)."
+    )
+
     return ChartOutput(
         chart_type="volatility_cone",
-        title="Forward volatility cone (illustrative)",
+        title="Realized-volatility cone by tenor (historical percentiles)",
         image_base64=b64,
-        summary=f"Illustrative ±1σ band; base σ≈{sigma*100:.1f}%/√day (stub).",
+        summary=summary,
     )
 
 

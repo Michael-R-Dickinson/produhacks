@@ -66,8 +66,8 @@ def get_gemini() -> genai.Client:
 
 
 def safe_result(result, fallback):
-    """Return fallback if result is an Exception, otherwise return result."""
-    if isinstance(result, Exception):
+    """Return fallback if result is an Exception or None, otherwise return result."""
+    if result is None or isinstance(result, Exception):
         logger.warning("Agent call failed: %s — using fallback", result)
         return fallback
     return result
@@ -112,7 +112,7 @@ def build_synthesis_prompt(
     modeling: ModelResponse,
     alt: AlternativesResponse,
     contradictions: list[str],
-    chart_embeds: list[str],
+    chart_refs: list[dict[str, str]],
 ) -> str:
     """Build the LLM synthesis prompt from all agent data."""
     system_msg = (
@@ -129,7 +129,7 @@ Do not section by data source. Weave all data into a unified narrative. Use a pr
 Keep the report to 600-800 words for 2-3 screens of content."""
 
     modeling_data = modeling.model_dump()
-    modeling_data.pop("charts", None)  # charts are embedded separately via chart_embeds
+    modeling_data.pop("charts", None)  # charts sent separately as references
     data_block = json.dumps(
         {
             "portfolio": portfolio.model_dump(),
@@ -150,12 +150,17 @@ Keep the report to 600-800 words for 2-3 screens of content."""
         data_block,
     ]
 
-    if chart_embeds:
+    if chart_refs:
+        chart_lines = [
+            f"- [chart:{r['chart_id']}] \"{r['title']}\": {r['summary']}"
+            for r in chart_refs
+        ]
         prompt_parts += [
             "",
-            "## Chart Embeds",
-            "Include these chart embeds at appropriate locations in the report:",
-            *chart_embeds,
+            "## Available Charts",
+            "Place these chart references at appropriate locations in the report.",
+            "Use the exact syntax [chart:<id>] on its own line to embed each chart.",
+            *chart_lines,
         ]
 
     if contradictions:
@@ -177,13 +182,13 @@ async def synthesize_report(
     charts,
 ) -> str:
     """Call Gemini to synthesize a unified thematic narrative."""
-    chart_embeds = [
-        f"![{c.title}](data:image/png;base64,{c.image_base64})"
+    chart_refs = [
+        {"chart_id": c.chart_id, "title": c.title, "summary": c.summary}
         for c in charts
         if c.image_base64
     ]
 
-    prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_embeds)
+    prompt = build_synthesis_prompt(portfolio, news, modeling, alt, contradictions, chart_refs)
 
     response = await get_gemini().aio.models.generate_content(
         model="gemini-2.5-flash",

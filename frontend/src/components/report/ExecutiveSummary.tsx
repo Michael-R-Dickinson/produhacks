@@ -1,10 +1,25 @@
+import { useMemo } from "react";
 import { useSwarm } from "../../context/SwarmContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Sparkles, TrendingUp, ArrowUpRight } from "lucide-react";
+import type { ChartOutput } from "../../schemas/events";
+
+function resolveChartRefs(markdown: string, chartMap: Record<string, ChartOutput>): string {
+    return markdown.replace(/\[chart:([a-f0-9]+)\]/g, (_match, id: string) => {
+        const chart = chartMap[id];
+        if (!chart) return _match;
+        return `![${chart.title}](data:image/png;base64,${chart.image_base64})`;
+    });
+}
 
 export default function ExecutiveSummary() {
     const { state } = useSwarm();
+
+    const resolvedMarkdown = useMemo(() => {
+        if (!state.executiveSummary) return null;
+        return resolveChartRefs(state.executiveSummary, state.chartMap);
+    }, [state.executiveSummary, state.chartMap]);
 
     if (!state.executiveSummary) {
         return (
@@ -32,7 +47,7 @@ export default function ExecutiveSummary() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 24 }}>
                 <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{state.executiveSummary}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{resolvedMarkdown!}</ReactMarkdown>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 140 }}>

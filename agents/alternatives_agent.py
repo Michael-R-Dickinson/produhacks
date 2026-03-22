@@ -206,7 +206,7 @@ async def handle_analyze_alternatives(ctx: Context, sender: str, msg: AnalyzeAlt
 
         for etf_ticker, etf_symbol in [("GOLD", "GLD"), ("OIL", "USO")]:
             etf_hist = yf.download(etf_symbol, period="3mo", progress=False, auto_adjust=True)["Close"]
-            alt_prices_history[etf_ticker] = etf_hist.dropna().tolist()
+            alt_prices_history[etf_ticker] = etf_hist.squeeze().dropna().tolist()
 
         cross_correlations = compute_cross_correlations(alt_prices_history, equity_returns_series)
 

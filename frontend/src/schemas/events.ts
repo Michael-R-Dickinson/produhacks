@@ -64,6 +64,7 @@ export const NewsData = z.object({
 export type NewsData = z.infer<typeof NewsData>;
 
 export const ChartOutput = z.object({
+  chart_id: z.string(),
   chart_type: z.string(),
   title: z.string(),
   image_base64: z.string(),

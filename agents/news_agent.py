@@ -31,7 +31,7 @@ def get_finbert():
         _finbert = hf_pipeline(
             "text-classification",
             model="ProsusAI/finbert",
-            return_all_scores=True,
+            top_k=None,
         )
     return _finbert
 

@@ -1,3 +1,6 @@
+from uuid import uuid4
+
+from pydantic.v1 import Field
 from uagents import Model
 
 
@@ -11,6 +14,7 @@ class RunModel(Model):
 
 class ChartOutput(Model):
     """Single chart produced by the modeling agent (PNG in markdown report)."""
+    chart_id: str = Field(default_factory=lambda: uuid4().hex[:8])
     chart_type: str
     title: str
     image_base64: str

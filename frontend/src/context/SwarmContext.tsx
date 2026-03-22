@@ -9,6 +9,7 @@ import type {
     NewsData,
     ModelingData,
     AlternativesData,
+    ChartOutput,
 } from "../schemas/events";
 
 /* ── State shape ─────────────────────────────────── */
@@ -33,6 +34,7 @@ export interface SwarmState {
     modeling: ModelingData | null;
     alternatives: AlternativesData | null;
     executiveSummary: string | null;
+    chartMap: Record<string, ChartOutput>;
     chatMessages: ChatMessage[];
     chatStreaming: string;
     swarmHealth: { active_agents: number; signals_per_min: number; processing_power: number } | null;
@@ -53,6 +55,7 @@ const initialState: SwarmState = {
     modeling: null,
     alternatives: null,
     executiveSummary: null,
+    chartMap: {},
     chatMessages: [],
     chatStreaming: "",
     swarmHealth: null,
@@ -102,8 +105,14 @@ function reducer(state: SwarmState, action: Action): SwarmState {
                             return { ...state, portfolio: evt.data as PortfolioData };
                         case "news":
                             return { ...state, news: evt.data as NewsData };
-                        case "modeling":
-                            return { ...state, modeling: evt.data as ModelingData };
+                        case "modeling": {
+                            const modelingData = evt.data as ModelingData;
+                            const newCharts: Record<string, ChartOutput> = { ...state.chartMap };
+                            for (const chart of modelingData.charts ?? []) {
+                                newCharts[chart.chart_id] = chart;
+                            }
+                            return { ...state, modeling: modelingData, chartMap: newCharts };
+                        }
                         case "alternatives":
                             return { ...state, alternatives: evt.data as AlternativesData };
                         case "executive_summary":

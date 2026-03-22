@@ -217,18 +217,19 @@ class TestBuildSynthesisPrompt:
 
         assert "MSFT" in prompt
 
-    def test_prompt_contains_chart_embeds(self):
+    def test_prompt_contains_chart_refs(self):
         from agents.orchestrator import build_synthesis_prompt
 
         portfolio = make_portfolio()
         news = make_news()
         modeling = make_modeling()
         alt = make_alternatives()
-        chart_embeds = ["![Portfolio Chart](data:image/png;base64,abc123)"]
+        chart_refs = [{"chart_id": "abc123", "title": "Portfolio Chart", "summary": "Test summary"}]
 
-        prompt = build_synthesis_prompt(portfolio, news, modeling, alt, [], chart_embeds)
+        prompt = build_synthesis_prompt(portfolio, news, modeling, alt, [], chart_refs)
 
-        assert "abc123" in prompt
+        assert "[chart:abc123]" in prompt
+        assert "Portfolio Chart" in prompt
 
     def test_prompt_has_word_limit_guidance(self):
         from agents.orchestrator import build_synthesis_prompt

@@ -1,7 +1,11 @@
 __pycache__/
 *.pyc
+*.py[codz]
 .venv/
 .env
 *.egg-info/
 dist/
 .pytest_cache/
+build/
+.ruff_cache/
+.mypy_cache/

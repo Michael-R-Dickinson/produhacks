@@ -82,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-03-22 |
-| 2. Agent Pipeline | 3/5 | In Progress|  |
+| 2. Agent Pipeline | 4/5 | In Progress|  |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

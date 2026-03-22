@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-03-PLAN.md — Finnhub fetch, FinBERT scoring, sentiment aggregation
-last_updated: "2026-03-22T07:28:38.512Z"
+stopped_at: Completed 02-04-PLAN.md — CoinGecko crypto + Finnhub commodities + cross-asset correlations
+last_updated: "2026-03-22T07:29:27.829Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 02 (agent-pipeline) — EXECUTING
-Plan: 2 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 2 of 5
 
 *Updated after each plan completion*
 | Phase 02 P03 | 8 | 1 tasks | 2 files |
+| Phase 02-agent-pipeline P04 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 02-03]: FinBERT loaded lazily via get_finbert() so test imports never trigger 500MB model download
 - [Phase 02-03]: filter_headlines_for_tickers caps at 5 per ticker to prevent any single holding dominating the aggregate sentiment signal
 - [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
+- [Phase 02-agent-pipeline]: trend_signal uses exclusive thresholds: > 3.0 is bullish, < -3.0 is bearish, exactly 3.0 or -3.0 is neutral
+- [Phase 02-agent-pipeline]: compute_cross_correlations accepts pre-fetched price history dict rather than calling yfinance internally, enabling pure unit testing
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:27:47Z
-Stopped at: Completed 02-02-PLAN.md — portfolio computation functions (sector allocation, HHI, beta, correlation matrix)
+Last session: 2026-03-22T07:29:27.827Z
+Stopped at: Completed 02-04-PLAN.md — CoinGecko crypto + Finnhub commodities + cross-asset correlations
 Resume file: None

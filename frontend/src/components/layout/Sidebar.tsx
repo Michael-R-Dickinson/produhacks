@@ -21,9 +21,11 @@ export default function Sidebar() {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <div className="sidebar-brand-icon">
-                    <Zap size={18} />
-                </div>
+                <img
+                    src="/brain-logo.png"
+                    alt="InvestorSwarm"
+                    style={{ width: 36, height: 36, objectFit: 'contain' }}
+                />
                 <div>
                     <h1>InvestorSwarm</h1>
                     <span>{Object.values(state.agentStatuses).filter((s) => s === "working").length} agents active</span>

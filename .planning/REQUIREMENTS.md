@@ -16,42 +16,42 @@ Requirements for hackathon demo. Each maps to roadmap phases.
 
 ### Portfolio Agent (No LLM -- Pure Computation)
 
-- [ ] **PORT-01**: Portfolio agent loads mock portfolio data (realistic holdings across sectors)
-- [ ] **PORT-02**: Computes sector/asset allocation breakdown
-- [ ] **PORT-03**: Calculates diversification metrics (Herfindahl index, portfolio beta)
-- [ ] **PORT-04**: Runs correlation matrix across holdings using numpy/pandas
-- [ ] **PORT-05**: Returns structured numerical output to orchestrator
+- [x] **PORT-01**: Portfolio agent loads mock portfolio data (realistic holdings across sectors)
+- [x] **PORT-02**: Computes sector/asset allocation breakdown
+- [x] **PORT-03**: Calculates diversification metrics (Herfindahl index, portfolio beta)
+- [x] **PORT-04**: Runs correlation matrix across holdings using numpy/pandas
+- [x] **PORT-05**: Returns structured numerical output to orchestrator
 
 ### News Agent (Partial LLM -- FinBERT for Sentiment)
 
-- [ ] **NEWS-01**: Fetches financial news headlines from Finnhub API
-- [ ] **NEWS-02**: Filters headlines for relevance to portfolio holdings
-- [ ] **NEWS-03**: Scores sentiment per article using FinBERT (not LLM)
-- [ ] **NEWS-04**: Computes aggregate sentiment metrics per holding/sector
-- [ ] **NEWS-05**: Returns structured sentiment data + raw headlines to orchestrator
+- [x] **NEWS-01**: Fetches financial news headlines from Finnhub API
+- [x] **NEWS-02**: Filters headlines for relevance to portfolio holdings
+- [x] **NEWS-03**: Scores sentiment per article using FinBERT (not LLM)
+- [x] **NEWS-04**: Computes aggregate sentiment metrics per holding/sector
+- [x] **NEWS-05**: Returns structured sentiment data + raw headlines to orchestrator
 
 ### Modeling Agent (No LLM -- Pure Computation)
 
-- [ ] **MODL-01**: Retrieves historical price data via yfinance
-- [ ] **MODL-02**: Runs specifiable analyses via chart registry (regression, correlation_matrix, sector_performance, volatility_cone, price_history)
-- [ ] **MODL-03**: Generates charts (matplotlib/plotly) per requested analysis type, returned as ChartOutput with type, title, image_base64, and summary
-- [ ] **MODL-04**: Computes risk metrics (Sharpe ratio, volatility) plus extensible metrics dict
-- [ ] **MODL-05**: Returns structured metrics + multiple chart outputs to orchestrator
+- [x] **MODL-01**: Retrieves historical price data via yfinance
+- [x] **MODL-02**: Runs specifiable analyses via chart registry (regression, correlation_matrix, sector_performance, volatility_cone, price_history)
+- [x] **MODL-03**: Generates charts (matplotlib/plotly) per requested analysis type, returned as ChartOutput with type, title, image_base64, and summary
+- [x] **MODL-04**: Computes risk metrics (Sharpe ratio, volatility) plus extensible metrics dict
+- [x] **MODL-05**: Returns structured metrics + multiple chart outputs to orchestrator
 
 ### Alternative Assets Agent (No LLM -- Pure Computation)
 
-- [ ] **ALT-01**: Fetches current crypto prices and trends from CoinGecko
-- [ ] **ALT-02**: Retrieves commodity/real estate market data
-- [ ] **ALT-03**: Computes cross-asset correlations with portfolio holdings
-- [ ] **ALT-04**: Returns structured market data + correlations to orchestrator
+- [x] **ALT-01**: Fetches current crypto prices and trends from CoinGecko
+- [x] **ALT-02**: Retrieves commodity/real estate market data
+- [x] **ALT-03**: Computes cross-asset correlations with portfolio holdings
+- [x] **ALT-04**: Returns structured market data + correlations to orchestrator
 
 ### Orchestrator (LLM-Powered Synthesis)
 
-- [ ] **ORCH-01**: Dispatches to appropriate domain agents based on report request or chat query
-- [ ] **ORCH-02**: Receives structured data from all domain agents
-- [ ] **ORCH-03**: Uses LLM to synthesize agent outputs into unified narrative report
-- [ ] **ORCH-04**: Identifies cross-agent contradictions and patterns (e.g., bullish sentiment but weakening momentum)
-- [ ] **ORCH-05**: Generates executive summary with key actionable insights
+- [x] **ORCH-01**: Dispatches to appropriate domain agents based on report request or chat query
+- [x] **ORCH-02**: Receives structured data from all domain agents
+- [x] **ORCH-03**: Uses LLM to synthesize agent outputs into unified narrative report
+- [x] **ORCH-04**: Identifies cross-agent contradictions and patterns (e.g., bullish sentiment but weakening momentum)
+- [x] **ORCH-05**: Generates executive summary with key actionable insights
 
 ### Report Display
 
@@ -125,30 +125,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Pending |
-| PORT-01 | Phase 2 | Pending |
-| PORT-02 | Phase 2 | Pending |
-| PORT-03 | Phase 2 | Pending |
-| PORT-04 | Phase 2 | Pending |
-| PORT-05 | Phase 2 | Pending |
-| NEWS-01 | Phase 2 | Pending |
-| NEWS-02 | Phase 2 | Pending |
-| NEWS-03 | Phase 2 | Pending |
-| NEWS-04 | Phase 2 | Pending |
-| NEWS-05 | Phase 2 | Pending |
-| MODL-01 | Phase 2 | Pending |
-| MODL-02 | Phase 2 | Pending |
-| MODL-03 | Phase 2 | Pending |
-| MODL-04 | Phase 2 | Pending |
-| MODL-05 | Phase 2 | Pending |
-| ALT-01 | Phase 2 | Pending |
-| ALT-02 | Phase 2 | Pending |
-| ALT-03 | Phase 2 | Pending |
-| ALT-04 | Phase 2 | Pending |
-| ORCH-01 | Phase 2 | Pending |
-| ORCH-02 | Phase 2 | Pending |
-| ORCH-03 | Phase 2 | Pending |
-| ORCH-04 | Phase 2 | Pending |
-| ORCH-05 | Phase 2 | Pending |
+| PORT-01 | Phase 2 | Complete |
+| PORT-02 | Phase 2 | Complete |
+| PORT-03 | Phase 2 | Complete |
+| PORT-04 | Phase 2 | Complete |
+| PORT-05 | Phase 2 | Complete |
+| NEWS-01 | Phase 2 | Complete |
+| NEWS-02 | Phase 2 | Complete |
+| NEWS-03 | Phase 2 | Complete |
+| NEWS-04 | Phase 2 | Complete |
+| NEWS-05 | Phase 2 | Complete |
+| MODL-01 | Phase 2 | Complete |
+| MODL-02 | Phase 2 | Complete |
+| MODL-03 | Phase 2 | Complete |
+| MODL-04 | Phase 2 | Complete |
+| MODL-05 | Phase 2 | Complete |
+| ALT-01 | Phase 2 | Complete |
+| ALT-02 | Phase 2 | Complete |
+| ALT-03 | Phase 2 | Complete |
+| ALT-04 | Phase 2 | Complete |
+| ORCH-01 | Phase 2 | Complete |
+| ORCH-02 | Phase 2 | Complete |
+| ORCH-03 | Phase 2 | Complete |
+| ORCH-04 | Phase 2 | Complete |
+| ORCH-05 | Phase 2 | Complete |
 | REPT-01 | Phase 3 | Pending |
 | REPT-02 | Phase 3 | Pending |
 | REPT-03 | Phase 3 | Pending |

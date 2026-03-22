@@ -11,7 +11,7 @@ InvestiSwarm ships in four phases ordered by hard dependencies: infrastructure f
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Foundation** - Scaffold, Pydantic message models, FastAPI SSE bridge, mock data mode, and API client wrappers verified end-to-end
-- [ ] **Phase 2: Agent Pipeline** - All five agents (Portfolio, News, Modeling, Alt Assets, Orchestrator) producing a complete verifiable report with no frontend
+- [x] **Phase 2: Agent Pipeline** - All five agents (Portfolio, News, Modeling, Alt Assets, Orchestrator) producing a complete verifiable report with no frontend (completed 2026-03-22)
 - [ ] **Phase 3: Frontend and Visualization** - React app with report rendering, CSV upload, and live agent graph with streaming thought feeds and animated edges
 - [ ] **Phase 4: Chat and Demo Polish** - Chat interface routed through orchestrator, edge hover tooltips, UX hardening, and demo dry-run
 
@@ -82,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-03-22 |
-| 2. Agent Pipeline | 0/5 | Not started | - |
+| 2. Agent Pipeline | 5/5 | Complete   | 2026-03-22 |
 | 3. Frontend and Visualization | 0/TBD | Not started | - |
 | 4. Chat and Demo Polish | 0/TBD | Not started | - |

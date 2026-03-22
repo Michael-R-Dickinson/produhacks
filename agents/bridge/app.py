@@ -84,3 +84,18 @@ async def api_report_generate() -> dict:
     """ARCHITECTURE.md: POST to start report pipeline (stub until orchestrator wiring)."""
     _run_trigger_stub()
     return {"status": "triggered"}
+
+
+@app.post("/report")
+async def trigger_report() -> dict:
+    """Trigger full report pipeline via orchestrator's REST endpoint."""
+    from agents.data.portfolio import EQUITY_TICKERS
+    import httpx
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "http://localhost:8005/submit/report",
+            json={"holdings": EQUITY_TICKERS, "mock": False},
+            timeout=60.0,  # orchestrator needs time for fan-out + LLM
+        )
+    return {"status": "triggered", "orchestrator_status": resp.status_code}

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-03-PLAN.md — Phase 01 foundation complete
-last_updated: "2026-03-22T07:01:34.450Z"
+stopped_at: Completed 02-05-PLAN.md — orchestrator fan-out, contradiction detection, LLM synthesis, bridge /report endpoint
+last_updated: "2026-03-22T07:35:36.096Z"
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 8
 ---
 
 # Project State
@@ -19,18 +19,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** A single cohesive investment report that synthesizes multiple specialized analysis domains into one actionable narrative
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — agent-pipeline
 
 ## Current Position
 
-Phase: 01 (foundation) — COMPLETE
-Plan: 3 of 3 (all complete)
+Phase: 02 (agent-pipeline) — EXECUTING
+Plan: 5 of 5
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: ~7 min
 - Total execution time: ~0.35 hours
 
@@ -46,6 +46,9 @@ Plan: 3 of 3 (all complete)
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase 02 P03 | 8 | 1 tasks | 2 files |
+| Phase 02-agent-pipeline P04 | 3 | 2 tasks | 3 files |
+| Phase 02-agent-pipeline P05 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -66,6 +69,20 @@ Recent decisions affecting current work:
 - [01-02]: FastAPI startup event used to capture uvicorn event loop (loop="none" not supported in uvicorn 0.30.x)
 - [01-03]: httpx ASGITransport used for async FastAPI testing — required for SSE stream tests (TestClient cannot handle async generators)
 - [01-03]: SSE streaming test uses client.stream() context manager, checks headers only without consuming infinite body
+- [02-01]: agents/data/portfolio.py is the single source of truth for mock holdings — all mock providers import from it
+- [02-01]: MOCK_CHART_BASE64 embedded as a module constant in modeling.py rather than loaded from disk at runtime
+- [02-01]: correlation_matrix uses all 10 equity tickers with realistic within/cross-sector correlation values
+- [02-02]: Crypto holdings mapped to "Crypto" sector in compute_sector_allocation so sector weights always sum to 1.0
+- [02-02]: yfinance multi-level column handling added defensively — Close sub-level extracted when multiple tickers requested
+- [02-02]: No caching layer for yfinance calls in portfolio agent — fresh network calls per report (scope boundary)
+- [Phase 02-03]: FinBERT loaded lazily via get_finbert() so test imports never trigger 500MB model download
+- [Phase 02-03]: filter_headlines_for_tickers caps at 5 per ticker to prevent any single holding dominating the aggregate sentiment signal
+- [Phase 02-03]: near-neutral threshold of abs < 0.1 removes headlines with no actionable sentiment direction
+- [Phase 02-agent-pipeline]: trend_signal uses exclusive thresholds: > 3.0 is bullish, < -3.0 is bearish, exactly 3.0 or -3.0 is neutral
+- [Phase 02-agent-pipeline]: compute_cross_correlations accepts pre-fetched price history dict rather than calling yfinance internally, enabling pure unit testing
+- [Phase 02-agent-pipeline]: AsyncOpenAI lazy-initialized via get_openai() getter so orchestrator.py can be imported without OPENAI_API_KEY set
+- [Phase 02-agent-pipeline]: on_rest_post response type must be a uAgents Model subclass (not dict) - ReportResponse added for compatibility
+- [Phase 02-agent-pipeline]: ctx.send_and_receive returns (message, sender) tuple in uAgents 0.24.0 - extract_msg helper unwraps it before safe_result
 
 ### Pending Todos
 
@@ -80,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T06:57:00Z
-Stopped at: Completed 01-03-PLAN.md — Phase 01 foundation complete
-Resume file: .planning/phases/02-agent-pipeline/02-CONTEXT.md
+Last session: 2026-03-22T07:35:36.094Z
+Stopped at: Completed 02-05-PLAN.md — orchestrator fan-out, contradiction detection, LLM synthesis, bridge /report endpoint
+Resume file: None

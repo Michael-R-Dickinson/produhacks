@@ -205,9 +205,11 @@ The V0 frontend should look polished and production-ready, not like a prototype.
 - Hover on a node: shadow deepens, card lifts 2px, border shifts to accent blue
 
 **Report View (post-generation):**
-- Markdown rendered with 1.8 line-height for readability
+- Rendered using `react-markdown` (^10.1.0) with `remark-gfm` (^4.0.1) for full GFM support (tables, strikethrough, task lists)
+- 1.8 line-height for readability
 - Charts display inline, max-width 500px, centered
 - Fade-in-up entrance animation (0.5s ease)
+- The V0 report template should not be plain -- it should emulate a polished, professionally written report using bold, italics, headings, horizontal rules, tables, and bullet points to create visual hierarchy and readability
 
 **Interactive Elements:**
 - Primary button: solid accent blue, white text, subtle lift on hover

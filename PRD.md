@@ -178,4 +178,46 @@ This means:
 - The orchestrator's markdown template references charts by ID, not inline data
 - The frontend prepends the `data:image/png;base64,` URI prefix at render time
 
+## UI Design Language (V0)
+
+The V0 frontend should look polished and production-ready, not like a prototype.
+
+**Aesthetic:** Clean, minimal, light-mode data dashboard. No glass effects or gradients -- depth comes from subtle shadows and borders.
+
+**Foundation:**
+- Font: Inter (400, 500, 600, 700 weights)
+- Base font size: 14px
+- Background: `#f8f9fb` with a subtle radial dot grid pattern (24x24px spacing)
+- Cards: white (`#ffffff`), 1px border (`#e5e7eb`), 12px border-radius, 24px padding
+- Shadows: light and layered (1-2px blur at 4-6% opacity)
+
+**Colors:**
+- Accent: `#2563eb` (interactive elements, CTAs, active states)
+- Accent light: `#dbeafe` (highlights, active tab backgrounds)
+- Text primary: `#111827`, secondary: `#6b7280`, tertiary: `#9ca3af`
+- Status: green `#10b981` (success/idle), amber `#f59e0b` (working), red `#ef4444` (error)
+
+**Agent Graph (initial landing state):**
+- Agent nodes are white cards with subtle shadow, positioned in a connected layout
+- Each node shows agent name, a 32px circular icon, and a short purpose description
+- Nodes have a gentle floating animation (4s cycle, +/-6px vertical)
+- Connection lines between agents are SVG with animated dashed strokes
+- Hover on a node: shadow deepens, card lifts 2px, border shifts to accent blue
+
+**Report View (post-generation):**
+- Markdown rendered with 1.8 line-height for readability
+- Charts display inline, max-width 500px, centered
+- Fade-in-up entrance animation (0.5s ease)
+
+**Interactive Elements:**
+- Primary button: solid accent blue, white text, subtle lift on hover
+- Cards lift on hover with enhanced shadow
+- All transitions: 0.15s ease
+
+**Nice-to-Have Polish:**
+- Hover on connection lines shows a tooltip with the message type being passed between agents (semi-transparent white background, subtle shadow)
+- Status dots on agent nodes pulse with opacity animation (1.5s cycle) when the agent is working
+- Agent nodes show a monospace output area below the description for streaming "thought" text during generation
+- Modal on agent card click: 560px wide, slide-up entrance, showing agent details and external API logos if applicable
+
 ultrathink

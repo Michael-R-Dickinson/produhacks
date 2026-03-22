@@ -17,6 +17,7 @@ import type {
   ModelingData,
   AlternativesData,
   ChartOutput,
+  MessageDirection,
 } from "../schemas/events"
 
 /* ── State shape ─────────────────────────────────── */
@@ -33,9 +34,19 @@ export interface ChatMessage {
   agents?: AgentId[]
 }
 
+export interface AgentMessage {
+  from: AgentId
+  to: AgentId
+  title: string
+  description: string
+  direction: MessageDirection
+  timestamp: string
+}
+
 export interface SwarmState {
   agentStatuses: Record<AgentId, AgentStatus>
   thoughts: Thought[]
+  agentMessages: AgentMessage[]
   portfolio: PortfolioData | null
   news: NewsData | null
   modeling: ModelingData | null
@@ -62,6 +73,7 @@ const initialState: SwarmState = {
     alternatives: "idle",
   },
   thoughts: [],
+  agentMessages: [],
   portfolio: null,
   news: null,
   modeling: null,
@@ -170,6 +182,22 @@ function reducer(state: SwarmState, action: Action): SwarmState {
               signals_per_min: evt.signals_per_min,
               processing_power: evt.processing_power,
             },
+          }
+
+        case "agent_message":
+          return {
+            ...state,
+            agentMessages: [
+              {
+                from: evt.from,
+                to: evt.to,
+                title: evt.title,
+                description: evt.description,
+                direction: evt.direction,
+                timestamp: new Date().toISOString(),
+              },
+              ...state.agentMessages,
+            ].slice(0, 50),
           }
 
         default:

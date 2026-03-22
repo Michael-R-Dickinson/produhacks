@@ -16,6 +16,12 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
     emit(200, { agent_id: "orchestrator", type: "status", status: "working" });
     emit(400, { agent_id: "orchestrator", type: "thought", text: "Initiating daily intelligence synthesis. Dispatching requests to all domain agents..." });
 
+    // ── Orchestrator dispatches to all agents ──
+    emit(500, { agent_id: "orchestrator", type: "agent_message", from: "orchestrator", to: "portfolio", title: "AnalyzePortfolio", description: "Analyze current holdings, sector allocation, and concentration risk", direction: "request" });
+    emit(600, { agent_id: "orchestrator", type: "agent_message", from: "orchestrator", to: "news", title: "FetchNews", description: "Fetch recent headlines and run sentiment analysis for portfolio tickers", direction: "request" });
+    emit(700, { agent_id: "orchestrator", type: "agent_message", from: "orchestrator", to: "modeling", title: "RunModel", description: "Compute risk metrics, Sharpe ratio, and generate trend analysis", direction: "request" });
+    emit(750, { agent_id: "orchestrator", type: "agent_message", from: "orchestrator", to: "alternatives", title: "AnalyzeAlternatives", description: "Fetch crypto prices and compute cross-correlations with portfolio", direction: "request" });
+
     // ── Phase 2: Portfolio Agent ──
     emit(800, { agent_id: "portfolio", type: "status", status: "working" });
     emit(1000, { agent_id: "portfolio", type: "thought", text: "Loading portfolio holdings — 12 positions across 6 sectors" });
@@ -45,6 +51,7 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
             portfolio_beta: 1.12,
         },
     });
+    emit(3300, { agent_id: "portfolio", type: "agent_message", from: "portfolio", to: "orchestrator", title: "PortfolioResponse", description: "Portfolio analysis complete: 12 positions, 42% tech concentration, beta 1.12", direction: "response" });
     emit(3400, { agent_id: "portfolio", type: "status", status: "done" });
 
     // ── Phase 3: News & Sentiment Agent ──
@@ -69,6 +76,7 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
             overall_sentiment: 0.29,
         },
     });
+    emit(4500, { agent_id: "news", type: "agent_message", from: "news", to: "orchestrator", title: "NewsResponse", description: "Sentiment analysis complete: 23 articles processed, overall sentiment +0.29", direction: "response" });
     emit(4600, { agent_id: "news", type: "status", status: "done" });
 
     // ── Phase 4: Modeling Agent ──
@@ -89,6 +97,7 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
             metrics: { r_squared: 0.74, max_drawdown: -0.087, beta: 1.12 },
         },
     });
+    emit(5300, { agent_id: "modeling", type: "agent_message", from: "modeling", to: "orchestrator", title: "ModelResponse", description: "Risk modeling complete: Sharpe 1.34, volatility 18.7%, max drawdown -8.7%", direction: "response" });
     emit(5400, { agent_id: "modeling", type: "status", status: "done" });
 
     // ── Phase 5: Alternatives Agent ──
@@ -105,6 +114,7 @@ export function startMockSSE(onEvent: (event: SSEEvent) => void): () => void {
             cross_correlations: { BTC: 0.12, ETH: 0.18, GOLD: -0.05, OIL: 0.08 },
         },
     });
+    emit(4900, { agent_id: "alternatives", type: "agent_message", from: "alternatives", to: "orchestrator", title: "AlternativesResponse", description: "Alt analysis complete: BTC correlation 0.12, providing diversification benefit", direction: "response" });
     emit(5000, { agent_id: "alternatives", type: "status", status: "done" });
 
     // ── Phase 6: Orchestrator synthesizes ──

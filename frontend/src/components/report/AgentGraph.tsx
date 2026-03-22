@@ -3,25 +3,28 @@ import { Brain, PieChart, Newspaper, TrendingUp, Bitcoin } from "lucide-react";
 import { useSwarm } from "../../context/SwarmContext";
 import { AGENTS } from "../../schemas/events";
 import type { AgentId } from "../../schemas/events";
+import type { AgentMessage } from "../../context/SwarmContext";
 
 const iconMap: Record<string, React.ReactNode> = {
-    brain: <Brain size={20} />,
-    "pie-chart": <PieChart size={20} />,
-    newspaper: <Newspaper size={20} />,
-    "trending-up": <TrendingUp size={20} />,
-    bitcoin: <Bitcoin size={20} />,
+    brain: <Brain size={18} />,
+    "pie-chart": <PieChart size={18} />,
+    newspaper: <Newspaper size={18} />,
+    "trending-up": <TrendingUp size={18} />,
+    bitcoin: <Bitcoin size={18} />,
 };
 
-const defaultPositions: Record<AgentId, { x: number; y: number }> = {
+const cardPositions: Record<AgentId, { x: number; y: number }> = {
     orchestrator: { x: 50, y: 50 },
-    portfolio: { x: 20, y: 22 },
-    news: { x: 78, y: 20 },
-    modeling: { x: 80, y: 78 },
-    alternatives: { x: 22, y: 80 },
+    portfolio: { x: 15, y: 18 },
+    news: { x: 85, y: 18 },
+    modeling: { x: 85, y: 82 },
+    alternatives: { x: 15, y: 82 },
 };
 
 interface EdgeHover {
-    agentId: AgentId;
+    from: AgentId;
+    to: AgentId;
+    message: AgentMessage;
     x: number;
     y: number;
 }
@@ -33,19 +36,37 @@ export default function AgentGraph(): JSX.Element {
 
     const agentList = AGENTS.filter((a) => a.id !== "orchestrator");
 
+    // Latest thought per agent (most recent first in state.thoughts)
     const latestThoughts = useMemo(() => {
-        const map: Partial<Record<AgentId, string>> = {};
+        const map: Partial<Record<AgentId, string[]>> = {};
         for (const t of state.thoughts) {
-            if (!map[t.agent_id]) map[t.agent_id] = t.text;
+            if (!map[t.agent_id]) map[t.agent_id] = [];
+            if (map[t.agent_id]!.length < 3) {
+                map[t.agent_id]!.push(t.text);
+            }
         }
         return map;
     }, [state.thoughts]);
 
-    const handleEdgeEnter = (agentId: AgentId, e: React.MouseEvent) => {
+    // Active connections: find the most recent message for each agent pair
+    const activeConnections = useMemo(() => {
+        const connections = new Map<string, AgentMessage>();
+        for (const msg of state.agentMessages) {
+            const key = [msg.from, msg.to].sort().join("-");
+            if (!connections.has(key)) {
+                connections.set(key, msg);
+            }
+        }
+        return connections;
+    }, [state.agentMessages]);
+
+    const handleEdgeEnter = (from: AgentId, to: AgentId, msg: AgentMessage, e: React.MouseEvent) => {
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         setEdgeHover({
-            agentId,
+            from,
+            to,
+            message: msg,
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
         });
@@ -65,7 +86,7 @@ export default function AgentGraph(): JSX.Element {
                 position: "relative",
             }}
         >
-            {/* SVG connection lines — viewBox 0 0 100 100 maps directly to % positions */}
+            {/* SVG connection lines */}
             <svg
                 width="100%"
                 height="100%"
@@ -74,14 +95,16 @@ export default function AgentGraph(): JSX.Element {
                 style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
             >
                 {agentList.map((agent) => {
-                    const from = defaultPositions.orchestrator;
-                    const to = defaultPositions[agent.id];
+                    const from = cardPositions.orchestrator;
+                    const to = cardPositions[agent.id];
+                    const key = ["orchestrator", agent.id].sort().join("-");
+                    const msg = activeConnections.get(key);
                     const isActive = state.agentStatuses[agent.id] === "working";
                     const isDone = state.agentStatuses[agent.id] === "done";
+                    const hasMessage = !!msg;
 
                     return (
                         <g key={agent.id}>
-                            {/* Hidden path for animateMotion reference */}
                             <path
                                 id={`path-${agent.id}`}
                                 d={`M${from.x},${from.y} L${to.x},${to.y}`}
@@ -89,28 +112,34 @@ export default function AgentGraph(): JSX.Element {
                                 stroke="none"
                             />
 
-                            {/* Visible edge line */}
                             <line
                                 x1={from.x} y1={from.y}
                                 x2={to.x} y2={to.y}
-                                stroke={isActive ? agent.color : isDone ? agent.color : "#d1d5db"}
-                                strokeWidth={isActive ? 2 : 1.5}
-                                strokeOpacity={isActive ? 0.9 : isDone ? 0.5 : 0.35}
+                                stroke={hasMessage || isActive ? agent.color : isDone ? agent.color : "#d1d5db"}
+                                strokeWidth={hasMessage || isActive ? 2 : 1.5}
+                                strokeOpacity={hasMessage || isActive ? 0.9 : isDone ? 0.5 : 0.25}
                                 strokeDasharray={isActive ? "8 4" : "6 6"}
                                 strokeLinecap="round"
                                 style={isActive ? { animation: "dashFlow 0.8s linear infinite" } : undefined}
                             />
 
                             {/* Invisible wider hit area for hover */}
-                            <line
-                                x1={from.x} y1={from.y}
-                                x2={to.x} y2={to.y}
-                                stroke="transparent"
-                                strokeWidth={12}
-                                style={{ pointerEvents: "stroke", cursor: "default" }}
-                                onMouseEnter={(e) => handleEdgeEnter(agent.id, e)}
-                                onMouseLeave={handleEdgeLeave}
-                            />
+                            {msg && (
+                                <line
+                                    x1={from.x} y1={from.y}
+                                    x2={to.x} y2={to.y}
+                                    stroke="transparent"
+                                    strokeWidth={12}
+                                    style={{ pointerEvents: "stroke", cursor: "default" }}
+                                    onMouseEnter={(e) => handleEdgeEnter(
+                                        msg.from,
+                                        msg.to,
+                                        msg,
+                                        e
+                                    )}
+                                    onMouseLeave={handleEdgeLeave}
+                                />
+                            )}
 
                             {/* Animated travelling dot */}
                             {isActive && (
@@ -125,120 +154,92 @@ export default function AgentGraph(): JSX.Element {
                 })}
             </svg>
 
-            {/* HTML Agent Nodes */}
+            {/* Agent Cards */}
             {AGENTS.map((agent, idx) => {
-                const pos = defaultPositions[agent.id];
+                const pos = cardPositions[agent.id];
                 const status = state.agentStatuses[agent.id];
                 const isOrch = agent.id === "orchestrator";
+                const thoughts = latestThoughts[agent.id];
 
                 return (
                     <div
                         key={agent.id}
-                        className={`agent-node agent-node-${agent.id} ${status === "working" ? "active" : ""} ${isOrch ? "orchestrator" : ""}`}
+                        className={`agent-card ${status === "working" ? "agent-card--active" : ""} ${status === "done" ? "agent-card--done" : ""} ${isOrch ? "agent-card--orchestrator" : ""}`}
                         style={{
                             left: `${pos.x}%`,
                             top: `${pos.y}%`,
                             transform: "translate(-50%, -50%)",
-                            cursor: "default",
                             zIndex: isOrch ? 5 : 2,
+                            borderColor: status === "working" || status === "done" ? agent.color : undefined,
                         }}
                     >
                         <div
-                            className="node-floater"
+                            className="agent-card__floater"
                             style={{ animationDelay: `${idx * -0.8}s` }}
                         >
-                            {isOrch ? (
-                                <>
-                                    <Brain
-                                        size={52}
-                                        strokeWidth={1.5}
-                                        style={{ color: "var(--accent)", filter: "drop-shadow(0 0 18px rgba(37,99,235,0.35))" }}
-                                    />
-                                    <span className="agent-node-label" style={{ color: "var(--accent)", fontWeight: 700 }}>
-                                        Orchestrator
-                                    </span>
-                                    {status === "done" && (
-                                        <span className="card-badge badge-green" style={{ fontSize: 9 }}>Complete</span>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    <div
-                                        className="agent-node-circle"
-                                        style={
-                                            status === "working"
-                                                ? { borderColor: agent.color, boxShadow: `0 0 20px ${agent.color}40`, color: agent.color }
-                                                : status === "done"
-                                                    ? { borderColor: agent.color, color: agent.color }
-                                                    : {}
-                                        }
-                                    >
-                                        {iconMap[agent.icon]}
-                                    </div>
-                                    <style>{`
-                                        .agent-node-${agent.id}:hover .agent-node-circle {
-                                            border-color: ${agent.color} !important;
-                                            color: ${agent.color} !important;
-                                            box-shadow: 0 0 20px ${agent.color}30;
-                                        }
-                                    `}</style>
-                                    <span className="agent-node-label">{agent.name}</span>
+                            {/* Header */}
+                            <div className="agent-card__header">
+                                <div
+                                    className="agent-card__icon"
+                                    style={{
+                                        color: status === "working" || status === "done" ? agent.color : undefined,
+                                        borderColor: status === "working" ? agent.color : undefined,
+                                        boxShadow: status === "working" ? `0 0 12px ${agent.color}30` : undefined,
+                                    }}
+                                >
+                                    {isOrch ? <Brain size={20} /> : iconMap[agent.icon]}
+                                </div>
+                                <div className="agent-card__title-group">
+                                    <span className="agent-card__name">{agent.name}</span>
                                     {status === "working" && (
                                         <span className="card-badge badge-amber" style={{ fontSize: 9 }}>Processing</span>
                                     )}
                                     {status === "done" && (
                                         <span className="card-badge badge-green" style={{ fontSize: 9 }}>Complete</span>
                                     )}
-                                    {latestThoughts[agent.id] && (
-                                        <div style={{
-                                            fontSize: 10,
-                                            color: "var(--text-tertiary)",
-                                            maxWidth: 120,
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                            marginTop: 4,
-                                            fontStyle: "italic",
-                                        }}>
-                                            {latestThoughts[agent.id]!.length > 60
-                                                ? latestThoughts[agent.id]!.slice(0, 60) + "..."
-                                                : latestThoughts[agent.id]}
+                                </div>
+                            </div>
+
+                            {/* Thought output - codeblock style */}
+                            {thoughts && thoughts.length > 0 && (
+                                <div className="agent-card__output">
+                                    {thoughts.map((text, i) => (
+                                        <div key={i} className="agent-card__output-line">
+                                            <span className="agent-card__output-prefix">{">"}</span>
+                                            {text}
                                         </div>
-                                    )}
-                                </>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </div>
                 );
             })}
 
-            {/* Edge hover tooltip */}
+            {/* Edge hover tooltip - shows message info */}
             {edgeHover && (() => {
-                const agent = AGENTS.find((a) => a.id === edgeHover.agentId);
-                const thought = latestThoughts[edgeHover.agentId];
+                const fromAgent = AGENTS.find((a) => a.id === edgeHover.from);
+                const toAgent = AGENTS.find((a) => a.id === edgeHover.to);
+                const msg = edgeHover.message;
                 return (
                     <div
+                        className="agent-edge-tooltip"
                         style={{
-                            position: "absolute",
-                            left: edgeHover.x + 8,
-                            top: edgeHover.y - 8,
-                            background: "var(--bg-card)",
-                            border: "1px solid var(--border-default)",
-                            borderRadius: "var(--radius-sm)",
-                            padding: "8px 12px",
-                            fontSize: 12,
-                            maxWidth: 220,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                            zIndex: 30,
-                            pointerEvents: "none",
+                            left: edgeHover.x + 12,
+                            top: edgeHover.y - 12,
                         }}
                     >
-                        <div style={{ fontWeight: 600, marginBottom: 4 }}>{agent?.name}</div>
-                        <div style={{ color: "var(--text-secondary)" }}>
-                            {thought
-                                ? (thought.length > 80 ? thought.slice(0, 80) + "..." : thought)
-                                : "Waiting..."}
+                        <div className="agent-edge-tooltip__route">
+                            <span style={{ color: fromAgent?.color }}>{fromAgent?.name}</span>
+                            <span className="agent-edge-tooltip__arrow">
+                                {msg.direction === "request" ? "->" : "<-"}
+                            </span>
+                            <span style={{ color: toAgent?.color }}>{toAgent?.name}</span>
                         </div>
+                        <div className="agent-edge-tooltip__title">{msg.title}</div>
+                        {msg.description && (
+                            <div className="agent-edge-tooltip__desc">{msg.description}</div>
+                        )}
                     </div>
                 );
             })()}

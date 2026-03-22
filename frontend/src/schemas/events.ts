@@ -116,6 +116,21 @@ export const SwarmHealthEvent = z.object({
 });
 export type SwarmHealthEvent = z.infer<typeof SwarmHealthEvent>;
 
+/** Agent-to-agent message */
+export const MessageDirection = z.enum(["request", "response"]);
+export type MessageDirection = z.infer<typeof MessageDirection>;
+
+export const AgentMessageEvent = z.object({
+  agent_id: AgentId,
+  type: z.literal("agent_message"),
+  from: AgentId,
+  to: AgentId,
+  title: z.string(),
+  description: z.string(),
+  direction: MessageDirection,
+});
+export type AgentMessageEvent = z.infer<typeof AgentMessageEvent>;
+
 /** Union of all SSE events */
 export const SSEEvent = z.discriminatedUnion("type", [
   StatusEvent,
@@ -123,6 +138,7 @@ export const SSEEvent = z.discriminatedUnion("type", [
   ReportSectionEvent,
   ChatTokenEvent,
   SwarmHealthEvent,
+  AgentMessageEvent,
 ]);
 export type SSEEvent = z.infer<typeof SSEEvent>;
 
